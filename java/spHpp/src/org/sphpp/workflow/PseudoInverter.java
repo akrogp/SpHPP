@@ -25,27 +25,24 @@ public class PseudoInverter extends TsvModule {
 	public PseudoInverter() {
 		super(false,"Generates decoys using pseudo-reverse strategy with trypsin and proline rule.");
 		
-		Argument arg = new Argument(OPT_TARGET, 't', "target");
+		Argument arg = new Argument(OPT_TARGET, 't', "target", false);
 		arg.setParam("target.fasta");
 		arg.setDescription("input fasta file with target sequences");
 		addOption(arg);
 		
-		arg = new Argument(OPT_DECOY, 'd', "decoy");
+		arg = new Argument(OPT_DECOY, 'd', "decoy", true);
 		arg.setParam("decoy.fasta");
 		arg.setDescription("output fasta file with decoy sequences");
-		arg.setOptional();
 		addOption(arg);
 		
-		arg = new Argument(OPT_CONCAT, 'c', "concat");
+		arg = new Argument(OPT_CONCAT, 'c', "concat", true);
 		arg.setParam("concat.fasta");
 		arg.setDescription("output fasta file with concatenated target and decoy sequences");
-		arg.setOptional();
 		addOption(arg);
 		
-		arg = new Argument(OPT_PREFIX, 'p', "prefix");
+		arg = new Argument(OPT_PREFIX, 'p', "prefix", true);
 		arg.setParam("prefix");
 		arg.setDescription("prefix to be added to decoy entries, default is '-prefix'");
-		arg.setOptional();
 		addOption(arg);
 	}
 	
