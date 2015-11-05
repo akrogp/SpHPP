@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:body>
+	<ui:composition template="./template.xhtml">
+		<ui:define name="title">SpHPP Missing Proteins Matcher</ui:define>
+		<ui:define name="htmlhead">
+			<meta name="description" content="SpHPP Missing Proteins Matcher"/>
+		</ui:define>
+		<ui:define name="content">
+		<h:form enctype="multipart/form-data">
+			<p:panelGrid columns="1">			
+				<f:facet name="header">Welcome to SpHPP missing proteins matcher (v#{missingBean.version})</f:facet>
+				<p>Enter or paste an UniProt/neXtProt accession list separated by any of spaces, tab, ',', ':', ';'
+				or in different lines and then click on the Search button.</p>
+				<h:panelGroup>
+					<p:commandButton value="Search" action="#{missingBean.search}" ajax="false"/>
+					&nbsp;<p:selectBooleanCheckbox itemLabel="Show missing first" value="#{missingBean.sortProteins}"/>
+					<h:outputText rendered="#{missingBean.error != null}" value=" #{missingBean.error}" style="color:red"/>
+				</h:panelGroup>
+				<p:inputTextarea value="#{missingBean.inputAccessions}" rows="10" cols="80"/>
+			</p:panelGrid>			
+		</h:form>			
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

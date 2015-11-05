@@ -1,0 +1,121 @@
+@CHARSET "UTF-8";
+
+/* General HTML tags */
+html,
+body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	font-family: verdana;
+	background-color: #fff;   
+}
+
+p, ul, ol{
+	margin: 0;
+	padding: 0 0 18px 0;
+}
+
+a, a:visited {
+	text-decoration: none;
+}
+
+img { 
+	border: 0;
+}
+
+/* Page template */
+#container {
+	height: 100%;
+	min-height: 100%;
+	position: relative;
+}
+
+#titlebar {
+	background: rgb(0,0,0);
+	height: 78px;
+	width: 100%;	
+}
+
+#menubar {
+	background: #5b5b5b;
+	padding: 3px 10px;
+	font-size: 14px;
+	color: white;
+	text-decoration: none;
+}
+
+#body {
+	padding: 10px;
+	padding-top: 14px;
+	padding-bottom: 14px;   /* Height of the footer */   
+}
+
+#footer {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	height: 14px;
+	background: #5b5b5b;
+	font-size: 10px;
+	color: white;
+	text-decoration: none;
+	font-style : italic;
+}
+
+/* PrimeFaces */
+.ui-button-text {
+	display:none;
+}
+
+.ui-widget, .ui-widget .ui-widget {
+	font-size: 14px !important;
+}
+
+.ui-datalist-content {
+	border: none;
+	list-style-position: inside;
+}
+
+/* Icons */
+div.ok {
+	content: url(/resources/images/ok.png);
+}
+
+div.ko {
+	content: url(/resources/images/ko.png);
+}
+
+div.trash {
+	content: url(/resources/images/trash.png);
+}
+
+div.recycle {
+	content: url(/resources/images/recycle.png);
+}
+
+/* Training */
+.trn_name {	
+}
+.trn_pos {
+	width: 40px;
+	text-align: right;
+}
+.trn_seq {
+	width: 300px;
+	white-space: nowrap;
+  	overflow: hidden;
+  	text-overflow: ellipsis;
+  	display: inline-block;
+  	text-align: left;
+}
+.trn_weight {
+	width: 50px;
+	text-align: right;
+}
+.trn_regex {
+	width: 700px;
+}
+
+.cfg_header {
+	text-align: left;
+}

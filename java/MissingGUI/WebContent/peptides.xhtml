@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:body>
+	<ui:composition template="./template.xhtml">
+		<ui:define name="title">Peptides for #{missingBean.selProtein.accession}</ui:define>
+		<ui:define name="htmlhead">
+			<meta name="description" content="SpHPP missing proteins matcher"/>
+		</ui:define>
+		<ui:define name="content">
+		<h:form enctype="multipart/form-data">
+			<p:panelGrid columns="1">
+				<f:facet name="header">Peptides for #{missingBean.selProtein.accession} based on neXtProt (release <h:outputText value="#{missingBean.nxVersion}"/>) and SpHPP shotgun data (release <h:outputText value="#{missingBean.spHppVersion}"/>) - Horizontal scroll shows more fields and vertical scroll (live) downloads more results</f:facet>
+				<h:panelGroup>
+					<p:commandButton value="Download results" actionListener="#{missingBean.downloadPeptides}" ajax="false" rendered="#{missingBean.error == null and !missingBean.emptyPeptides}"/>
+					<p:commandButton value="Return to protein list" action="proteins" ajax="false"/>
+					<p:commandButton value="Return home" action="home"/>
+					<p:commandButton value="New search" action="#{missingBean.closeSession}" ajax="false"/>
+				</h:panelGroup>
+				<h:outputText value="#{missingBean.peptideCount}"/>
+				<p:dataTable value="#{missingBean.peptides}" var="peptide" rowIndexVar="row" rendered="#{missingBean.error == null}"
+					resizableColumns="true" liveResize="true" scrollable="true" scrollHeight="500" liveScroll="true" scrollRows="40">					
+					<p:column width="50" style="text-align:center;">
+                        <f:facet name="header">#</f:facet>
+                        <h:outputText value="#{row + 1}"/>
+                    </p:column>
+					<p:column width="80">
+						<f:facet name="header">Code</f:facet>
+						<h:outputText value="#{peptide.code}"/>
+					</p:column>
+					<p:column width="200">
+						<f:facet name="header">Sequence</f:facet>
+						<h:outputText value="#{peptide.sequence}"/>
+					</p:column>
+					<p:column width="50" style="text-align:center">
+						<f:facet name="header">Unique</f:facet>
+						<h:outputText value="#{peptide.unique}"/>
+					</p:column>
+					<p:column width="50" style="text-align:center">
+						<f:facet name="header">Unique*</f:facet>
+						<h:outputText value="#{peptide.uniqueRelaxed}"/>
+					</p:column>
+					<p:column width="200">
+						<f:facet name="header">Proteins</f:facet>
+						<h:outputText value="#{peptide.accessions}"/>
+					</p:column>
+					<p:column width="50">
+						<f:facet name="header">Mascot<br/>Score</f:facet>
+						<h:outputText value="#{peptide.mascotScore}"/>
+					</p:column>
+					<p:column width="80">
+						<f:facet name="header">Mascot<br/>Expectation</f:facet>
+						<h:outputText value="#{peptide.mascotExpectation}"/>
+					</p:column>
+					<p:column width="80" style="text-align:center">
+						<f:facet name="header">Charge</f:facet>
+						<h:outputText value="#{peptide.charges}"/>
+					</p:column>
+					<p:column width="80">
+						<f:facet name="header">m/z<br/>(calc)</f:facet>
+						<h:outputText value="#{peptide.mzCalc}"/>
+					</p:column>
+					<p:column width="80">
+						<f:facet name="header">m/z<br/>(exp)</f:facet>
+						<h:outputText value="#{peptide.mzExp}"/>
+					</p:column>
+					<p:column width="100">
+						<f:facet name="header">Retention Time</f:facet>
+						<h:outputText value="#{peptide.rt}"/>
+					</p:column>
+					<p:column width="80">
+						<f:facet name="header">Ocurrence</f:facet>
+						<h:outputText value="#{peptide.ocurrence}"/>
+					</p:column>
+					<p:column width="400">
+						<f:facet name="header">Modifs</f:facet>
+						<h:outputText value="#{peptide.modifs}"/>
+					</p:column>
+					<p:column width="400">
+						<f:facet name="header">Modif.<br/>Sequence</f:facet>
+						<h:outputText value="#{peptide.modifSeq}"/>
+					</p:column>					
+					<p:column width="400">
+						<f:facet name="header">Experiments</f:facet>
+						<h:outputText value="#{peptide.experiments}"/>
+					</p:column>
+					<p:column width="400">
+						<f:facet name="header">fr/band/rep</f:facet>
+						<h:outputText value="#{peptide.rep}"/>
+					</p:column>
+					<p:column width="100">
+						<f:facet name="header">Researcher</f:facet>
+						<h:outputText value="#{peptide.researcher}"/>
+					</p:column>
+				</p:dataTable>
+				<h:outputText rendered="#{missingBean.error != null}" value="#{missingBean.error}" style="color:red"/>
+			</p:panelGrid>
+		</h:form>			
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

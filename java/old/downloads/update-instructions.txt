@@ -1,0 +1,7 @@
+1. Download HUMAN.fasta from UniProt -> ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/proteomes/HUMAN.fasta.gz
+2. Obtain IDs with get_ids.sh
+3. Obtain picr.xls for previous IDs selecting only Ensembl (and deselecting "Return only active mappings")
+4. Update version numbers in FastaDBApp.java
+5. svn
+6. Backup previous data (/home/www/hpp)
+7. Run update_fasta.sh

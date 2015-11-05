@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+    <system systemId="http://www.ebi.ac.uk/Tools/picr/service?wsdl" uri="wsdl/www.ebi.ac.uk/Tools/picr/service.wsdl"/>
+    <system systemId="http://central.biomart.org/martsoap?wsdl" uri="wsdl/central.biomart.org/martsoap.wsdl"/>
+    <system systemId="http://central.biomart.org:80/martsoap?xsd=1" uri="wsdl/central.biomart.org_80/martsoap.xsd_1.xsd"/>
+    <system systemId="http://dec2011.archive.ensembl.org/biomart/martwsdl" uri="wsdl/dec2011.archive.ensembl.org/biomart/martwsdl"/>
+    <system systemId="file:/home/gorka/MyProjects/S-CHPP/java/downloads/ensembl-v65.wsdl" uri="wsdl/ensembl-v65.wsdl"/>
+    <system systemId="file:/home/gorka/MyProjects/S-CHPP/java/downloads/ensembl-v65.xsd" uri="wsdl/ensembl-v65.xsd"/>
+    <system systemId="file:/home/gorka/biomart.wsdl" uri="wsdl/biomart.wsdl"/>
+    <system systemId="file:/home/gorka/biomart.xsd" uri="wsdl/biomart.xsd"/>
+    <system systemId="http://www.biomart.org/biomart/martwsdl" uri="wsdl/www.biomart.org/biomart/martwsdl.wsdl"/>
+    <system systemId="http://www.biomart.org/biomart/martxsd" uri="wsdl/www.biomart.org/biomart/martxsd.xsd"/>
+    <system systemId="file:/home/gorka/MyProjects/S-CHPP/java/downloads/ensembl.wsdl" uri="wsdl/ensembl.wsdl"/>
+    <system systemId="file:/home/gorka/MyProjects/S-CHPP/java/downloads/ensembl.xsd" uri="wsdl/ensembl.xsd"/>
+</catalog>

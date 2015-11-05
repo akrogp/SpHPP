@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:body>
+	<ui:composition template="./template.xhtml">
+		<ui:define name="title">Proteins Matched</ui:define>
+		<ui:define name="content">
+		<h:form enctype="multipart/form-data">
+			<p:panelGrid columns="1">
+				<f:facet name="header">Protein results based on neXtProt (release <h:outputText value="#{missingBean.nxVersion}"/>) and SpHPP shotgun data (<h:outputText value="#{missingBean.spHppVersion}"/>) - Horizontal scroll shows more fields and vertical scroll (live) downloads more results</f:facet>
+				<h:panelGroup>
+					<p:commandButton value="Download results" actionListener="#{missingBean.downloadProteins}" ajax="false" rendered="#{missingBean.error == null and !missingBean.emptyProteins}"/>
+					<p:commandButton value="Return home" action="home"/>
+					<p:commandButton value="New search" action="#{missingBean.closeSession}" ajax="false"/>
+				</h:panelGroup>
+				<h:outputText value="#{missingBean.proteinCount}. Left click on accessions for peptide details!"/>
+				<p:dataTable value="#{missingBean.proteins}" var="protein" rowIndexVar="row" rendered="#{missingBean.error == null}"
+					resizableColumns="true" liveResize="true" scrollable="true" scrollHeight="500" liveScroll="true" scrollRows="40">					
+					<p:column width="50" style="text-align:center;">
+                        <f:facet name="header">#</f:facet>
+                        <h:outputText value="#{row + 1}"/>
+                    </p:column>
+					<p:column width="100">
+						<f:facet name="header">Accession</f:facet>
+						<p:commandLink action="#{missingBean.showPeptides(protein)}" ajax="false">
+						<h:outputText value="#{protein.accession}"/>
+						</p:commandLink>
+					</p:column>
+					<p:column width="100">
+						<f:facet name="header">Gene</f:facet>
+						<h:outputText value="#{protein.geneName}"/>
+					</p:column>
+					<p:column width="200">
+						<f:facet name="header">ENSGs</f:facet>
+						<h:outputText value="#{protein.ensg}"/>
+					</p:column>
+					<p:column width="100" style="text-align:center">
+						<f:facet name="header">Chromosome</f:facet>
+						<h:outputText value="#{protein.chr}"/>
+					</p:column>
+					<p:column width="80" style="text-align:center">
+						<f:facet name="header">Evidence</f:facet>
+						<h:outputText value="#{protein.proteinEvidence}"/>
+					</p:column>
+					<p:column width="80" style="text-align:center">
+						<f:facet name="header">Missing</f:facet>
+						<h:outputText value="#{protein.missing}"/>
+					</p:column>
+					<p:column width="100" style="text-align:center">
+						<f:facet name="header">Proteomics<br/>neXtProt</f:facet>
+						<h:outputText value="#{protein.proteomicsNextprot}"/>
+					</p:column>
+					<p:column width="50" style="text-align:center">
+						<f:facet name="header">HPA</f:facet>
+						<h:outputText value="#{protein.hpa}"/>
+					</p:column>
+					<p:column width="100" style="text-align:center">
+						<f:facet name="header">ProteomicsDB</f:facet>
+						<h:outputText value="#{protein.proteomicsDb}"/>
+					</p:column>
+					<p:column width="80" style="text-align:center">
+						<f:facet name="header">NAPPA</f:facet>
+						<h:outputText value="#{protein.nappa}"/>
+					</p:column>
+					<p:column width="80" style="text-align:center">
+						<f:facet name="header">JPR2<br/>Missing</f:facet>
+						<h:outputText value="#{protein.jpr2Missing}"/>
+					</p:column>
+					<p:column width="80" style="text-align:center">
+						<f:facet name="header">MRM<br/>Validated</f:facet>
+						<h:outputText value="#{protein.mrmValidated}"/>
+					</p:column>
+					<p:column width="80" style="text-align:center">
+						<f:facet name="header">CCD18</f:facet>
+						<h:outputText value="#{protein.getLine('CCD18')}"/>		
+					</p:column>
+					<p:column width="80" style="text-align:center">
+						<f:facet name="header">MCF7</f:facet>
+						<h:outputText value="#{protein.getLine('MCF7')}"/>		
+					</p:column>
+					<p:column width="80" style="text-align:center">
+						<f:facet name="header">RAMOS</f:facet>
+						<h:outputText value="#{protein.getLine('RAMOS')}"/>		
+					</p:column>
+					<p:column width="80" style="text-align:center">
+						<f:facet name="header">JURKAT</f:facet>
+						<h:outputText value="#{protein.getLine('JURKAT')}"/>		
+					</p:column>
+					<p:column width="80" style="text-align:center">
+						<f:facet name="header">SpHPP<br/>Status</f:facet>
+						<h:outputText value="#{protein.shotgunStatus}"/>
+					</p:column>
+					<p:column width="80" style="text-align:center">
+						<f:facet name="header">SpHPP<br/>Peptides</f:facet>
+						<p:commandLink action="#{missingBean.showPeptides(protein)}" ajax="false">
+						<h:outputText value="#{protein.peptideCount}"/>
+						</p:commandLink>
+					</p:column>
+				</p:dataTable>				
+			</p:panelGrid>
+		</h:form>			
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

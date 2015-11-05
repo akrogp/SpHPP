@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load pages_tags mezzanine_tags i18n %}
+
+{% block meta_title %}FASTA DataBase Files{% endblock %}
+
+{% block meta_keywords %}
+	{% metablock %}
+	{% endmetablock %}
+{% endblock %}
+
+{% block meta_description %}
+	{% metablock %}
+	{% endmetablock %}
+{% endblock %}
+
+{% block title %}
+	FASTA DataBase Files
+{% endblock %}
+
+{% block breadcrumb_menu %}
+	<li><a href="/">{% trans "Home" %}</a><span class="divider">/</span></li>
+    <li><a href="/intranet/">{% trans "Intranet" %}</a><span class="divider">/</span></li>
+    <li><a href="/intranet/tools-guides/">{% trans "Tools & Guides" %}</a><span class="divider">/</span></li>
+	<li class="active">FASTA DBs</li>
+{% endblock %}
+
+{% block main %}
+  <h3>Downloadable FASTA formated DataBase files</h3>
+  <br />
+  <table style=" width: 90%; text-align: center; margin-left:
+    auto; margin-right: auto;" border="1" cellpadding="1"
+    cellspacing="0">
+    <thead>
+      <tr>
+        <th colspan="1" rowspan="2" scope="row"> &nbsp; </th>
+        <th colspan="3" rowspan="1" scope="col">
+            Human All</th>
+      </tr>
+      <tr>
+        <th scope="col">
+            #Entries</th>
+        <th scope="col">
+            Target</th>
+        <th scope="col">
+            Target+<br />
+            Decoy</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row"
+          title="UniProt/SwissProt entries with chromosome annotations from neXtProt (release {{ uniprot.rel }})">
+          UniProt/<br />
+          Swiss-Prot<br />
+          <span style="font-weight: normal;">({{ uniprot.rel }})</span></th>
+        <td>{{ uniprot.sprot_all }}<br />
+        </td>
+        <td><a
+            href="/downloads/uniprot_sprot_human.fasta"
+            type="chemical/seq-aa-fasta" 
+            target="_blank" title="{{ uniprot.sprot_all }} entries" 
+            download="uniprot_sprot_human.fasta">
+            <img
+              alt="Fasta" src="{{ STATIC_URL }}fasta.png" style="width:
+              30px; height: 30px;"></a><a
+            href="/downloads/uniprot_sprot_human.fasta.gz"
+            title="{{ uniprot.sprot_all }} entries"><img alt="Gzip"
+              src="{{ STATIC_URL }}zip.png" style="width: 30px;
+              height: 30px;"></a></td>
+        <td style="text-align: center;"> <a
+            href="/downloads/uniprot_sprot_human_target_decoy.fasta"
+            type="chemical/seq-aa-fasta" 
+            target="_blank" title="{{ uniprot.sprot_allx2 }} target+decoy entries" 
+            download="uniprot_sprot_human_target_decoy.fasta">
+            <img alt="Fasta" src="{{ STATIC_URL }}fasta.png"
+              style="width: 30px; height: 30px;"></a><a
+            href="/downloads/uniprot_sprot_human_target_decoy.fasta.gz"
+            title="{{ uniprot.sprot_allx2 }} target+decoy entries"><img alt="Gzip"
+              src="{{ STATIC_URL }}zip.png" style="width: 30px;
+              height: 30px;"></a></td>
+    </tbody>
+  </table>
+  <br />
+  <h4>Information about FASTA DataBases used:</h4>
+  <ul>
+  	<li><em><a href="http://www.nextprot.org/" target="_blank">NextProt</a>:</em>
+      <ul>
+        <li>Release: {{ nextprot.rel }}</li>
+      </ul>
+  	</li>
+  	<li><em><a href="http://www.uniprot.org/" target="_blank">UniProtKB</a>:</em>
+  	  <ul>
+  		<li>Release: {{ uniprot.rel }}</li>
+  	  </ul>
+  	</li>
+  </ul>
+  <h3>Regular Expressions (parse rules) for search engines</h3>
+  <p>The following regular expressions (or parse rules) are Ok for all FASTA DataBases availables on this web-page:</p>
+  <ul>
+    <li><b>Accession</b> from Fasta title: <pre>>..|\([^|]*\)</pre></li>
+    <li><b>Description</b> from Fasta title: <pre>>..|[^|]*|\(.*\)</pre></li>
+  </ul>
+  <p>Example of using those regular expressions with the MASCOT search engine:</p>
+  <center><img src="{{ STATIC_URL }}mascot_parse_rules.jpg" /></center>
+{% endblock %}

@@ -1,0 +1,201 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.schpp</groupId>
+  <artifactId>schpp</artifactId>
+  <version>0.1.0</version>
+  <packaging>jar</packaging>
+
+  <name>S-CHPP</name>
+  <url>http://maven.apache.org</url>
+  <build>
+    <resources>
+      <resource>
+        <targetPath>META-INF</targetPath>
+        <directory>src</directory>
+        <includes>
+          <include>jax-ws-catalog.xml</include>
+          <include>wsdl/**</include>
+        </includes>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.5.1</version>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.dstovall</groupId>
+            <artifactId>onejar-maven-plugin</artifactId>
+            <version>1.4.4</version>
+            <executions>
+                    <execution>
+                        <configuration>
+                            <!--<mainClass>org.schpp.db.FastaDBApp</mainClass>-->
+                            <mainClass>org.schpp.db.UP2Ens</mainClass>
+                            <!--<mainClass>org.schpp.inference.PAnalyzer</mainClass>-->
+                            <!--<mainClass>org.schpp.db.UniProt</mainClass>-->
+                            <!-- Optional, default is false -->
+                            <attachToBuild>true</attachToBuild>
+                            <!-- Optional, default is "onejar" -->
+                            <classifier>onejar</classifier>
+                        </configuration>
+                        <goals>
+                            <goal>one-jar</goal>
+                        </goals>
+                    </execution>
+            </executions>
+      </plugin>      
+    </plugins>
+  </build>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <!--
+    <dependency>
+        <groupId>org.biomart</groupId>
+        <artifactId>biomart</artifactId>
+        <version>0.1</version>
+        <scope>system</scope>
+        <systemPath>${project.basedir}/lib/biomart.jar</systemPath>
+    </dependency>
+    -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.xml.ws</groupId>
+      <artifactId>webservices-rt</artifactId>
+      <version>1.4</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+	<groupId>net.sourceforge.jexcelapi</groupId>
+	<artifactId>jxl</artifactId>
+	<version>2.6.12</version>
+    </dependency>
+    <dependency>
+      <groupId>org.proteored.miape.api</groupId>
+      <artifactId>miape-api</artifactId>
+      <version>1.8.9-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+        <groupId>org.proteored.miape.api.thirdparty</groupId>
+        <artifactId>saxdomix</artifactId>
+        <version>1.0</version>
+    </dependency>
+    <dependency>
+        <groupId>org.proteored.miape.api.thirdparty</groupId>
+        <artifactId>xml-apis</artifactId>
+        <version>1.0</version>
+    </dependency>
+    <dependency>
+        <groupId>org.proteored.miape.api.thirdparty</groupId>
+        <artifactId>soap</artifactId>
+        <version>1.0</version>
+    </dependency>
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <id>internal</id>
+      <name>ProteoRed Internal Repository</name>
+      <url>http://proteo.cnb.csic.es:8081/archiva/repository/internal/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+        <id>snapshots</id>
+        <name>ProteoRed Snapshot Repository</name>
+        <url>http://proteo.cnb.csic.es:8081/archiva/repository/snapshots/</url>
+        <releases>
+            <enabled>false</enabled>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+    <repository>
+        <id>genesis-maven-repository</id>
+        <name>Genesis repository</name>
+        <url>http://genesis.UGent.be/maven</url>
+        <layout>default</layout>
+    </repository>
+    <!--<repository>
+        <id>genesis-maven2-repository</id>
+        <name>Genesis maven2 repository</name>
+        <url>http://genesis.UGent.be/maven2</url>
+        <layout>default</layout>
+    </repository>-->
+    <!--<repository>
+        <id>JBoss</id>
+        <name>JBoss repository</name>
+        <url>https://repository.jboss.org/nexus/content/repositories/releases/</url>
+    </repository>-->
+    <!--
+    <repository>
+        <id>developer</id>
+        <name>ArkDB</name>
+        <releases>
+            <enabled>true</enabled>
+            <checksumPolicy>ignore</checksumPolicy>
+        </releases>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+        <url>http://jensembl.sourceforge.net/m2-repo</url>
+        <layout>default</layout>
+    </repository>  
+    <repository>
+        <id>biojava-maven-repo</id>
+        <name>BioJava repository</name>
+        <url>http://www.biojava.org/download/maven/</url>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+        <releases>
+            <enabled>true</enabled>
+            <checksumPolicy>ignore</checksumPolicy>
+        </releases>
+    </repository>
+    <repository>
+        <id>central</id>
+        <name>Central Repository</name>
+        <url>http://repo1.maven.org/maven2</url>			
+    </repository>
+    <repository>
+        <id>maven2-repository.dev.java.net</id>
+        <name>Java.net Repository for Maven 2</name>
+        <url>http://download.java.net/maven/2/</url>			
+    </repository>                
+    <repository>
+        <id>mc-release</id>
+        <name>Google Code Repo</name>
+        <url>http://mc-repo.googlecode.com/svn/maven2/releases</url>				
+    </repository>
+    -->
+  </repositories>
+  
+  <pluginRepositories>
+    <pluginRepository>
+        <id>onejar-maven-plugin.googlecode.com</id>
+        <url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+</project>
