@@ -9,7 +9,6 @@ import java.util.logging.Logger;
 
 import org.apache.commons.io.IOUtils;
 
-import es.ehubio.Strings;
 import es.ehubio.cli.Argument;
 import es.ehubio.db.fasta.Fasta.InvalidSequenceException;
 import es.ehubio.io.Streams;
@@ -20,10 +19,9 @@ import es.ehubio.proteomics.pipeline.DecoyDb.Strategy;
 public class PseudoInverter extends TsvModule {	
 	private final static Logger logger = Logger.getLogger(PseudoInverter.class.getName());
 	private static final int OPT_TARGET = OPT_BASE+1;
-	private static final int OPT_DECOY = OPT_TARGET+1;
-	private static final int OPT_CONCAT = OPT_DECOY+1;
-	private static final int OPT_PREFIX = OPT_CONCAT+1;
-	private static final int OPT_ENZYME = OPT_PREFIX+1;
+	private static final int OPT_DECOY = OPT_BASE+2;
+	private static final int OPT_CONCAT = OPT_BASE+3;
+	private static final int OPT_PREFIX = OPT_BASE+4;
 	
 	public static void main( String[] args ) throws Exception {
 		new PseudoInverter().run(args);
@@ -53,18 +51,14 @@ public class PseudoInverter extends TsvModule {
 		arg.setDefaultValue("decoy-");
 		addOption(arg);
 		
-		arg = new Argument(OPT_ENZYME, 'e', "enzyme");
-		arg.setChoices(Strings.fromArray(Enzyme.values()));
-		arg.setDescription("Enzyme used for digestion.");
-		arg.setDefaultValue(Enzyme.TRYPSIN.toString());
-		addOption(arg);
+		addOption(Arguments.getEnzyme());
 	}
 	
 	@Override
 	protected void run(List<Argument> args) throws Exception {		
 		run(
 			getValue(OPT_TARGET), getValue(OPT_DECOY), getValue(OPT_CONCAT),
-			getValue(OPT_PREFIX), Enzyme.valueOf(getValue(OPT_ENZYME))
+			getValue(OPT_PREFIX), Enzyme.valueOf(getValue(Arguments.OPT_ENZYME))
 		);
 	}
 	

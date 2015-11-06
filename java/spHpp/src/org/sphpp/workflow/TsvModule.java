@@ -70,8 +70,16 @@ public abstract class TsvModule {
 		return args.getArgument(id);
 	}
 	
+	protected boolean hasArgument( int id ) {
+		return args.hasArgument(id);
+	}
+	
 	protected String getValue( int id ) {
 		return args.getValue(id);
+	}
+	
+	protected Integer getIntValue( int id ) {
+		return args.getIntValue(id);
 	}
 	
 	protected abstract void run( List<Argument> args ) throws Exception;
