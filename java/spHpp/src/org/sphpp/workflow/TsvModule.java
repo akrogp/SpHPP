@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
+import es.ehubio.cli.ArgException;
 import es.ehubio.cli.ArgParser;
 import es.ehubio.cli.Argument;
-import es.ehubio.cli.ArgException;
 import es.ehubio.io.CsvReader;
 
 public abstract class TsvModule {	
@@ -20,7 +20,7 @@ public abstract class TsvModule {
 		args = new ArgParser(getClass().getSimpleName(), description);
 		if( discard ) {
 			Argument opt = new Argument(OPT_DISCARD,null,"discard");
-			opt.setParam("expression");
+			opt.setParamName("expression");
 			opt.setDescription("discards lines from TSV input(s) containing the given expression");
 			opt.setOptional(true);
 			args.addOption(opt);
@@ -50,7 +50,7 @@ public abstract class TsvModule {
 			Argument discard = this.args.getArgument(OPT_DISCARD);
 			if( discard != null ) {
 				opts.remove(discard);
-				this.discard = discard.getParam();
+				this.discard = discard.getValue();
 			}						
 			run(opts);
 			logger.info("Finished successfully!!");
@@ -68,6 +68,10 @@ public abstract class TsvModule {
 	
 	protected Argument getArgument( int id ) {
 		return args.getArgument(id);
+	}
+	
+	protected String getValue( int id ) {
+		return args.getValue(id);
 	}
 	
 	protected abstract void run( List<Argument> args ) throws Exception;
