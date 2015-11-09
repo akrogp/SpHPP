@@ -16,19 +16,19 @@ import es.ehubio.proteomics.Enzyme;
 import es.ehubio.proteomics.pipeline.DecoyDb;
 import es.ehubio.proteomics.pipeline.DecoyDb.Strategy;
 
-public class PseudoInverter extends TsvModule {	
+public class PseudoInverter extends WorkflowModule {	
 	private final static Logger logger = Logger.getLogger(PseudoInverter.class.getName());
-	private static final int OPT_TARGET = OPT_BASE+1;
-	private static final int OPT_DECOY = OPT_BASE+2;
-	private static final int OPT_CONCAT = OPT_BASE+3;
-	private static final int OPT_PREFIX = OPT_BASE+4;
+	private static final int OPT_TARGET = 1;
+	private static final int OPT_DECOY = 2;
+	private static final int OPT_CONCAT = 3;
+	private static final int OPT_PREFIX = 4;
 	
 	public static void main( String[] args ) throws Exception {
 		new PseudoInverter().run(args);
 	}
 	
 	public PseudoInverter() {
-		super(false,"Generates decoys using pseudo-reverse strategy with trypsin and proline rule.");
+		super("Generates decoys using pseudo-reverse strategy with trypsin and proline rule.");
 		
 		Argument arg = new Argument(OPT_TARGET, 't', "target");
 		arg.setParamName("target.fasta");
@@ -62,7 +62,7 @@ public class PseudoInverter extends TsvModule {
 		);
 	}
 	
-	public void run( String target, String decoy, String concat, String prefix, Enzyme enzyme ) throws FileNotFoundException, IOException, InvalidSequenceException {
+	public static void run( String target, String decoy, String concat, String prefix, Enzyme enzyme ) throws FileNotFoundException, IOException, InvalidSequenceException {
 		if( decoy == null )
 			decoy = target.replaceAll(".fasta", ".decoy.fasta");
 		if( concat == null )

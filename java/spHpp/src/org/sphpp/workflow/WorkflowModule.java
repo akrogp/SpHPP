@@ -1,38 +1,18 @@
 package org.sphpp.workflow;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
 import es.ehubio.cli.ArgException;
 import es.ehubio.cli.ArgParser;
 import es.ehubio.cli.Argument;
-import es.ehubio.io.CsvReader;
 
-public abstract class TsvModule {	
-	private static final int OPT_DISCARD = 100;
-	protected static final int OPT_BASE = OPT_DISCARD+1;	
-	private final static Logger logger = Logger.getLogger(TsvModule.class.getName());
+public abstract class WorkflowModule {		
+	private final static Logger logger = Logger.getLogger(WorkflowModule.class.getName());
 	private final ArgParser args;
-	private String discard = null;
 	
-	protected TsvModule( boolean discard, String description ) {
+	protected WorkflowModule( String description ) {
 		args = new ArgParser(getClass().getSimpleName(), description);
-		if( discard ) {
-			Argument opt = new Argument(OPT_DISCARD,null,"discard");
-			opt.setParamName("expression");
-			opt.setDescription("discards lines from TSV input(s) containing the given expression");
-			opt.setOptional(true);
-			args.addOption(opt);
-		}
-	}
-	
-	protected boolean nextLine( CsvReader reader) throws IOException {
-		do {
-			if( reader.readLine() == null )
-				return false;
-		} while( discard != null && reader.getLine().contains(discard) );
-		return true;
 	}
 	
 	public void run(String[] args) {
@@ -46,14 +26,9 @@ public abstract class TsvModule {
 				}
 				logger.info(str.toString());
 			}
-			logger.info("Running ...");
-			Argument discard = this.args.getArgument(OPT_DISCARD);
-			if( discard != null ) {
-				opts.remove(discard);
-				this.discard = discard.getValue();
-			}						
+			logger.info(String.format("Running '%s' ...", getClass().getSimpleName()));						
 			run(opts);
-			logger.info("Finished successfully!!");
+			logger.info(String.format("'%s' finished successfully!!", getClass().getSimpleName()));
 		} catch( ArgException e ) {
 			logger.warning(e.getMessage());
 			logger.info("Usage:\n"+this.args.getUsage());

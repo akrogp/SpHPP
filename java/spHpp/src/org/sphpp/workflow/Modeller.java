@@ -20,9 +20,9 @@ import es.ehubio.model.Aminoacid;
 import es.ehubio.proteomics.Score;
 import es.ehubio.proteomics.ScoreType;
 
-public class Modeller extends TsvModule {
+public class Modeller extends WorkflowModule {
 	public Modeller() {
-		super(true, "Models peptide distribution in proteins.");
+		super("Models peptide distribution in proteins.");
 		
 		Argument arg = new Argument(OPT_REL, 'i', "input");
 		arg.setParamName("Pep2Prot.tsv");
@@ -43,6 +43,7 @@ public class Modeller extends TsvModule {
 		addOption(arg);
 		
 		addOption(Arguments.getMaxPepMods());
+		addOption(Arguments.getDiscard());
 	}
 	
 	public static void main( String[] args ) {
@@ -51,7 +52,7 @@ public class Modeller extends TsvModule {
 
 	@Override
 	protected void run(List<Argument> args) throws Exception {
-		Relations rel = Relations.load(getValue(OPT_REL));
+		Relations rel = Relations.load(getValue(OPT_REL), getValue(Arguments.OPT_DISCARD));
 		LinkedMap data = new LinkedMap();
 		data.load(rel);
 		String mods = getValue(OPT_MODS);
@@ -112,8 +113,8 @@ public class Modeller extends TsvModule {
 		return count;
 	}
 	
-	private static final int OPT_REL = OPT_BASE+1;
-	private static final int OPT_MQ = OPT_BASE+2;
-	private static final int OPT_MODS = OPT_BASE+3;
+	private static final int OPT_REL = 1;
+	private static final int OPT_MQ = 2;
+	private static final int OPT_MODS = 3;
 	private static final Logger logger = Logger.getLogger(Modeller.class.getName());
 }

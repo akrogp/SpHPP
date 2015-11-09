@@ -53,10 +53,19 @@ public class Relations {
 	}
 	
 	public static Relations load( String path ) throws IOException {
+		return load(path, null);
+	}
+	
+	public static Relations load( String path, String discard ) throws IOException {
 		try(CsvReader reader = new CsvReader(SEP, true)) {
+			long count = 0;
 			reader.open(path);
 			Relations relations = new Relations(reader.getHeaderName(0), reader.getHeaderName(1));
 			while(reader.readLine()!=null) {
+				if( discard != null && reader.getLine().contains(discard) ) {
+					count++;
+					continue;
+				}
 				Relation rel = new Relation(reader.getField(0), reader.getField(1));
 				if( reader.getFields().length > 2 )
 					if( !reader.getField(2).isEmpty() )
@@ -71,6 +80,8 @@ public class Relations {
 				relations.entries.add(rel);				
 			}
 			log.info(String.format("Loaded %d relations", relations.entries.size()));
+			if( count != 0 )
+				log.info(String.format("Discarded %d relations", count));
 			return relations;
 		}
 	}

@@ -12,6 +12,15 @@ public class Arguments {
 	public static final int OPT_CUT_NTERM = OPT_DEFAULTS+4;
 	public static final int OPT_MIN_PEP_LEN = OPT_DEFAULTS+5;
 	public static final int OPT_MAX_PEP_LEN = OPT_DEFAULTS+6;
+	public static final int OPT_MAX_PEP_MODS = OPT_DEFAULTS+7;
+	public static final int OPT_DISCARD = OPT_DEFAULTS+8;
+	
+	public static Argument getDiscard() {
+		Argument arg = new Argument(OPT_DISCARD,null,"discard",true);
+		arg.setParamName("expression");
+		arg.setDescription("discards lines from TSV input(s) containing the given expression");
+		return arg;
+	}
 	
 	public static Argument getEnzyme() {
 		Argument arg = new Argument(OPT_ENZYME, null, "enzyme");
@@ -25,7 +34,7 @@ public class Arguments {
 		Argument arg = new Argument(OPT_CLEAVAGES, null, "missed");
 		arg.setParamName("missedCleavages");
 		arg.setDescription("Number of missed cleavages allowed in the search.");
-		arg.setDefaultValue(1);
+		arg.setDefaultValue(2);
 		return arg;
 	}
 	
@@ -39,12 +48,12 @@ public class Arguments {
 		Argument arg = new Argument(OPT_CUT_NTERM, null, "nterm");
 		arg.setParamName("maximum");
 		arg.setDescription("Maximum number of N-term residues that might be cleaved off in vivo when the first amino acid is methionine.");
-		arg.setDefaultValue(0);
+		arg.setDefaultValue(2);
 		return arg;
 	}
 	
 	public static Argument getMinPepLen() {
-		Argument arg = new Argument(OPT_MIN_PEP_LEN, null, "minPep");
+		Argument arg = new Argument(OPT_MIN_PEP_LEN, null, "minPepLen");
 		arg.setParamName("length");
 		arg.setDescription("Minimum peptide length in amino acids.");
 		arg.setDefaultValue(7);
@@ -52,10 +61,18 @@ public class Arguments {
 	}
 	
 	public static Argument getMaxPepLen() {
-		Argument arg = new Argument(OPT_MAX_PEP_LEN, null, "maxPep");
+		Argument arg = new Argument(OPT_MAX_PEP_LEN, null, "maxPepLen");
 		arg.setParamName("length");
 		arg.setDescription("Maximum peptide length in amino acids.");
-		arg.setDefaultValue(60);
+		arg.setDefaultValue(50);
+		return arg;
+	}
+	
+	public static Argument getMaxPepMods() {
+		Argument arg = new Argument(OPT_MAX_PEP_MODS, null, "maxPepMods");
+		arg.setParamName("max");
+		arg.setDescription("Maximum number of modifications per peptide.");
+		arg.setDefaultValue(3);
 		return arg;
 	}
 }
