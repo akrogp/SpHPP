@@ -1,4 +1,4 @@
-package org.sphpp.workflow.data;
+package org.sphpp.workflow;
 
 public final class Constants {
 	public static final String SEP = "\t";

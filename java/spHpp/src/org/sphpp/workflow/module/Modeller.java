@@ -1,6 +1,6 @@
 package org.sphpp.workflow.module;
 
-import static org.sphpp.workflow.data.Constants.SEP;
+import static org.sphpp.workflow.Constants.SEP;
 
 import java.io.PrintWriter;
 import java.util.HashSet;

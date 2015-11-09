@@ -1,7 +1,7 @@
 package org.sphpp.workflow.data;
 
-import static org.sphpp.workflow.data.Constants.SEP;
-import static org.sphpp.workflow.data.Constants.SUB_SEP;
+import static org.sphpp.workflow.Constants.SEP;
+import static org.sphpp.workflow.Constants.SUB_SEP;
 
 import java.io.IOException;
 import java.io.PrintWriter;
