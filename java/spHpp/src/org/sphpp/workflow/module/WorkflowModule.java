@@ -1,4 +1,4 @@
-package org.sphpp.workflow;
+package org.sphpp.workflow.module;
 
 import java.util.List;
 import java.util.logging.Logger;

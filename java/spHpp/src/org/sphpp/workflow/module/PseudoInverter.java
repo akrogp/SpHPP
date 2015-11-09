@@ -1,4 +1,4 @@
-package org.sphpp.workflow;
+package org.sphpp.workflow.module;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.IOUtils;
+import org.sphpp.workflow.Arguments;
 
 import es.ehubio.cli.Argument;
 import es.ehubio.db.fasta.Fasta.InvalidSequenceException;

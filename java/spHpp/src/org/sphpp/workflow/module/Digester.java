@@ -1,8 +1,9 @@
-package org.sphpp.workflow;
+package org.sphpp.workflow.module;
 
 import java.io.IOException;
 import java.util.List;
 
+import org.sphpp.workflow.Arguments;
 import org.sphpp.workflow.data.Relations;
 
 import es.ehubio.cli.Argument;
