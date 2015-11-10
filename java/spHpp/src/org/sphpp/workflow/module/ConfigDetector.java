@@ -13,7 +13,7 @@ import es.ehubio.proteomics.pipeline.Searcher;
 
 public class ConfigDetector extends WorkflowModule {
 	public ConfigDetector() {
-		super("Parses output files of different search engines into a single SpHPP TSV format.");
+		super("Guesses search and digestion paramteres from identified peptides.");
 		
 		Argument arg = new Argument(OPT_INPUT, 'i', "input");
 		arg.setParamName("input.data");
