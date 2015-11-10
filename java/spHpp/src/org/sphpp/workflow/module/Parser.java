@@ -3,6 +3,8 @@ package org.sphpp.workflow.module;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -52,27 +54,40 @@ public class Parser extends WorkflowModule {
 	protected void run(List<Argument> args) throws Exception {
 		String decoyPrefix = getValue(Arguments.OPT_PREFIX);
 		MsMsData data = run(getValue(OPT_INPUT), decoyPrefix);
+		ScoreType type = selectScore(data.getPsms().iterator().next());
+		data.updateRanks(type);
 		if( decoyPrefix == null )
-			save(data.getPsms(), getValue(OPT_TARGET));
+			save(data.getPsms(), getValue(OPT_TARGET), type);
 		else {
-			save(data.getTargetPsms(), getValue(OPT_TARGET));
-			save(data.getDecoyPsms(), getValue(OPT_DECOY));
+			save(data.getTargetPsms(), getValue(OPT_TARGET), type);
+			save(data.getDecoyPsms(), getValue(OPT_DECOY), type);
 		}
 	}
 	
-	private void save( Set<Psm> psms, String path ) throws FileNotFoundException, IOException {
-		ScoreType type = selectScore(psms.iterator().next());
+	private void save( Set<Psm> psms, String path, ScoreType type ) throws FileNotFoundException, IOException {
+		List<Psm> list = new ArrayList<>(psms);
+		list.sort(new Comparator<Psm>() {
+			@Override
+			public int compare(Psm o1, Psm o2) {
+				int res = o1.getSpectrum().getUniqueString().compareTo(o2.getSpectrum().getUniqueString());
+				if( res == 0 )
+					res = o1.getRank()-o2.getRank();
+				return res;
+			}
+		});
 		try( PrintWriter pw = new PrintWriter(Streams.getTextWriter(path)) ) {
 			pw.print("psm"); pw.print(Constants.SEP);
 			pw.print("spectrum"); pw.print(Constants.SEP);
+			pw.print("rank"); pw.print(Constants.SEP);
 			pw.print("expMass"); pw.print(Constants.SEP);
 			pw.print("charge"); pw.print(Constants.SEP);
 			pw.print("peptideSequence"); pw.print(Constants.SEP);
 			pw.print("peptideMods"); pw.print(Constants.SEP);
 			pw.println(type.getName());
-			for( Psm psm : psms ) {
+			for( Psm psm : list ) {
 				pw.print(psm.getUniqueString()); pw.print(Constants.SEP);
 				pw.print(psm.getSpectrum().getUniqueString()); pw.print(Constants.SEP);
+				pw.print(psm.getRank()); pw.print(Constants.SEP);
 				pw.print(Numbers.toString(psm.getExpMz())); pw.print(Constants.SEP);
 				pw.print(psm.getCharge()); pw.print(Constants.SEP);
 				pw.print(psm.getPeptide().getSequence()); pw.print(Constants.SEP);
