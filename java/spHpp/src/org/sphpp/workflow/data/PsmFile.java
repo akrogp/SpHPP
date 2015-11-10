@@ -127,6 +127,7 @@ public class PsmFile {
 		Peptide peptide = new Peptide();
 		peptide.setSequence(rd.getField("peptideSequence"));
 		String modSeq = rd.getField("peptideMods");
+		peptide.setUniqueString(modSeq);
 		for( int i = 0, aa = -1; i < modSeq.length(); i++ ) {
 			if( modSeq.charAt(i) == '(' ) {
 				int j = i+1;
