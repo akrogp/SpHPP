@@ -14,6 +14,8 @@ public class Arguments {
 	public static final int OPT_MAX_PEP_LEN = OPT_DEFAULTS+6;
 	public static final int OPT_MAX_PEP_MODS = OPT_DEFAULTS+7;
 	public static final int OPT_DISCARD = OPT_DEFAULTS+8;
+	public static final int OPT_PREFIX = OPT_DEFAULTS+9;
+	public static final int OPT_VAR_MODS = OPT_DEFAULTS+10;
 	
 	public static Argument getDiscard() {
 		Argument arg = new Argument(OPT_DISCARD,null,"discard",true);
@@ -73,6 +75,22 @@ public class Arguments {
 		arg.setParamName("max");
 		arg.setDescription("Maximum number of modifications per peptide.");
 		arg.setDefaultValue(3);
+		return arg;
+	}
+	
+	public static Argument getDecoyPrefix() {
+		Argument arg = new Argument(OPT_PREFIX, null, "decoyPrefix");
+		arg.setParamName("prefix");
+		arg.setDescription("Prefix of decoy entries.");
+		arg.setDefaultValue("decoy-");
+		return arg; 
+	}
+	
+	public static Argument getVarMods() {
+		Argument arg = new Argument(OPT_VAR_MODS, null, "varMods");
+		arg.setParamName("aalist");
+		arg.setDescription("Sequence of amino acids with variable modifications.");
+		arg.setDefaultValue("M");
 		return arg;
 	}
 }

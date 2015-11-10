@@ -34,6 +34,7 @@ public abstract class WorkflowModule {
 			logger.info("Usage:\n"+this.args.getUsage());
 		} catch( Exception e ) {
 			logger.severe(e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	

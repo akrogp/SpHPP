@@ -22,7 +22,6 @@ public class PseudoInverter extends WorkflowModule {
 	private static final int OPT_TARGET = 1;
 	private static final int OPT_DECOY = 2;
 	private static final int OPT_CONCAT = 3;
-	private static final int OPT_PREFIX = 4;
 	
 	public static void main( String[] args ) throws Exception {
 		new PseudoInverter().run(args);
@@ -45,13 +44,8 @@ public class PseudoInverter extends WorkflowModule {
 		arg.setParamName("concat.fasta");
 		arg.setDescription("Output fasta file path with concatenated target and decoy sequences. By default generated from target file name.");
 		addOption(arg);
-		
-		arg = new Argument(OPT_PREFIX, 'p', "prefix");
-		arg.setParamName("prefix");
-		arg.setDescription("Prefix to be added to decoy entries.");
-		arg.setDefaultValue("decoy-");
-		addOption(arg);
-		
+				
+		addOption(Arguments.getDecoyPrefix());		
 		addOption(Arguments.getEnzyme());
 	}
 	
@@ -59,7 +53,7 @@ public class PseudoInverter extends WorkflowModule {
 	protected void run(List<Argument> args) throws Exception {		
 		run(
 			getValue(OPT_TARGET), getValue(OPT_DECOY), getValue(OPT_CONCAT),
-			getValue(OPT_PREFIX), Enzyme.valueOf(getValue(Arguments.OPT_ENZYME))
+			getValue(Arguments.OPT_PREFIX), Enzyme.valueOf(getValue(Arguments.OPT_ENZYME))
 		);
 	}
 	

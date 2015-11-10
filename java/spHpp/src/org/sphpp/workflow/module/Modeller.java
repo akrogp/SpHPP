@@ -37,12 +37,7 @@ public class Modeller extends WorkflowModule {
 		arg.setDefaultValue("MProt.tsv.gz");
 		addOption(arg);
 		
-		arg = new Argument(OPT_MODS, 'm', "mods");
-		arg.setParamName("aalist");
-		arg.setDescription("Sequence of amino acids with variable modifications.");
-		arg.setDefaultValue("M");
-		addOption(arg);
-		
+		addOption(Arguments.getVarMods());		
 		addOption(Arguments.getMaxPepMods());
 		addOption(Arguments.getDiscard());
 	}
@@ -56,7 +51,7 @@ public class Modeller extends WorkflowModule {
 		Relations rel = Relations.load(getValue(OPT_REL), getValue(Arguments.OPT_DISCARD));
 		LinkedMap data = new LinkedMap();
 		data.load(rel);
-		String mods = getValue(OPT_MODS);
+		String mods = getValue(Arguments.OPT_VAR_MODS);
 		Aminoacid[] varMods = new Aminoacid[mods.length()];
 		for( int i = 0; i < varMods.length; i++ )
 			varMods[i] = Aminoacid.parseLetter(mods.charAt(i));
@@ -116,6 +111,5 @@ public class Modeller extends WorkflowModule {
 	
 	private static final int OPT_REL = 1;
 	private static final int OPT_MQ = 2;
-	private static final int OPT_MODS = 3;
 	private static final Logger logger = Logger.getLogger(Modeller.class.getName());
 }
