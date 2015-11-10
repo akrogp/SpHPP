@@ -3,12 +3,14 @@ package org.sphpp.workflow.data;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sphpp.workflow.file.RelationFile;
+
 public class LinkedMap {
-	public void load( Relations relations ) {
+	public void load( RelationFile relations ) {
 		upperMap.clear();
 		lowerMap.clear();
 		
-		for( Relations.Relation rel : relations.getEntries() ) {
+		for( Relation rel : relations.getEntries() ) {
 			LinkedItem upper = upperMap.get(rel.getUpperId());
 			if( upper == null ) {
 				upper = new LinkedItem(rel.getUpperId());

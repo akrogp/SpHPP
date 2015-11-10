@@ -11,8 +11,8 @@ import java.util.logging.Logger;
 import org.sphpp.workflow.Arguments;
 import org.sphpp.workflow.data.LinkedItem;
 import org.sphpp.workflow.data.LinkedMap;
-import org.sphpp.workflow.data.Relations;
 import org.sphpp.workflow.data.ScoreItem;
+import org.sphpp.workflow.file.RelationFile;
 
 import es.ehubio.Numbers;
 import es.ehubio.cli.Argument;
@@ -48,7 +48,7 @@ public class Modeller extends WorkflowModule {
 
 	@Override
 	protected void run(List<Argument> args) throws Exception {
-		Relations rel = Relations.load(getValue(OPT_REL), getValue(Arguments.OPT_DISCARD));
+		RelationFile rel = RelationFile.load(getValue(OPT_REL), getValue(Arguments.OPT_DISCARD));
 		LinkedMap data = new LinkedMap();
 		data.load(rel);
 		String mods = getValue(Arguments.OPT_VAR_MODS);

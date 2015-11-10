@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.sphpp.workflow.data.PsmFile;
+import org.sphpp.workflow.file.PsmFile;
 
 import es.ehubio.cli.Argument;
 import es.ehubio.proteomics.MsMsData;
@@ -44,7 +44,7 @@ public class Filter extends WorkflowModule {
 		PsmFile.save(psms, getValue(OPT_OUTPUT));
 	}
 	
-	public Set<Psm> run( Set<Psm> inputPsms, int rank ) {
+	public static Set<Psm> run( Set<Psm> inputPsms, int rank ) {
 		if( rank == 0 )
 			return inputPsms;
 		Set<Psm> outputPsms = new HashSet<>();

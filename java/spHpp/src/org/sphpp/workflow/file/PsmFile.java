@@ -1,4 +1,4 @@
-package org.sphpp.workflow.data;
+package org.sphpp.workflow.file;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

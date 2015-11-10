@@ -1,4 +1,4 @@
-package org.sphpp.workflow.data;
+package org.sphpp.workflow.file;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,11 +11,11 @@ import es.ehubio.model.Aminoacid;
 import es.ehubio.proteomics.pipeline.Digester;
 import es.ehubio.proteomics.pipeline.Searcher;
 
-public class Configuration {
+public class ConfigFile {
 	private final Digester.Config digestConfig;
 	private final Searcher.Config searchConfig;
 	
-	public Configuration(Digester.Config digestConfig, Searcher.Config searchConfig) {
+	public ConfigFile(Digester.Config digestConfig, Searcher.Config searchConfig) {
 		this.digestConfig = digestConfig;
 		this.searchConfig = searchConfig;
 	}

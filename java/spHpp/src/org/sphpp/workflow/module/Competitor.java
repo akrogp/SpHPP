@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.sphpp.workflow.data.PsmFile;
+import org.sphpp.workflow.file.PsmFile;
 
 import es.ehubio.cli.Argument;
 import es.ehubio.proteomics.Psm;
@@ -29,13 +29,13 @@ public class Competitor extends WorkflowModule {
 		
 		arg = new Argument(OPT_OUT_TARGET, null, "outTarget");
 		arg.setParamName("TargetComp.tsv");
-		arg.setDescription("Output TSV file for target PSMs. after competition");
+		arg.setDescription("Output TSV file for target PSMs after competition.");
 		arg.setDefaultValue("TargetComp.tsv.gz");
 		addOption(arg);
 		
 		arg = new Argument(OPT_OUT_DECOY, null, "outDecoy");
 		arg.setParamName("DecoyComp.tsv");
-		arg.setDescription("Output TSV file for decoy PSMs. after competition");
+		arg.setDescription("Output TSV file for decoy PSMs after competition.");
 		arg.setDefaultValue("DecoyComp.tsv.gz");
 		addOption(arg);
 	}
@@ -54,7 +54,7 @@ public class Competitor extends WorkflowModule {
 		PsmFile.save(decoys, getValue(OPT_OUT_DECOY), type);
 	}
 	
-	public void run( Set<Psm> targets, Set<Psm> decoys, ScoreType type ) {		
+	public static void run( Set<Psm> targets, Set<Psm> decoys, ScoreType type ) {		
 		Map<String, Double> mapScores = new HashMap<>();
 		addScores(targets, mapScores, type);
 		addScores(decoys, mapScores, type);
@@ -62,7 +62,7 @@ public class Competitor extends WorkflowModule {
 		getBest(decoys, mapScores, type);
 	}	
 
-	private void addScores(Set<Psm> psms, Map<String, Double> mapScores, ScoreType type) {
+	private static void addScores(Set<Psm> psms, Map<String, Double> mapScores, ScoreType type) {
 		for( Psm psm : psms ) {
 			Score score = psm.getScoreByType(type);
 			Double oldScore = mapScores.get(psm.getSpectrum().getUniqueString());
@@ -71,7 +71,7 @@ public class Competitor extends WorkflowModule {
 		}
 	}
 	
-	private void getBest(Set<Psm> psms, Map<String, Double> mapScores, ScoreType type) {
+	private static void getBest(Set<Psm> psms, Map<String, Double> mapScores, ScoreType type) {
 		Set<Psm> best = new HashSet<>();
 		for( Psm psm : psms ) {
 			Score score = psm.getScoreByType(type);

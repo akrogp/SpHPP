@@ -3,7 +3,7 @@ package org.sphpp.workflow.module;
 import java.util.List;
 
 import org.sphpp.workflow.Arguments;
-import org.sphpp.workflow.data.PsmFile;
+import org.sphpp.workflow.file.PsmFile;
 
 import es.ehubio.cli.Argument;
 import es.ehubio.proteomics.MsMsData;
@@ -55,7 +55,7 @@ public class Parser extends WorkflowModule {
 		}
 	}	
 	
-	public MsMsData run( String path, String decoyPrefix ) throws Exception {
+	public static MsMsData run( String path, String decoyPrefix ) throws Exception {
 		MsMsData data = MsMsFile.autoLoad(path, false);
 		data.markDecoys(decoyPrefix);
 		return data;

@@ -1,4 +1,4 @@
-package org.sphpp.workflow.data;
+package org.sphpp.workflow.file;
 
 import static org.sphpp.workflow.Constants.SEP;
 import static org.sphpp.workflow.Constants.SUB_SEP;
@@ -11,56 +11,28 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import org.sphpp.workflow.data.Relation;
+
 import es.ehubio.Numbers;
 import es.ehubio.io.CsvReader;
 import es.ehubio.io.CsvUtils;
 import es.ehubio.io.Streams;
 
-public class Relations {
-	public static class Relation extends IdItem {
-		private final String upperId;
-		private final String lowerId;
-		private final Set<String> labels = new LinkedHashSet<String>();
-		private Double coeficient;
-		public Relation( String upperId, String lowerId ) {
-			super(String.format("%s->%s", lowerId, upperId));
-			this.upperId = upperId;
-			this.lowerId = lowerId;
-		}
-		public String getUpperId() {
-			return upperId;
-		}
-		public String getLowerId() {
-			return lowerId;
-		}
-		public Set<String> getLabels() {
-			return labels;
-		}
-		public boolean addLabel( String label ) {
-			return labels.add(label);
-		}
-		public Double getCoeficient() {
-			return coeficient;
-		}
-		public void setCoeficient(Double coeficient) {
-			this.coeficient = coeficient;
-		}
-	}
-	
-	public Relations( String upperLabel, String lowerLabel ) {
+public class RelationFile {
+	public RelationFile( String upperLabel, String lowerLabel ) {
 		this.lowerLabel = lowerLabel;
 		this.upperLabel = upperLabel;
 	}
 	
-	public static Relations load( String path ) throws IOException {
+	public static RelationFile load( String path ) throws IOException {
 		return load(path, null);
 	}
 	
-	public static Relations load( String path, String discard ) throws IOException {
+	public static RelationFile load( String path, String discard ) throws IOException {
 		try(CsvReader reader = new CsvReader(SEP, true)) {
 			long count = 0;
 			reader.open(path);
-			Relations relations = new Relations(reader.getHeaderName(0), reader.getHeaderName(1));
+			RelationFile relations = new RelationFile(reader.getHeaderName(0), reader.getHeaderName(1));
 			while(reader.readLine()!=null) {
 				if( discard != null && reader.getLine().contains(discard) ) {
 					count++;
@@ -69,7 +41,7 @@ public class Relations {
 				Relation rel = new Relation(reader.getField(0), reader.getField(1));
 				if( reader.getFields().length > 2 )
 					if( !reader.getField(2).isEmpty() )
-						rel.labels.addAll(Arrays.asList(reader.getField(2).split(SUB_SEP)));
+						rel.getLabels().addAll(Arrays.asList(reader.getField(2).split(SUB_SEP)));
 				if( reader.getFields().length > 3 )
 					if( !reader.getField(2).isEmpty() )
 						try {
@@ -129,5 +101,5 @@ public class Relations {
 	private final String lowerLabel;
 	private final String upperLabel;
 	private final Set<Relation> entries = new LinkedHashSet<>();
-	private static final Logger log = Logger.getLogger(Relations.class.getName());
+	private static final Logger log = Logger.getLogger(RelationFile.class.getName());
 }

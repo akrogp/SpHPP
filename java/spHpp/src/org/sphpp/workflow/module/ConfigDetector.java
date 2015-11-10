@@ -3,7 +3,7 @@ package org.sphpp.workflow.module;
 import java.util.List;
 
 import org.sphpp.workflow.Constants;
-import org.sphpp.workflow.data.Configuration;
+import org.sphpp.workflow.file.ConfigFile;
 
 import es.ehubio.cli.Argument;
 import es.ehubio.proteomics.MsMsData;
@@ -44,17 +44,17 @@ public class ConfigDetector extends WorkflowModule {
 
 	@Override
 	protected void run(List<Argument> args) throws Exception {
-		Configuration config = run(getValue(OPT_INPUT), getValue(OPT_FASTA));		
+		ConfigFile config = run(getValue(OPT_INPUT), getValue(OPT_FASTA));		
 		config.save("SpHPP detected configuration", getValue(OPT_CFG));
 	}
 	
-	public Configuration run( String dataPath, String fastaPath ) throws Exception {
+	public static ConfigFile run( String dataPath, String fastaPath ) throws Exception {
 		MsMsData data = MsMsFile.autoLoad(dataPath, false);
 		data.updateProteinInformation(fastaPath);
 		es.ehubio.proteomics.pipeline.ConfigDetector detector = new es.ehubio.proteomics.pipeline.ConfigDetector(Constants.DETECT_COUNT);
 		Digester.Config digestConfig = detector.getDigestion(data);
 		Searcher.Config searchConfig = detector.getSearching(data);
-		Configuration config = new Configuration(digestConfig, searchConfig);
+		ConfigFile config = new ConfigFile(digestConfig, searchConfig);
 		return config;
 	}
 

@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.util.List;
 
 import org.sphpp.workflow.Arguments;
-import org.sphpp.workflow.data.Relations;
+import org.sphpp.workflow.data.Relation;
+import org.sphpp.workflow.file.RelationFile;
 
 import es.ehubio.cli.Argument;
 import es.ehubio.db.fasta.Fasta;
@@ -50,17 +51,17 @@ public class Digester extends WorkflowModule {
 		int cutNterm = getIntValue(Arguments.OPT_CUT_NTERM);
 		es.ehubio.proteomics.pipeline.Digester.Config digestion =
 			new es.ehubio.proteomics.pipeline.Digester.Config(enzyme, missedCleavages, usingDP, cutNterm);
-		Relations relations = run(getValue(OPT_FASTA), digestion, getIntValue(Arguments.OPT_MIN_PEP_LEN), getIntValue(Arguments.OPT_MAX_PEP_LEN));
+		RelationFile relations = run(getValue(OPT_FASTA), digestion, getIntValue(Arguments.OPT_MIN_PEP_LEN), getIntValue(Arguments.OPT_MAX_PEP_LEN));
 		relations.save(getValue(OPT_REL));
 	}
 
-	public static Relations run(String fasta, es.ehubio.proteomics.pipeline.Digester.Config digestion, int minPep, int maxPep) throws IOException, InvalidSequenceException {
-		Relations relations = new Relations("protein", "peptide sequence");
+	public static RelationFile run(String fasta, es.ehubio.proteomics.pipeline.Digester.Config digestion, int minPep, int maxPep) throws IOException, InvalidSequenceException {
+		RelationFile relations = new RelationFile("protein", "peptide sequence");
 		for( Fasta protein : Fasta.readEntries(fasta, SequenceType.PROTEIN) ) {			
 			for( String pepSeq : es.ehubio.proteomics.pipeline.Digester.digestSequence(protein.getSequence(), digestion) ) {
 				if( pepSeq.length() < minPep || pepSeq.length() > maxPep )
 					continue;
-				relations.addEntry(new Relations.Relation(protein.getAccession(), pepSeq));
+				relations.addEntry(new Relation(protein.getAccession(), pepSeq));
 			}
 		}
 		return relations;
