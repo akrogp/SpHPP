@@ -5,8 +5,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.sphpp.workflow.file.PsmFile;
+import org.sphpp.workflow.file.ScoreFile;
 
 import es.ehubio.cli.Argument;
 import es.ehubio.proteomics.Psm;
@@ -48,7 +50,8 @@ public class Competitor extends WorkflowModule {
 	protected void run(List<Argument> args) throws Exception {
 		Set<Psm> targets = PsmFile.load(getValue(OPT_IN_TARGET)).getPsms();
 		Set<Psm> decoys = PsmFile.load(getValue(OPT_IN_DECOY)).getPsms();
-		ScoreType type = PsmFile.selectScore(targets);
+		ScoreType type = ScoreFile.selectScore(targets);
+		logger.info(String.format("Using '%s' for competition ...", type.getName()));
 		run(targets, decoys, type);
 		PsmFile.save(targets, getValue(OPT_OUT_TARGET), type);
 		PsmFile.save(decoys, getValue(OPT_OUT_DECOY), type);
@@ -83,6 +86,7 @@ public class Competitor extends WorkflowModule {
 		psms.addAll(best);
 	}
 	
+	private static final Logger logger = Logger.getLogger(Competitor.class.getName());
 	private static final int OPT_IN_TARGET = 1;
 	private static final int OPT_IN_DECOY = 2;
 	private static final int OPT_OUT_TARGET = 3;

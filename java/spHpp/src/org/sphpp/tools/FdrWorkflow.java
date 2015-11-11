@@ -625,7 +625,7 @@ public class FdrWorkflow {
 	private void updateBadProteinScores() {
 		logger.info("Using best PSM as protein score ...");
 		for( Protein protein : data.getProteins() )
-			protein.setScore(protein.getBestPsm(psmScoreType).getScoreByType(psmScoreType));
+			protein.putScore(protein.getBestPsm(psmScoreType).getScoreByType(psmScoreType));
 		fdrCalc.updateProteinScores(data.getProteins(), psmScoreType, false);
 	}
 	

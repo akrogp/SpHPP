@@ -6,12 +6,12 @@ import java.io.PrintWriter;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.sphpp.workflow.Constants;
 
@@ -28,7 +28,9 @@ import es.ehubio.proteomics.Spectrum;
 
 public class PsmFile {
 	public static void save( Set<Psm> psms, String path ) throws FileNotFoundException, IOException {
-		save(psms, path, selectScore(psms));
+		ScoreType type = ScoreFile.selectScore(psms);
+		logger.info(String.format("Selected '%s' score", type.getName()));
+		save(psms, path, type);
 	}
 	
 	public static void save( Set<Psm> psms, String path, ScoreType type ) throws FileNotFoundException, IOException {
@@ -96,7 +98,7 @@ public class PsmFile {
 				psm.linkSpectrum(spectrum);
 				psm.linkPeptide(peptide);
 				if( type != null )
-					psm.setScore(new Score(type, Numbers.parseDouble(rd.getField(type.getName()))));
+					psm.putScore(new Score(type, Numbers.parseDouble(rd.getField(type.getName()))));
 			}
 			MsMsData data = new MsMsData();
 			data.loadFromSpectra(mapSpectrum.values());
@@ -110,17 +112,6 @@ public class PsmFile {
 			if( names.contains(type.getName()) )
 				return type;
 		return null;
-	}
-
-	public static ScoreType selectScore( Collection<Psm> psms ) {
-		if( psms.isEmpty() )
-			return null;
-		Psm psm = psms.iterator().next();
-		ScoreType[] types = {ScoreType.SEQUEST_XCORR, ScoreType.MASCOT_SCORE, ScoreType.XTANDEM_EVALUE};
-		for( ScoreType type : types )
-			if( psm.getScoreByType(type) != null )
-				return type;
-		return psm.getScores().iterator().next().getType();
 	}
 
 	private static Peptide parsePeptide(CsvReader rd) throws ParseException {
@@ -146,4 +137,6 @@ public class PsmFile {
 		}
 		return peptide;
 	}
+	
+	private static final Logger logger = Logger.getLogger(PsmFile.class.getName());
 }

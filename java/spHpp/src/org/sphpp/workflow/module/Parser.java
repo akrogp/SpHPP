@@ -1,9 +1,11 @@
 package org.sphpp.workflow.module;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.sphpp.workflow.Arguments;
 import org.sphpp.workflow.file.PsmFile;
+import org.sphpp.workflow.file.ScoreFile;
 
 import es.ehubio.cli.Argument;
 import es.ehubio.proteomics.MsMsData;
@@ -45,7 +47,8 @@ public class Parser extends WorkflowModule {
 	protected void run(List<Argument> args) throws Exception {
 		String decoyPrefix = getValue(Arguments.OPT_PREFIX);
 		MsMsData data = run(getValue(OPT_INPUT), decoyPrefix);
-		ScoreType type = PsmFile.selectScore(data.getPsms());
+		ScoreType type = ScoreFile.selectScore(data.getPsms());
+		logger.info(String.format("Using '%s' to calculate ranks ...", type.getName()));
 		data.updateRanks(type);
 		if( decoyPrefix == null )
 			PsmFile.save(data.getPsms(), getValue(OPT_TARGET), type);
@@ -61,6 +64,7 @@ public class Parser extends WorkflowModule {
 		return data;
 	}
 
+	private static final Logger logger = Logger.getLogger(Parser.class.getName());
 	private static final int OPT_INPUT = 1;
 	private static final int OPT_TARGET = 2;
 	private static final int OPT_DECOY = 3;

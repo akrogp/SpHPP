@@ -105,7 +105,7 @@ public class ProbIterator {
 				protein.linkPeptide(peptide);
 				score += peptide.getScoreByType(ScoreType.LPP_SCORE).getValue();
 			}
-			protein.setScore(new Score(ScoreType.LPQCORR_SCORE, score));
+			protein.putScore(new Score(ScoreType.LPQCORR_SCORE, score));
 			proteins.add(protein);
 			ch++;			
 		}
@@ -116,7 +116,7 @@ public class ProbIterator {
 			Peptide peptide = new Peptide();
 			peptide.setName(ch+"");
 			peptide.setSequence(ch+"");
-			peptide.setScore(new Score(ScoreType.LPP_SCORE, 3.0));
+			peptide.putScore(new Score(ScoreType.LPP_SCORE, 3.0));
 			peptides.add(peptide);
 		}		
 	}

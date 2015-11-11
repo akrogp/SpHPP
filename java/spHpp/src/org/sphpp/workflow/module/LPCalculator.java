@@ -3,9 +3,12 @@ package org.sphpp.workflow.module;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Logger;
+
+import org.sphpp.workflow.file.ScoreFile;
 
 import es.ehubio.cli.Argument;
-import es.ehubio.proteomics.Psm;
+import es.ehubio.proteomics.Decoyable;
 import es.ehubio.proteomics.Score;
 import es.ehubio.proteomics.ScoreType;
 import es.ehubio.proteomics.pipeline.FdrCalculator;
@@ -43,27 +46,35 @@ public class LPCalculator extends WorkflowModule {
 
 	@Override
 	protected void run(List<Argument> args) throws Exception {
+		ScoreFile target = ScoreFile.load(getValue(OPT_IN_TARGET));
+		ScoreFile decoy = ScoreFile.load(getValue(OPT_IN_DECOY));
+		ScoreType type = ScoreFile.selectScore(target.getItems());
+		logger.info(String.format("Using '%s' for calculating LP values ...", type.getName()));
+		run(target.getItems(), decoy.getItems(), type, ScoreType.LP_SCORE);
+		target.save(getValue(OPT_OUT_TARGET), ScoreType.LP_SCORE);
+		decoy.save(getValue(OPT_OUT_DECOY), ScoreType.LP_SCORE);
 	}
 
-	public static void run( Collection<Psm> targetPsms, Collection<Psm> decoyPsms, ScoreType psmScore, ScoreType lpScore ) {
-		List<Psm> list = new ArrayList<>(targetPsms.size()+decoyPsms.size());
+	public static void run( Collection<? extends Decoyable> targetPsms, Collection<? extends Decoyable> decoyPsms, ScoreType type, ScoreType lpScore ) {
+		List<Decoyable> list = new ArrayList<>(targetPsms.size()+decoyPsms.size());
 		addPsms(list, targetPsms, false);
 		addPsms(list, decoyPsms, true);
 		FdrCalculator fdr = new FdrCalculator();
-		fdr.updateDecoyScores(list, psmScore, lpScore, null, null, null);
-		for( Psm psm : list ) {			
+		fdr.updateDecoyScores(list, type, lpScore, null, null, null);
+		for( Decoyable psm : list ) {			
 			Score score = psm.getScoreByType(lpScore);
 			score.setValue(-Math.log10(score.getValue()));
 		}
 	}
 
-	private static void addPsms(List<Psm> list, Collection<Psm> psms, boolean decoy) {
-		for( Psm psm : psms ) {
+	private static void addPsms(List<Decoyable> list, Collection<? extends Decoyable> psms, boolean decoy) {
+		for( Decoyable psm : psms ) {
 			psm.setDecoy(decoy);
 			list.add(psm);
 		}
 	}
 	
+	private final static Logger logger = Logger.getLogger(LPCalculator.class.getName());
 	private static final int OPT_IN_TARGET = 1;
 	private static final int OPT_IN_DECOY = 2;
 	private static final int OPT_OUT_TARGET = 3;
