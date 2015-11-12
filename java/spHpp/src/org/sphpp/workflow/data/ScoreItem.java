@@ -14,9 +14,9 @@ public class ScoreItem extends IdItem implements Decoyable {
 	private boolean passThreshold;
 	
 	public ScoreItem( String id ) {
-		super(id);		
+		super(id);
 	}
-
+	
 	@Override
 	public Boolean getDecoy() {
 		return decoy;
@@ -28,7 +28,7 @@ public class ScoreItem extends IdItem implements Decoyable {
 	}
 
 	@Override
-	public Score putScore(Score score) {
+	public Score putScore(Score score) {		
 		return scores.put(score.getType(), score);
 	}
 
@@ -53,7 +53,7 @@ public class ScoreItem extends IdItem implements Decoyable {
 	}
 
 	@Override
-	public boolean isPassThreshold() {
+	public boolean isPassThreshold() {		
 		return passThreshold;
 	}
 

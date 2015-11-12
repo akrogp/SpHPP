@@ -11,6 +11,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import org.sphpp.workflow.data.Link;
+import org.sphpp.workflow.data.LinkList;
 import org.sphpp.workflow.data.Relation;
 
 import es.ehubio.Numbers;
@@ -98,6 +100,16 @@ public class RelationFile {
 		return entries.add(rel);
 	}
 		
+	public LinkList<Link<Void,Void>,Link<Void,Void>> getLinks() {
+		LinkList<Link<Void,Void>,Link<Void,Void>> map = new LinkList<>();
+		for( Relation rel : getEntries() ) {
+			Link<Void,Void> upper = new Link<>(rel.getUpperId());
+			Link<Void,Void> lower = new Link<>(rel.getLowerId());
+			map.addLink(upper, lower);
+		}
+		return map;
+	}
+
 	private final String lowerLabel;
 	private final String upperLabel;
 	private final Set<Relation> entries = new LinkedHashSet<>();

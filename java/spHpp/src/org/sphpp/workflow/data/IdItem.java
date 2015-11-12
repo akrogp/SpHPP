@@ -1,12 +1,13 @@
 package org.sphpp.workflow.data;
 
-public abstract class IdItem {
+public class IdItem implements Identifiable {
 	private final String id;
 	
 	protected IdItem( String id ) {
 		this.id = id;
 	}
 	
+	@Override
 	public boolean equals(Object obj) {
 		if( !IdItem.class.isInstance(obj) )
 			return false;
@@ -18,6 +19,7 @@ public abstract class IdItem {
 		return getId().hashCode();
 	}
 
+	@Override
 	public String getId() {
 		return id;
 	}

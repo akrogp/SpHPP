@@ -9,8 +9,9 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.sphpp.workflow.Arguments;
-import org.sphpp.workflow.data.LinkedItem;
-import org.sphpp.workflow.data.LinkedMap;
+import org.sphpp.workflow.data.InterMapeable;
+import org.sphpp.workflow.data.Link;
+import org.sphpp.workflow.data.LinkList;
 import org.sphpp.workflow.data.ScoreItem;
 import org.sphpp.workflow.file.RelationFile;
 
@@ -23,17 +24,17 @@ import es.ehubio.proteomics.ScoreType;
 
 public class Modeller extends WorkflowModule {
 	public Modeller() {
-		super("Models peptide distribution in proteins.");
+		super("Models peptide distribution.");
 		
 		Argument arg = new Argument(OPT_REL, 'i', "input");
-		arg.setParamName("Pep2Prot.tsv");
-		arg.setDescription("Input TSV file with peptide to protein relations.");
-		arg.setDefaultValue("Pep2Prot.tsv.gz");
+		arg.setParamName("Seq2Prot.tsv");
+		arg.setDescription("Input TSV file with peptide sequence relations.");
+		arg.setDefaultValue("Seq2Prot.tsv.gz");
 		addOption(arg);
 		
 		arg = new Argument(OPT_MQ, 'o', "output");
 		arg.setParamName("MProt.tsv");
-		arg.setDescription("Output TSV file with Mq and Nq values.");
+		arg.setDescription("Output TSV file with M and N values.");
 		arg.setDefaultValue("MProt.tsv.gz");
 		addOption(arg);
 		
@@ -49,8 +50,7 @@ public class Modeller extends WorkflowModule {
 	@Override
 	protected void run(List<Argument> args) throws Exception {
 		RelationFile rel = RelationFile.load(getValue(OPT_REL), getValue(Arguments.OPT_DISCARD));
-		LinkedMap data = new LinkedMap();
-		data.load(rel);
+		LinkList<Link<Void,Void>,Link<Void,Void>> data = rel.getLinks();
 		String mods = getValue(Arguments.OPT_VAR_MODS);
 		Aminoacid[] varMods = new Aminoacid[mods.length()];
 		for( int i = 0; i < varMods.length; i++ )
@@ -68,12 +68,12 @@ public class Modeller extends WorkflowModule {
 		}
 	}
 	
-	public static Set<ScoreItem> run( LinkedMap data, int maxMods, Aminoacid... varMods) {
+	public static <U extends InterMapeable<U,L>,L extends InterMapeable<L,U>> Set<ScoreItem> run( LinkList<U,L> data, int maxMods, Aminoacid... varMods) {
 		Set<ScoreItem> result = new HashSet<ScoreItem>();
-		for( LinkedItem protein : data.getUpperMap().values() ) {
+		for( InterMapeable<U,L> protein : data.getUpperMap().values() ) {
 			double Mq = 0.0;
 			double Nq = 0.0;
-			for( LinkedItem peptide : protein.getLinks() ) {
+			for( L peptide : protein.getLinks() ) {
 				double tryptic = (double)getTryptic(peptide.getId(), maxMods, varMods);
 				Nq += tryptic;
 				Mq += tryptic/peptide.getLinks().size();

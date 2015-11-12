@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.sphpp.workflow.data.ScoreItem;
 import org.sphpp.workflow.file.ScoreFile;
 
 import es.ehubio.cli.Argument;
@@ -46,8 +47,8 @@ public class LPCalculator extends WorkflowModule {
 
 	@Override
 	protected void run(List<Argument> args) throws Exception {
-		ScoreFile target = ScoreFile.load(getValue(OPT_IN_TARGET));
-		ScoreFile decoy = ScoreFile.load(getValue(OPT_IN_DECOY));
+		ScoreFile<ScoreItem> target = ScoreFile.load(getValue(OPT_IN_TARGET));
+		ScoreFile<ScoreItem> decoy = ScoreFile.load(getValue(OPT_IN_DECOY));
 		ScoreType type = ScoreFile.selectScore(target.getItems());
 		logger.info(String.format("Using '%s' for calculating LP values ...", type.getName()));
 		run(target.getItems(), decoy.getItems(), type, ScoreType.LP_SCORE);
