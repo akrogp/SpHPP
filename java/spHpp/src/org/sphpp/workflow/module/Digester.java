@@ -26,9 +26,9 @@ public class Digester extends WorkflowModule {
 		addOption(arg);
 		
 		arg = new Argument(OPT_REL, 'o', "output");
-		arg.setParamName("Pep2Prot.tsv");
+		arg.setParamName("Seq2Prot.tsv");
 		arg.setDescription("Output TSV file with peptide to protein relations.");
-		arg.setDefaultValue("Pep2Prot.tsv.gz");
+		arg.setDefaultValue("Seq2Prot.tsv.gz");
 		addOption(arg);
 		
 		addOption(Arguments.getEnzyme());

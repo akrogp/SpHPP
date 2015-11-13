@@ -86,6 +86,8 @@ public class ScoreFile<T extends Identifiable & Decoyable> {
 						continue;
 					item.putScore(new Score(type,Numbers.parseDouble(rd.getField(i))));
 				}
+				if( item.getScores().isEmpty() )
+					item.putScore(new Score(ScoreType.OTHER_LARGER, rd.getHeaderName(1), Numbers.parseDouble(rd.getField(1))));
 				file.getItems().add(item);
 			}
 			return file;

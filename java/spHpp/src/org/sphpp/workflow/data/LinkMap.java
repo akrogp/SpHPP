@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LinkList<U extends InterMapeable<U,L>, L extends InterMapeable<L,U>> {
+public class LinkMap<U extends InterMapeable<U,L>, L extends InterMapeable<L,U>> {
 	public void addLink( U upper, L lower) {
 		U uqUpper = upperMap.get(upper.getId());
 		if( uqUpper == null ) {
@@ -32,6 +32,14 @@ public class LinkList<U extends InterMapeable<U,L>, L extends InterMapeable<L,U>
 	
 	public Collection<L> getLowerList() {
 		return getLowerMap().values();
+	}
+	
+	public U getUpper( String id ) {
+		return getUpperMap().get(id);
+	}
+	
+	public L getLower( String id ) {
+		return getLowerMap().get(id);
 	}
 
 	private final Map<String,U> upperMap = new HashMap<>();

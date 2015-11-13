@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.sphpp.workflow.data.Link;
-import org.sphpp.workflow.data.LinkList;
+import org.sphpp.workflow.data.LinkMap;
 import org.sphpp.workflow.data.Relation;
 
 import es.ehubio.Numbers;
@@ -64,11 +64,20 @@ public class RelationFile {
 		try(PrintWriter pw = new PrintWriter(Streams.getTextWriter(path))) {
 			pw.print(getUpperLabel());
 			pw.print(SEP);
-			pw.println(getLowerLabel());
+			pw.print(getLowerLabel());
+			if( hasLabels() || hasCoeficients() ) {
+				pw.print(SEP);
+				pw.print("labels");
+				if( hasCoeficients() ) {
+					pw.print(SEP);
+					pw.print("coeficient");
+				}
+			}
+			pw.println();
 			for( Relation rel : getEntries() ) {
 				pw.print(rel.getUpperId());
 				pw.print(SEP);
-				pw.print(rel.getLowerId());
+				pw.print(rel.getLowerId());				
 				if( rel.getCoeficient() != null || !rel.getLabels().isEmpty() ) {
 					pw.print(SEP);
 					if( !rel.getLabels().isEmpty() )
@@ -100,14 +109,28 @@ public class RelationFile {
 		return entries.add(rel);
 	}
 		
-	public LinkList<Link<Void,Void>,Link<Void,Void>> getLinks() {
-		LinkList<Link<Void,Void>,Link<Void,Void>> map = new LinkList<>();
+	public LinkMap<Link<Void,Void>,Link<Void,Void>> getLinks() {
+		LinkMap<Link<Void,Void>,Link<Void,Void>> map = new LinkMap<>();
 		for( Relation rel : getEntries() ) {
 			Link<Void,Void> upper = new Link<>(rel.getUpperId());
 			Link<Void,Void> lower = new Link<>(rel.getLowerId());
 			map.addLink(upper, lower);
 		}
 		return map;
+	}
+	
+	public boolean hasCoeficients() {
+		return entries.iterator().next().getCoeficient() != null;
+	}
+	
+	public boolean hasLabels() {
+		return entries.iterator().next().getLabels() != null;
+	}
+	
+	public void setEquitative() {
+		LinkMap<Link<Void,Void>,Link<Void,Void>> map = getLinks();
+		for( Relation rel : getEntries() )
+			rel.setCoeficient(1.0/map.getLower(rel.getLowerId()).getLinks().size());
 	}
 
 	private final String lowerLabel;

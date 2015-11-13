@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 import org.sphpp.workflow.Arguments;
 import org.sphpp.workflow.data.InterMapeable;
 import org.sphpp.workflow.data.Link;
-import org.sphpp.workflow.data.LinkList;
+import org.sphpp.workflow.data.LinkMap;
 import org.sphpp.workflow.data.ScoreItem;
 import org.sphpp.workflow.file.RelationFile;
 
@@ -29,7 +29,7 @@ public class Modeller extends WorkflowModule {
 		Argument arg = new Argument(OPT_REL, 'i', "input");
 		arg.setParamName("Seq2Prot.tsv");
 		arg.setDescription("Input TSV file with peptide sequence relations.");
-		arg.setDefaultValue("Seq2Prot.tsv.gz");
+		//arg.setDefaultValue("Seq2Prot.tsv.gz");
 		addOption(arg);
 		
 		arg = new Argument(OPT_MQ, 'o', "output");
@@ -50,7 +50,7 @@ public class Modeller extends WorkflowModule {
 	@Override
 	protected void run(List<Argument> args) throws Exception {
 		RelationFile rel = RelationFile.load(getValue(OPT_REL), getValue(Arguments.OPT_DISCARD));
-		LinkList<Link<Void,Void>,Link<Void,Void>> data = rel.getLinks();
+		LinkMap<Link<Void,Void>,Link<Void,Void>> data = rel.getLinks();
 		String mods = getValue(Arguments.OPT_VAR_MODS);
 		Aminoacid[] varMods = new Aminoacid[mods.length()];
 		for( int i = 0; i < varMods.length; i++ )
@@ -68,7 +68,7 @@ public class Modeller extends WorkflowModule {
 		}
 	}
 	
-	public static <U extends InterMapeable<U,L>,L extends InterMapeable<L,U>> Set<ScoreItem> run( LinkList<U,L> data, int maxMods, Aminoacid... varMods) {
+	public static <U extends InterMapeable<U,L>,L extends InterMapeable<L,U>> Set<ScoreItem> run( LinkMap<U,L> data, int maxMods, Aminoacid... varMods) {
 		Set<ScoreItem> result = new HashSet<ScoreItem>();
 		for( InterMapeable<U,L> protein : data.getUpperMap().values() ) {
 			double Mq = 0.0;

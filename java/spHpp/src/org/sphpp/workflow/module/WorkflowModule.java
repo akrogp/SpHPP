@@ -16,6 +16,10 @@ public abstract class WorkflowModule {
 	}
 	
 	public void run(String[] args) {
+		if( args.length == 1 && args[0].equals("?") ) {
+			System.out.println(this.args.getDescription());
+			return;
+		}
 		try {			
 			List<Argument> opts = this.args.parseArgs(args);			
 			if( !opts.isEmpty() ) {
@@ -31,7 +35,7 @@ public abstract class WorkflowModule {
 			logger.info(String.format("'%s' finished successfully!!", getClass().getSimpleName()));
 		} catch( ArgException e ) {
 			logger.warning(e.getMessage());
-			logger.info("Usage:\n"+this.args.getUsage());
+			System.out.println("== Usage ==\n\n"+this.args.getUsage());
 		} catch( Exception e ) {
 			logger.severe(e.getMessage());
 			e.printStackTrace();

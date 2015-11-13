@@ -50,10 +50,13 @@ public class Parser extends WorkflowModule {
 		ScoreType type = ScoreFile.selectScore(data.getPsms());
 		logger.info(String.format("Using '%s' to calculate ranks ...", type.getName()));
 		data.updateRanks(type);
-		if( decoyPrefix == null )
+		if( decoyPrefix == null ) {
+			logger.info(String.format("Saving %s PSMs ...", data.getPsmCount()));
 			PsmFile.save(data.getPsms(), getValue(OPT_TARGET), type);
-		else {
+		} else {
+			logger.info(String.format("Saving %s target PSMs ...", data.getTargetPsmCount()));
 			PsmFile.save(data.getTargetPsms(), getValue(OPT_TARGET), type);
+			logger.info(String.format("Saving %s decoy PSMs ...", data.getDecoyPsmCount()));
 			PsmFile.save(data.getDecoyPsms(), getValue(OPT_DECOY), type);
 		}
 	}	
