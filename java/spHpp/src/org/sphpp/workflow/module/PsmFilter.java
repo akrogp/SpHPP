@@ -1,5 +1,6 @@
 package org.sphpp.workflow.module;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,7 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sphpp.workflow.data.Relation;
 import org.sphpp.workflow.file.PsmFile;
+import org.sphpp.workflow.file.RelationFile;
 import org.sphpp.workflow.file.ScoreFile;
 
 import es.ehubio.cli.Argument;
@@ -17,8 +20,8 @@ import es.ehubio.proteomics.Psm;
 import es.ehubio.proteomics.Score;
 import es.ehubio.proteomics.ScoreType;
 
-public class Filter extends WorkflowModule {
-	public Filter() {
+public class PsmFilter extends WorkflowModule {
+	public PsmFilter() {
 		super("Filters entries from PSMS SpHPP TSV file.");
 		
 		Argument arg = new Argument(OPT_INPUT, 'i', "input");
@@ -32,7 +35,13 @@ public class Filter extends WorkflowModule {
 		arg.setDefaultValue("Filter.tsv.gz");
 		addOption(arg);
 		
-		arg = new Argument(OPT_RANK, 'r', "rank");
+		arg = new Argument(OPT_PSM2PEP, 'r', "relations");
+		arg.setParamName("Psm2Pep.tsv");
+		arg.setDescription("Output relations file between filtered PSMs and peptides.");
+		arg.setDefaultValue("Psm2Pep.tsv.gz");
+		addOption(arg);
+		
+		arg = new Argument(OPT_RANK, null, "rank");
 		arg.setParamName("rank");
 		arg.setDescription("PSM rank threshold.");
 		arg.setDefaultValue(1);
@@ -52,7 +61,7 @@ public class Filter extends WorkflowModule {
 	}
 	
 	public static void main( String[] args ) {
-		new Filter().run(args);
+		new PsmFilter().run(args);
 	}
 
 	@Override
@@ -61,8 +70,9 @@ public class Filter extends WorkflowModule {
 		Set<Psm> psms = data.getPsms();
 		psms = run(psms, getIntValue(OPT_RANK), getBooleanValue(OPT_FEATURE), getBooleanValue(OPT_BEST_PSM), ScoreFile.selectScore(psms));
 		PsmFile.save(psms, getValue(OPT_OUTPUT));
-	}
-	
+		saveRelations(psms, getValue(OPT_PSM2PEP));
+	}	
+
 	public static Set<Psm> run( Set<Psm> psms, int rank, boolean feature, boolean best, ScoreType type ) {
 		if( rank >= 0 )
 			psms = filterRank(psms, rank);
@@ -127,10 +137,18 @@ public class Filter extends WorkflowModule {
 			peptides.add(psm.getPeptide());
 		return peptides;
 	}
+	
+	private void saveRelations(Set<Psm> psms, String path) throws IOException {
+		RelationFile file = new RelationFile("peptide", "psm");
+		for( Psm psm : psms )
+			file.addEntry(new Relation(psm.getPeptide().getUniqueString(), psm.getUniqueString()));
+		file.save(path);
+	}
 
 	private static final int OPT_INPUT = 1;
 	private static final int OPT_OUTPUT = 2;
 	private static final int OPT_RANK = 3;
 	private static final int OPT_FEATURE = 4;
 	private static final int OPT_BEST_PSM = 5;
+	private static final int OPT_PSM2PEP = 6;
 }
