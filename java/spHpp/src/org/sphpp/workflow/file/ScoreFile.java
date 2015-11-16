@@ -109,11 +109,13 @@ public class ScoreFile<T extends Identifiable & Decoyable> {
 		this.items = items;
 	}
 	
-	public static ScoreType selectScore( Collection<? extends Decoyable> items ) {
+	public static ScoreType selectScore( Collection<? extends Decoyable> items, ScoreType... scores ) {
 		if( items.isEmpty() )
 			return null;
+		if( scores.length == 0 )
+			scores = Constants.SCORES;
 		Decoyable item = items.iterator().next();
-		for( ScoreType type : Constants.SCORES )
+		for( ScoreType type : scores )
 			if( item.getScoreByType(type) != null )
 				return type;
 		return item.getScores().iterator().next().getType();

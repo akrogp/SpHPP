@@ -58,8 +58,8 @@ public class Modeller extends WorkflowModule {
 		Set<ScoreItem> result = run(data, getIntValue(Arguments.OPT_MAX_PEP_MODS), varMods);
 		try( PrintWriter pw = new PrintWriter(Streams.getTextWriter(getValue(OPT_MQ))) ) {
 			pw.print(rel.getUpperLabel()); pw.print(SEP);
-			pw.print("Mq"); pw.print(SEP);
-			pw.println("Nq");
+			pw.print(ScoreType.M_EVALUE.getName()); pw.print(SEP);
+			pw.println(ScoreType.N_EVALUE.getName());
 			for( ScoreItem item : result ) {
 				pw.print(item.getId()); pw.print(SEP);
 				pw.print(Numbers.toString(item.getScoreByType(ScoreType.MQ_EVALUE).getValue())); pw.print(SEP);
