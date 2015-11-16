@@ -7,8 +7,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.sphpp.workflow.data.Relation;
+import org.sphpp.workflow.file.PepFile;
 import org.sphpp.workflow.file.PsmFile;
 import org.sphpp.workflow.file.RelationFile;
 import org.sphpp.workflow.file.ScoreFile;
@@ -29,17 +31,23 @@ public class PsmFilter extends WorkflowModule {
 		arg.setDescription("Input TSV file with PSM entries.");
 		addOption(arg);
 		
-		arg = new Argument(OPT_OUTPUT, 'o', "output");
-		arg.setParamName("Filter.tsv");
+		arg = new Argument(OPT_OUTPUT_PSM, null, "outputPsm");
+		arg.setParamName("FilterPsm.tsv");
 		arg.setDescription("Output TSV file.");
-		arg.setDefaultValue("Filter.tsv.gz");
+		arg.setDefaultValue("FilterPsm.tsv.gz");
+		addOption(arg);
+		
+		arg = new Argument(OPT_OUTPUT_PEP, null, "outputPep");
+		arg.setParamName("FilterPep.tsv");
+		arg.setDescription("Output peptide TSV file.");
+		arg.setDefaultValue("FilterPep.tsv.gz");
 		addOption(arg);
 		
 		arg = new Argument(OPT_PSM2PEP, 'r', "relations");
 		arg.setParamName("Psm2Pep.tsv");
 		arg.setDescription("Output relations file between filtered PSMs and peptides.");
 		arg.setDefaultValue("Psm2Pep.tsv.gz");
-		addOption(arg);
+		addOption(arg);				
 		
 		arg = new Argument(OPT_RANK, null, "rank");
 		arg.setParamName("rank");
@@ -69,8 +77,13 @@ public class PsmFilter extends WorkflowModule {
 		MsMsData data = PsmFile.load(getValue(OPT_INPUT));
 		Set<Psm> psms = data.getPsms();
 		psms = run(psms, getIntValue(OPT_RANK), getBooleanValue(OPT_FEATURE), getBooleanValue(OPT_BEST_PSM), ScoreFile.selectScore(psms));
-		PsmFile.save(psms, getValue(OPT_OUTPUT));
-		saveRelations(psms, getValue(OPT_PSM2PEP));
+		logger.info(String.format("Saving %s PSMs ...", psms.size()));
+		PsmFile.save(psms, getValue(OPT_OUTPUT_PSM));
+		Set<Peptide> peptides = getPeptides(psms);
+		logger.info(String.format("Saving %s peptides ...", peptides.size()));
+		PepFile.save(peptides, getValue(OPT_OUTPUT_PEP));
+		logger.info("Saving peptide to protein relations ...");
+		saveRelations(psms, getValue(OPT_PSM2PEP));		
 	}	
 
 	public static Set<Psm> run( Set<Psm> psms, int rank, boolean feature, boolean best, ScoreType type ) {
@@ -146,9 +159,11 @@ public class PsmFilter extends WorkflowModule {
 	}
 
 	private static final int OPT_INPUT = 1;
-	private static final int OPT_OUTPUT = 2;
+	private static final int OPT_OUTPUT_PSM = 2;
 	private static final int OPT_RANK = 3;
 	private static final int OPT_FEATURE = 4;
 	private static final int OPT_BEST_PSM = 5;
 	private static final int OPT_PSM2PEP = 6;
+	private static final int OPT_OUTPUT_PEP = 7;
+	private static final Logger logger = Logger.getLogger(PsmFilter.class.getName());
 }

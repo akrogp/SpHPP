@@ -36,7 +36,7 @@ public class Arguments {
 		Argument arg = new Argument(OPT_CLEAVAGES, null, "missed");
 		arg.setParamName("missedCleavages");
 		arg.setDescription("Number of missed cleavages allowed in the search.");
-		arg.setDefaultValue(2);
+		arg.setDefaultValue(1);
 		return arg;
 	}
 	
@@ -66,7 +66,7 @@ public class Arguments {
 		Argument arg = new Argument(OPT_MAX_PEP_LEN, null, "maxPepLen");
 		arg.setParamName("length");
 		arg.setDescription("Maximum peptide length in amino acids.");
-		arg.setDefaultValue(50);
+		arg.setDefaultValue(60);
 		return arg;
 	}
 	

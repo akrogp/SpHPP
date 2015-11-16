@@ -21,19 +21,20 @@ public class Parser extends WorkflowModule {
 		arg.setDescription("Input path of search engine output file or directory with files.");
 		addOption(arg);
 		
-		arg = new Argument(OPT_TARGET, 't', "target");
-		arg.setParamName("Target.tsv");
-		arg.setDescription("Output TSV file.");
-		arg.setDefaultValue("Target.tsv.gz");
+		arg = new Argument(OPT_TARGET_PSM, 'o', "outputPsm");
+		arg.setParamName("PsmTarget.tsv");
+		arg.setDescription("Output PSM TSV file.");
+		arg.setDefaultValue("PsmTarget.tsv.gz");
 		addOption(arg);
 		
-		arg = new Argument(OPT_DECOY, 'd', "decoy");
-		arg.setParamName("Decoy.tsv");
-		arg.setDescription("Output TSV file for decoys.");
-		arg.setDefaultValue("Decoy.tsv.gz");
+		arg = new Argument(OPT_DECOY_PSM, 'd', "decoyPsm");
+		arg.setParamName("PsmDecoy.tsv");
+		arg.setDescription("Output PSM TSV file for decoys.");
+		arg.setDefaultValue("PsmDecoy.tsv.gz");
 		addOption(arg);
 				
 		arg = Arguments.getDecoyPrefix();
+		arg.setDescription(String.format("%s If none given, separate output files for decoys will not be generated.", arg.getDescription()));
 		arg.setDefaultValue(null);
 		arg.setOptional();
 		addOption(arg);
@@ -52,12 +53,12 @@ public class Parser extends WorkflowModule {
 		data.updateRanks(type);
 		if( decoyPrefix == null ) {
 			logger.info(String.format("Saving %s PSMs ...", data.getPsmCount()));
-			PsmFile.save(data.getPsms(), getValue(OPT_TARGET), type);
+			PsmFile.save(data.getPsms(), getValue(OPT_TARGET_PSM), type);			
 		} else {
 			logger.info(String.format("Saving %s target PSMs ...", data.getTargetPsmCount()));
-			PsmFile.save(data.getTargetPsms(), getValue(OPT_TARGET), type);
+			PsmFile.save(data.getTargetPsms(), getValue(OPT_TARGET_PSM), type);
 			logger.info(String.format("Saving %s decoy PSMs ...", data.getDecoyPsmCount()));
-			PsmFile.save(data.getDecoyPsms(), getValue(OPT_DECOY), type);
+			PsmFile.save(data.getDecoyPsms(), getValue(OPT_DECOY_PSM), type);
 		}
 	}	
 	
@@ -69,6 +70,6 @@ public class Parser extends WorkflowModule {
 
 	private static final Logger logger = Logger.getLogger(Parser.class.getName());
 	private static final int OPT_INPUT = 1;
-	private static final int OPT_TARGET = 2;
-	private static final int OPT_DECOY = 3;
+	private static final int OPT_TARGET_PSM = 2;
+	private static final int OPT_DECOY_PSM = 3;
 }
