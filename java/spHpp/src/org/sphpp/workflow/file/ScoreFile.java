@@ -1,6 +1,5 @@
 package org.sphpp.workflow.file;
 
-import static org.sphpp.workflow.Constants.SCORES;
 import static org.sphpp.workflow.Constants.SEP;
 
 import java.io.FileNotFoundException;
@@ -33,10 +32,14 @@ public class ScoreFile<T extends Identifiable & Decoyable> {
 		save(id, items, path, scores);
 	}
 	
-	public static <T extends Identifiable & Decoyable> void save(String id, Collection<T> items, String path, ScoreType... scores) throws FileNotFoundException, IOException {
-		if( scores.length == 0 )
-			scores = SCORES;
+	public static <T extends Identifiable & Decoyable> void save(String id, Collection<T> items, String path, ScoreType... scores) throws FileNotFoundException, IOException {		
 		T first = items.iterator().next();
+		if( scores.length == 0 ) {
+			scores = new ScoreType[first.getScores().size()];
+			int i = 0;
+			for( Score score : first.getScores() )
+				scores[i++] = score.getType();
+		}
 		boolean[] useScore = new boolean[scores.length];
 		int last = 0;
 		for( int i = 0; i < useScore.length; i++ ) {

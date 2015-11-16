@@ -1,7 +1,10 @@
 package org.sphpp.workflow.module;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -52,8 +55,20 @@ public class LPCalculator extends WorkflowModule {
 		ScoreType type = ScoreFile.selectScore(target.getItems());
 		logger.info(String.format("Using '%s' for calculating LP values ...", type.getName()));
 		run(target.getItems(), decoy.getItems(), type, ScoreType.LP_SCORE);
-		target.save(getValue(OPT_OUT_TARGET), ScoreType.LP_SCORE);
-		decoy.save(getValue(OPT_OUT_DECOY), ScoreType.LP_SCORE);
+		save(target, getValue(OPT_OUT_TARGET));
+		save(decoy, getValue(OPT_OUT_DECOY));
+	}
+
+	private void save(ScoreFile<ScoreItem> file, String path) throws FileNotFoundException, IOException {
+		final ScoreType type = ScoreType.LP_SCORE;
+		List<ScoreItem> list = new ArrayList<>(file.getItems());
+		list.sort(new Comparator<ScoreItem>() {
+			@Override
+			public int compare(ScoreItem o1, ScoreItem o2) {
+				return o1.getScoreByType(type).compare(o2.getScoreByType(type).getValue());
+			}
+		});
+		ScoreFile.save(file.getId(), list, path, type);
 	}
 
 	public static void run( Collection<? extends Decoyable> targetPsms, Collection<? extends Decoyable> decoyPsms, ScoreType type, ScoreType lpScore ) {

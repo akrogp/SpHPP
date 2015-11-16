@@ -124,7 +124,8 @@ public class RelationFile {
 	}
 	
 	public boolean hasLabels() {
-		return entries.iterator().next().getLabels() != null;
+		Set<String> labels = entries.iterator().next().getLabels();
+		return labels != null && !labels.isEmpty();
 	}
 	
 	public void setEquitative() {
