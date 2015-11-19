@@ -36,6 +36,12 @@ public class Integrator extends WorkflowModule {
 		arg.setDescription("Output TSV file with upper level scores.");
 		addOption(arg);
 		
+		arg = new Argument(OPT_PREFIX, 'p', "prefix");
+		arg.setParamName("prefix");
+		arg.setDescription("Optional prefix to be added to upper and lower relation ids.");
+		arg.setOptional();
+		addOption(arg);		
+		
 		addOption(Arguments.getDiscard());
 	}
 	
@@ -45,7 +51,7 @@ public class Integrator extends WorkflowModule {
 
 	@Override
 	protected void run(List<Argument> args) throws Exception {
-		RelationFile rel = RelationFile.load(getValue(OPT_REL),getValue(Arguments.OPT_DISCARD));
+		RelationFile rel = RelationFile.load(getValue(OPT_REL),getValue(Arguments.OPT_DISCARD), getValue(OPT_PREFIX));
 		if( !rel.hasCoeficients() )
 			rel.setEquitative();
 		ScoreFile<ScoreItem> lower = ScoreFile.load(getValue(OPT_LOWER));
@@ -62,7 +68,8 @@ public class Integrator extends WorkflowModule {
 		for( Relation rel : relations.getEntries() ) {
 			T lower = lowerMap.get(rel.getLowerId());
 			if( lower == null )
-				throw new Exception(String.format("Referenced lower item '%s' not found", rel.getLowerId()));
+				//throw new Exception(String.format("Referenced lower item '%s' not found", rel.getLowerId()));
+				continue;
 			ScoreItem upper = upperMap.get(rel.getUpperId());
 			if( upper == null ) {
 				upper = new ScoreItem(rel.getUpperId());
@@ -82,4 +89,5 @@ public class Integrator extends WorkflowModule {
 	private static final int OPT_LOWER = 1;
 	private static final int OPT_REL = 2;
 	private static final int OPT_UPPER = 3;
+	private static final int OPT_PREFIX = 4;
 }

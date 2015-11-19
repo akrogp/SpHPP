@@ -33,9 +33,9 @@ public class Modeller extends WorkflowModule {
 		addOption(arg);
 		
 		arg = new Argument(OPT_MQ, 'o', "output");
-		arg.setParamName("MProt.tsv");
+		arg.setParamName("MdbProt.tsv");
 		arg.setDescription("Output TSV file with M and N values.");
-		arg.setDefaultValue("MProt.tsv.gz");
+		arg.setDefaultValue("MdbProt.tsv.gz");
 		addOption(arg);
 		
 		addOption(Arguments.getVarMods());		
@@ -49,8 +49,8 @@ public class Modeller extends WorkflowModule {
 
 	@Override
 	protected void run(List<Argument> args) throws Exception {
-		RelationFile rel = RelationFile.load(getValue(OPT_REL), getValue(Arguments.OPT_DISCARD));
-		LinkMap<Link<Void,Void>,Link<Void,Void>> data = rel.getLinks();
+		RelationFile rel = RelationFile.load(getValue(OPT_REL), getValue(Arguments.OPT_DISCARD), null);
+		LinkMap<Link<Void,Void>,Link<Void,Void>> data = rel.getLinkMap();
 		String mods = getValue(Arguments.OPT_VAR_MODS);
 		Aminoacid[] varMods = new Aminoacid[mods.length()];
 		for( int i = 0; i < varMods.length; i++ )
@@ -58,17 +58,18 @@ public class Modeller extends WorkflowModule {
 		Set<ScoreItem> result = run(data, getIntValue(Arguments.OPT_MAX_PEP_MODS), varMods);
 		try( PrintWriter pw = new PrintWriter(Streams.getTextWriter(getValue(OPT_MQ))) ) {
 			pw.print(rel.getUpperLabel()); pw.print(SEP);
-			pw.print(ScoreType.M_EVALUE.getName()); pw.print(SEP);
-			pw.println(ScoreType.N_EVALUE.getName());
+			pw.print(ScoreType.M_DVALUE.getName()); pw.print(SEP);
+			pw.println(ScoreType.N_DVALUE.getName());
 			for( ScoreItem item : result ) {
 				pw.print(item.getId()); pw.print(SEP);
-				pw.print(Numbers.toString(item.getScoreByType(ScoreType.MQ_EVALUE).getValue())); pw.print(SEP);
-				pw.println(Numbers.toString(item.getScoreByType(ScoreType.NQ_EVALUE).getValue()));
+				pw.print(Numbers.toString(item.getScoreByType(ScoreType.M_DVALUE).getValue())); pw.print(SEP);
+				pw.println(Numbers.toString(item.getScoreByType(ScoreType.N_DVALUE).getValue()));
 			}
 		}
 	}
 	
-	public static <U extends InterMapeable<U,L>,L extends InterMapeable<L,U>> Set<ScoreItem> run( LinkMap<U,L> data, int maxMods, Aminoacid... varMods) {
+	public static <U extends InterMapeable<U,L>,L extends InterMapeable<L,U>>
+	Set<ScoreItem> run( LinkMap<U,L> data, int maxMods, Aminoacid... varMods) {
 		Set<ScoreItem> result = new HashSet<ScoreItem>();
 		for( InterMapeable<U,L> protein : data.getUpperMap().values() ) {
 			double Mq = 0.0;
@@ -79,8 +80,8 @@ public class Modeller extends WorkflowModule {
 				Mq += tryptic/peptide.getLinks().size();
 			}
 			ScoreItem item = new ScoreItem(protein.getId());
-			item.putScore(new Score(ScoreType.MQ_EVALUE, Mq));
-			item.putScore(new Score(ScoreType.NQ_EVALUE, Nq));
+			item.putScore(new Score(ScoreType.M_DVALUE, Mq));
+			item.putScore(new Score(ScoreType.N_DVALUE, Nq));
 			result.add(item);
 		}
 		return result;

@@ -27,10 +27,14 @@ public class RelationFile {
 	}
 	
 	public static RelationFile load( String path ) throws IOException {
-		return load(path, null);
+		return load(path, null, null);
 	}
 	
 	public static RelationFile load( String path, String discard ) throws IOException {
+		return load(path, discard, null);
+	}
+	
+	public static RelationFile load( String path, String discard, String prefix ) throws IOException {
 		try(CsvReader reader = new CsvReader(SEP, true)) {
 			long count = 0;
 			reader.open(path);
@@ -40,7 +44,11 @@ public class RelationFile {
 					count++;
 					continue;
 				}
-				Relation rel = new Relation(reader.getField(0), reader.getField(1));
+				Relation rel;
+				if( prefix == null )
+					rel = new Relation(reader.getField(0), reader.getField(1));
+				else
+					rel = new Relation(prefix+reader.getField(0), prefix+reader.getField(1));
 				if( reader.getFields().length > 2 )
 					if( !reader.getField(2).isEmpty() )
 						rel.getLabels().addAll(Arrays.asList(reader.getField(2).split(SUB_SEP)));
@@ -109,7 +117,7 @@ public class RelationFile {
 		return entries.add(rel);
 	}
 		
-	public LinkMap<Link<Void,Void>,Link<Void,Void>> getLinks() {
+	public LinkMap<Link<Void,Void>,Link<Void,Void>> getLinkMap() {
 		LinkMap<Link<Void,Void>,Link<Void,Void>> map = new LinkMap<>();
 		for( Relation rel : getEntries() ) {
 			Link<Void,Void> upper = new Link<>(rel.getUpperId());
@@ -129,7 +137,7 @@ public class RelationFile {
 	}
 	
 	public void setEquitative() {
-		LinkMap<Link<Void,Void>,Link<Void,Void>> map = getLinks();
+		LinkMap<Link<Void,Void>,Link<Void,Void>> map = getLinkMap();
 		for( Relation rel : getEntries() )
 			rel.setCoeficient(1.0/map.getLower(rel.getLowerId()).getLinks().size());
 	}

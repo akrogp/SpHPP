@@ -1,58 +1,79 @@
 package org.sphpp.workflow.data;
 
 import java.util.Collection;
+import java.util.Set;
 
 import es.ehubio.proteomics.Decoyable;
 import es.ehubio.proteomics.Score;
 import es.ehubio.proteomics.ScoreType;
 
-public class Wrapper<FROM extends Decoyable,TO> extends Link<FROM,TO> implements Decoyable {
-	public Wrapper( String id, FROM entity ) {
-		super(id, entity);
+public class Wrapper<S extends Decoyable, FROM extends InterMapeable<FROM, TO>, TO extends InterMapeable<TO,FROM>>
+extends IdItem implements Decoyable, InterMapeable<FROM,TO> {
+	public Wrapper( String id, S entity, FROM link ) {
+		super(id);
+		this.entity = entity;
+		this.link = link;		
 	}
 
 	@Override
 	public Boolean getDecoy() {
-		return getEntity().getDecoy();
+		return getScoreEntity().getDecoy();
 	}
 
 	@Override
 	public void setDecoy(Boolean decoy) {
-		getEntity().setDecoy(decoy);
+		getScoreEntity().setDecoy(decoy);
 	}
 
 	@Override
 	public Score putScore(Score score) {
-		return getEntity().putScore(score);
+		return getScoreEntity().putScore(score);
 	}
 
 	@Override
 	public Collection<Score> getScores() {
-		return getEntity().getScores();
+		return getScoreEntity().getScores();
 	}
 
 	@Override
 	public Score getScoreByType(ScoreType type) {
-		return getEntity().getScoreByType(type);
+		return getScoreEntity().getScoreByType(type);
 	}
 
 	@Override
 	public void clearScores() {
-		getEntity().clearScores();
+		getScoreEntity().clearScores();
 	}
 
 	@Override
 	public void setPassThreshold(boolean passThreshold) {
-		getEntity().setPassThreshold(passThreshold);
+		getScoreEntity().setPassThreshold(passThreshold);
 	}
 
 	@Override
 	public boolean isPassThreshold() {
-		return getEntity().isPassThreshold();
+		return getScoreEntity().isPassThreshold();
 	}
 
 	@Override
 	public boolean skipFdr() {
-		return getEntity().skipFdr();
+		return getScoreEntity().skipFdr();
 	}
+	
+	public S getScoreEntity() {
+		return entity;
+	}	
+
+	@Override
+	public Set<TO> getLinks() {
+		return link.getLinks();
+	}
+
+	@Override
+	public boolean link(TO item) {
+		return link.link(item);
+	}
+	
+	private final S entity;
+	private final FROM link;
 }
