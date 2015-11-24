@@ -32,6 +32,7 @@ public class RelationFile extends Relations {
 	}
 	
 	public static RelationFile load( String path, String discard, String prefix ) throws IOException {
+		logger.info("Loading relations ...");
 		try(CsvReader reader = new CsvReader(SEP, true)) {
 			long count = 0;
 			reader.open(path);
@@ -54,13 +55,13 @@ public class RelationFile extends Relations {
 						try {
 							rel.setCoeficient(Numbers.parseDouble(reader.getField(3)));
 						} catch (ParseException e) {
-							log.warning(e.getMessage());
+							logger.warning(e.getMessage());
 						}
 				relations.addEntry(rel);				
 			}
-			log.info(String.format("Loaded %d relations", relations.getEntries().size()));
+			logger.info(String.format("Loaded %d relations", relations.getEntries().size()));
 			if( count != 0 )
-				log.info(String.format("Discarded %d relations", count));
+				logger.info(String.format("Discarded %d relations", count));
 			return relations;
 		}
 	}
@@ -74,6 +75,7 @@ public class RelationFile extends Relations {
 	}
 	
 	public static void save( String upperLabel, String lowerLabel, Relations rels, String path ) throws IOException {
+		logger.info("Saving relations ...");
 		try(PrintWriter pw = new PrintWriter(Streams.getTextWriter(path))) {
 			pw.print(upperLabel);
 			pw.print(SEP);
@@ -102,7 +104,7 @@ public class RelationFile extends Relations {
 				}
 				pw.println();
 			}
-			log.info(String.format("Saved %d relations", rels.getEntries().size()));
+			logger.info(String.format("Saved %d relations", rels.getEntries().size()));
 		}
 	}
 
@@ -116,5 +118,5 @@ public class RelationFile extends Relations {
 
 	private final String lowerLabel;
 	private final String upperLabel;
-	private static final Logger log = Logger.getLogger(RelationFile.class.getName());
+	private static final Logger logger = Logger.getLogger(RelationFile.class.getName());
 }

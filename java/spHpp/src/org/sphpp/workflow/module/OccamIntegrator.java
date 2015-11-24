@@ -3,7 +3,6 @@ package org.sphpp.workflow.module;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import org.sphpp.workflow.Arguments;
@@ -117,8 +116,8 @@ public class OccamIntegrator extends WorkflowModule {
 			rels, lppep.getItems(), mq.getItems(),
 			lowerType, lpScore, mScore, lpcScore);
 		
-		ScoreFile.save("Occam", result.getUpper(), getValue(OPT_OUT_LP), lpScore);
-		ScoreFile.save("Occam", result.getUpper(), getValue(OPT_OUT_LPCORR), lpcScore);
+		ScoreFile.save(rels.getUpperLabel(), result.getUpper(), getValue(OPT_OUT_LP), lpScore);
+		ScoreFile.save(rels.getUpperLabel(), result.getUpper(), getValue(OPT_OUT_LPCORR), lpcScore);
 		rels.save(result.getRelations(), getValue(OPT_OUT_REL));
 	}
 	
@@ -131,12 +130,8 @@ public class OccamIntegrator extends WorkflowModule {
 		logger.info("Integrating lower LP values ...");
 		LinkMap<ScoreLink,ScoreLink> linkmap = rels.getLinkMap(Integrator.run(lowerItems,rels));
 		logger.info("Combining scores ...");
-		Map<String,T> mapScore = Utils.getMap(mValues);
-		for( ScoreLink upper : linkmap.getUpperList() )
-			upper.putScores(mapScore.get(upper.getId()).getScores());
-		mapScore = Utils.getMap(lowerItems);
-		for( ScoreLink lower : linkmap.getLowerList() )
-			lower.putScores(mapScore.get(lower.getId()).getScores());
+		Utils.addScores(linkmap.getUpperList(), mValues);
+		Utils.addScores(linkmap.getLowerList(), lowerItems);
 		
 		double diff;
 		int iter = 0;		

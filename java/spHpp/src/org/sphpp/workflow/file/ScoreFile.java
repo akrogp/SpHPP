@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.sphpp.workflow.Constants;
 import org.sphpp.workflow.data.Identifiable;
@@ -32,7 +33,9 @@ public class ScoreFile<T extends Identifiable & Decoyable> {
 		save(id, items, path, scores);
 	}
 	
-	public static <T extends Identifiable & Decoyable> void save(String id, Collection<T> items, String path, ScoreType... scores) throws FileNotFoundException, IOException {		
+	public static <T extends Identifiable & Decoyable>
+	void save(String id, Collection<T> items, String path, ScoreType... scores) throws FileNotFoundException, IOException {
+		logger.info("Saving scores ...");
 		T first = items.iterator().next();
 		if( scores.length == 0 ) {
 			scores = new ScoreType[first.getScores().size()];
@@ -69,9 +72,11 @@ public class ScoreFile<T extends Identifiable & Decoyable> {
 				pw.println();
 			}
 		}
+		logger.info(String.format("Saved %d items", items.size()));
 	}
 	
 	public static ScoreFile<ScoreItem> load( String path, ScoreType... scores ) throws IOException, ParseException {
+		logger.info("Loading scores ...");
 		List<String> types = new ArrayList<>();
 		for( int i = 0; i < scores.length; i++ )
 			types.add(scores[i].getName());
@@ -93,6 +98,7 @@ public class ScoreFile<T extends Identifiable & Decoyable> {
 					item.putScore(new Score(ScoreType.OTHER_LARGER, rd.getHeaderName(1), Numbers.parseDouble(rd.getField(1))));
 				file.getItems().add(item);
 			}
+			logger.info(String.format("Loaded %d items", file.getItems().size()));
 			return file;
 		}
 	}
@@ -125,6 +131,7 @@ public class ScoreFile<T extends Identifiable & Decoyable> {
 		return item.getScores().iterator().next().getType();
 	}
 
+	private static final Logger logger = Logger.getLogger(ScoreFile.class.getName());
 	private final String id;	
 	private Set<T> items;
 }

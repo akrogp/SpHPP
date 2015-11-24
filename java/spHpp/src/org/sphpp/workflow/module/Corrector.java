@@ -2,7 +2,6 @@ package org.sphpp.workflow.module;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import org.sphpp.workflow.Utils;
@@ -11,7 +10,6 @@ import org.sphpp.workflow.file.ScoreFile;
 
 import es.ehubio.cli.Argument;
 import es.ehubio.proteomics.Decoyable;
-import es.ehubio.proteomics.Score;
 import es.ehubio.proteomics.ScoreType;
 import es.ehubio.proteomics.pipeline.ScoreIntegrator;
 
@@ -54,9 +52,7 @@ public class Corrector extends WorkflowModule {
 		ScoreType lpScore = ScoreFile.selectScore(items.getItems(), ScoreType.LP_SCORE, ScoreType.LPG_SCORE, ScoreType.LPQ_SCORE);
 		ScoreType lpcScore = ScoreType.LPCORR_SCORE;
 		logger.info(String.format("Using the following scores: LP='%s' M='%s' LPCorr='%s'", lpScore.getName(), mScore.getName(), lpcScore.getName()));
-		Map<String, ScoreItem> map = Utils.getMap(mq.getItems());
-		for( ScoreItem item : items.getItems() )
-			item.putScore(new Score(mScore, map.get(item.getId()).getScoreByType(mScore).getValue()));
+		Utils.addScores(items.getItems(), mq.getItems());
 		boolean fast = getBooleanValue(OPT_APPROX);
 		run(items.getItems(), mScore, lpScore, lpcScore, fast);
 		items.save(getValue(OPT_OUTPUT), lpcScore);
