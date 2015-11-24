@@ -68,5 +68,9 @@ public abstract class WorkflowModule {
 		return args.getBooleanValue(id);
 	}
 	
+	protected Double getDoubleValue( int id ) {
+		return args.getDoubleValue(id);
+	}
+	
 	protected abstract void run( List<Argument> args ) throws Exception;
 }

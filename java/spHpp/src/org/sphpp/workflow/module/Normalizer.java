@@ -2,19 +2,15 @@ package org.sphpp.workflow.module;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import org.sphpp.workflow.Arguments;
-import org.sphpp.workflow.Utils;
-import org.sphpp.workflow.data.Link;
+import org.sphpp.workflow.data.LinkMap;
 import org.sphpp.workflow.data.Linkable;
 import org.sphpp.workflow.data.ScoreItem;
-import org.sphpp.workflow.data.Wrapper;
+import org.sphpp.workflow.data.ScoreLink;
 import org.sphpp.workflow.file.RelationFile;
 import org.sphpp.workflow.file.ScoreFile;
 
@@ -65,25 +61,22 @@ public class Normalizer extends WorkflowModule {
 		ScoreType obsType = ScoreType.M_OVALUE;
 		ScoreType expType = ScoreType.M_EVALUE;
 		ScoreFile<ScoreItem> file = ScoreFile.load(getValue(OPT_DBM), dbType);
-		Map<String,ScoreItem> mvalues = Utils.getMap(file.getItems());
-		Set<Wrapper<ScoreItem,Link<Void,Void>,Link<Void,Void>>> wrapperSet = new HashSet<>(); 
-		for( Link<Void,Void> link : RelationFile.load(getValue(OPT_REL),getValue(Arguments.OPT_DISCARD),null).getLinkMap().getUpperList() ) {
-			Wrapper<ScoreItem,Link<Void,Void>,Link<Void,Void>> wrapper = new Wrapper<>(link.getId(), mvalues.get(link.getId()), link);
-			wrapperSet.add(wrapper);
-		}
-		setObserved(wrapperSet, obsType);
+		LinkMap<ScoreLink,ScoreLink> map = RelationFile
+				.load(getValue(OPT_REL),getValue(Arguments.OPT_DISCARD))
+				.getLinkMap(file.getItems()); 		
+		setObserved(map.getUpperList(), obsType);
 		double factor;
 		if( getValue(OPT_ALPHA) != null )
 			factor = Numbers.parseDouble(getValue(OPT_ALPHA));
 		else
-			factor = getFactor(wrapperSet, obsType, dbType);
+			factor = getFactor(map.getUpperList(), obsType, dbType);
 		logger.info(String.format(Locale.ENGLISH, "alpha=%f", factor));
-		apply(wrapperSet, dbType, expType, factor);
+		apply(map.getUpperList(), dbType, expType, factor);
 		//file.save(getValue(OPT_OUT), expType, obsType, dbType);
 		//ScoreFile.save(file.getId(), wrapperSet, getValue(OPT_OUT), expType, obsType, dbType);
-		ScoreFile.save(file.getId(), wrapperSet, getValue(OPT_OUT), expType, obsType);
+		ScoreFile.save(file.getId(), map.getUpperList(), getValue(OPT_OUT), expType, obsType);
 		//System.out.println(getValue(OPT_OUT).replaceAll("\\..*", ".pdf"));
-		EhubioCsv.saveModel(wrapperSet, obsType, expType, "Random matching model", getValue(OPT_OUT).replaceAll("\\..*", ".pdf"));
+		EhubioCsv.saveModel(map.getUpperList(), obsType, expType, "Random matching model", getValue(OPT_OUT).replaceAll("\\..*", ".pdf"));
 	}
 
 	public static <S extends Decoyable & Linkable<FROM,TO>, FROM extends Linkable<FROM,TO>, TO extends Linkable<TO,FROM>>

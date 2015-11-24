@@ -9,9 +9,13 @@ public class Relation extends IdItem {
 	private final Set<String> labels = new LinkedHashSet<String>();
 	private Double coeficient;
 	public Relation( String upperId, String lowerId ) {
+		this(upperId, lowerId, null);
+	}
+	public Relation( String upperId, String lowerId, Double coeficient ) {
 		super(String.format("%s->%s", lowerId, upperId));
 		this.upperId = upperId;
 		this.lowerId = lowerId;
+		this.coeficient = coeficient;
 	}
 	public String getUpperId() {
 		return upperId;

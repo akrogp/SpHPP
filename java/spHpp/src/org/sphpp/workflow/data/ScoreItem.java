@@ -60,5 +60,5 @@ public class ScoreItem extends IdItem implements Decoyable {
 	@Override
 	public boolean skipFdr() {
 		return false;
-	}	
+	}
 }

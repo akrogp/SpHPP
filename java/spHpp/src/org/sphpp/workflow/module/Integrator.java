@@ -1,5 +1,6 @@
 package org.sphpp.workflow.module;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Set;
 import org.sphpp.workflow.Arguments;
 import org.sphpp.workflow.data.Identifiable;
 import org.sphpp.workflow.data.Relation;
+import org.sphpp.workflow.data.Relations;
 import org.sphpp.workflow.data.ScoreItem;
 import org.sphpp.workflow.file.RelationFile;
 import org.sphpp.workflow.file.ScoreFile;
@@ -60,7 +62,7 @@ public class Integrator extends WorkflowModule {
 		upper.save(getValue(OPT_UPPER));
 	}
 	
-	public static <T extends Identifiable & Decoyable> Set<ScoreItem> run(Set<T> lowerSet, RelationFile relations) throws Exception {		
+	public static <T extends Identifiable & Decoyable> Set<ScoreItem> run(Collection<T> lowerSet, Relations relations) {		
 		Map<String,T> lowerMap = new HashMap<>();		
 		for( T lower : lowerSet )
 			lowerMap.put(lower.getId(), lower);

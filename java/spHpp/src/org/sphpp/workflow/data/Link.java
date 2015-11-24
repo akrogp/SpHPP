@@ -5,6 +5,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Links bidirectionally a entity of type FROM to entities of type TO
+ * @author gorka
+ *
+ * @param <FROM>
+ * @param <TO>
+ */
 public class Link<FROM,TO> extends IdItem implements InterMapeable<Link<FROM,TO>,Link<TO,FROM>> {
 	public Link( String id ) {
 		this(id, null);

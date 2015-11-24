@@ -109,6 +109,10 @@ public class ScoreFile<T extends Identifiable & Decoyable> {
 		this.items = items;
 	}
 	
+	public ScoreType selectScore( ScoreType... scores ) {
+		return selectScore(items, scores);
+	}
+	
 	public static ScoreType selectScore( Collection<? extends Decoyable> items, ScoreType... scores ) {
 		if( items.isEmpty() )
 			return null;

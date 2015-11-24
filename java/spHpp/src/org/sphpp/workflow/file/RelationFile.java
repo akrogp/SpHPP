@@ -7,20 +7,17 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.ParseException;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.logging.Logger;
 
-import org.sphpp.workflow.data.Link;
-import org.sphpp.workflow.data.LinkMap;
 import org.sphpp.workflow.data.Relation;
+import org.sphpp.workflow.data.Relations;
 
 import es.ehubio.Numbers;
 import es.ehubio.io.CsvReader;
 import es.ehubio.io.CsvUtils;
 import es.ehubio.io.Streams;
 
-public class RelationFile {
+public class RelationFile extends Relations {
 	public RelationFile( String upperLabel, String lowerLabel ) {
 		this.lowerLabel = lowerLabel;
 		this.upperLabel = upperLabel;
@@ -59,9 +56,9 @@ public class RelationFile {
 						} catch (ParseException e) {
 							log.warning(e.getMessage());
 						}
-				relations.entries.add(rel);				
+				relations.addEntry(rel);				
 			}
-			log.info(String.format("Loaded %d relations", relations.entries.size()));
+			log.info(String.format("Loaded %d relations", relations.getEntries().size()));
 			if( count != 0 )
 				log.info(String.format("Discarded %d relations", count));
 			return relations;
@@ -69,20 +66,28 @@ public class RelationFile {
 	}
 	
 	public void save( String path ) throws IOException {
+		save(this, path);
+	}
+	
+	public void save( Relations rels, String path ) throws IOException {
+		save(getUpperLabel(), getLowerLabel(), rels, path);
+	}
+	
+	public static void save( String upperLabel, String lowerLabel, Relations rels, String path ) throws IOException {
 		try(PrintWriter pw = new PrintWriter(Streams.getTextWriter(path))) {
-			pw.print(getUpperLabel());
+			pw.print(upperLabel);
 			pw.print(SEP);
-			pw.print(getLowerLabel());
-			if( hasLabels() || hasCoeficients() ) {
+			pw.print(lowerLabel);
+			if( rels.hasLabels() || rels.hasCoeficients() ) {
 				pw.print(SEP);
 				pw.print("labels");
-				if( hasCoeficients() ) {
+				if( rels.hasCoeficients() ) {
 					pw.print(SEP);
 					pw.print("coeficient");
 				}
 			}
 			pw.println();
-			for( Relation rel : getEntries() ) {
+			for( Relation rel : rels.getEntries() ) {
 				pw.print(rel.getUpperId());
 				pw.print(SEP);
 				pw.print(rel.getLowerId());				
@@ -97,7 +102,7 @@ public class RelationFile {
 				}
 				pw.println();
 			}
-			log.info(String.format("Saved %d relations", entries.size()));
+			log.info(String.format("Saved %d relations", rels.getEntries().size()));
 		}
 	}
 
@@ -107,43 +112,9 @@ public class RelationFile {
 
 	public String getUpperLabel() {
 		return upperLabel;
-	}	
-	
-	public Set<Relation> getEntries() {
-		return entries;
-	}
-	
-	public boolean addEntry( Relation rel ) {
-		return entries.add(rel);
-	}
-		
-	public LinkMap<Link<Void,Void>,Link<Void,Void>> getLinkMap() {
-		LinkMap<Link<Void,Void>,Link<Void,Void>> map = new LinkMap<>();
-		for( Relation rel : getEntries() ) {
-			Link<Void,Void> upper = new Link<>(rel.getUpperId());
-			Link<Void,Void> lower = new Link<>(rel.getLowerId());
-			map.addLink(upper, lower);
-		}
-		return map;
-	}
-	
-	public boolean hasCoeficients() {
-		return entries.iterator().next().getCoeficient() != null;
-	}
-	
-	public boolean hasLabels() {
-		Set<String> labels = entries.iterator().next().getLabels();
-		return labels != null && !labels.isEmpty();
-	}
-	
-	public void setEquitative() {
-		LinkMap<Link<Void,Void>,Link<Void,Void>> map = getLinkMap();
-		for( Relation rel : getEntries() )
-			rel.setCoeficient(1.0/map.getLower(rel.getLowerId()).getLinks().size());
-	}
+	}		
 
 	private final String lowerLabel;
 	private final String upperLabel;
-	private final Set<Relation> entries = new LinkedHashSet<>();
 	private static final Logger log = Logger.getLogger(RelationFile.class.getName());
 }
