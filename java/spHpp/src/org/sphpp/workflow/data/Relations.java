@@ -37,16 +37,32 @@ public class Relations {
 	}
 	
 	public <S extends Decoyable & Identifiable>
-	LinkMap<ScoreLink,ScoreLink> getLinkMap( Set<S> scoreItems ) {
-		return getLinkMap(scoreItems, this);
+	LinkMap<ScoreLink,ScoreLink> getScoreLinkMap() {
+		return getScoreLinkMap(this);
+	}
+	
+	public <S extends Decoyable & Identifiable>
+	LinkMap<ScoreLink,ScoreLink> getScoreLinkMap( Set<S> scoreItems ) {
+		return getScoreLinkMap(scoreItems, this);
 	}
 	
 	public static <S extends Decoyable & Identifiable>
-	LinkMap<ScoreLink,ScoreLink> getLinkMap( Set<S> upperScores, Relations rels ) {
+	LinkMap<ScoreLink,ScoreLink> getScoreLinkMap( Set<S> upperScores, Relations rels ) {
 		LinkMap<ScoreLink,ScoreLink> result = new LinkMap<>();
 		Map<String,S> scoreMap = Utils.getMap(upperScores);
 		for( Relation rel : rels.getEntries() ) {
 			ScoreLink upper = new ScoreLink(rel.getUpperId(),scoreMap.get(rel.getUpperId()));
+			ScoreLink lower = new ScoreLink(rel.getLowerId());
+			result.addLink(upper, lower);
+		}
+		return result;
+	}
+	
+	public static <S extends Decoyable & Identifiable>
+	LinkMap<ScoreLink,ScoreLink> getScoreLinkMap( Relations rels ) {
+		LinkMap<ScoreLink,ScoreLink> result = new LinkMap<>();
+		for( Relation rel : rels.getEntries() ) {
+			ScoreLink upper = new ScoreLink(rel.getUpperId());
 			ScoreLink lower = new ScoreLink(rel.getLowerId());
 			result.addLink(upper, lower);
 		}

@@ -63,7 +63,7 @@ public class Normalizer extends WorkflowModule {
 		ScoreFile<ScoreItem> file = ScoreFile.load(getValue(OPT_DBM), dbType);
 		LinkMap<ScoreLink,ScoreLink> map = RelationFile
 				.load(getValue(OPT_REL),getValue(Arguments.OPT_DISCARD))
-				.getLinkMap(file.getItems()); 		
+				.getScoreLinkMap(file.getItems()); 		
 		setObserved(map.getUpperList(), obsType);
 		double factor;
 		if( getValue(OPT_ALPHA) != null )

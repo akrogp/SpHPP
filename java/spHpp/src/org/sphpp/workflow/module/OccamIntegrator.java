@@ -128,7 +128,7 @@ public class OccamIntegrator extends WorkflowModule {
 			rels.setEquitative();			
 		}
 		logger.info("Integrating lower LP values ...");
-		LinkMap<ScoreLink,ScoreLink> linkmap = rels.getLinkMap(Integrator.run(lowerItems,rels));
+		LinkMap<ScoreLink,ScoreLink> linkmap = rels.getScoreLinkMap(Integrator.run(lowerItems,rels));
 		logger.info("Combining scores ...");
 		Utils.addScores(linkmap.getUpperList(), mValues);
 		Utils.addScores(linkmap.getLowerList(), lowerItems);

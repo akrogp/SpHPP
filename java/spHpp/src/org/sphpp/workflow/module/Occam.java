@@ -48,7 +48,7 @@ public class Occam extends WorkflowModule {
 	protected void run(List<Argument> args) throws Exception {
 		RelationFile rels = RelationFile.load(getValue(OPT_INPUT), getValue(Arguments.OPT_DISCARD));		
 		ScoreFile<ScoreItem> scores = ScoreFile.load(getValue(OPT_SCORES));
-		LinkMap<ScoreLink,ScoreLink> map = Relations.getLinkMap(scores.getItems(), rels);
+		LinkMap<ScoreLink,ScoreLink> map = Relations.getScoreLinkMap(scores.getItems(), rels);
 		rels.save(next(map.getUpperList(), scores.selectScore()),getValue(OPT_OUTPUT));
 	}
 	
