@@ -32,11 +32,15 @@ public class RelationFile extends Relations {
 	}
 	
 	public static RelationFile load( String path, String discard, String prefix ) throws IOException {
+		return load(path, discard, prefix, 0, 1, true);
+	}
+	
+	public static RelationFile load( String path, String discard, String prefix, int iUpper, int iLower, boolean useMeta ) throws IOException {
 		logger.info("Loading relations ...");
 		try(CsvReader reader = new CsvReader(SEP, true)) {
 			long count = 0;
 			reader.open(path);
-			RelationFile relations = new RelationFile(reader.getHeaderName(0), reader.getHeaderName(1));
+			RelationFile relations = new RelationFile(reader.getHeaderName(iUpper), reader.getHeaderName(iLower));
 			while(reader.readLine()!=null) {
 				if( discard != null && reader.getLine().contains(discard) ) {
 					count++;
@@ -44,19 +48,21 @@ public class RelationFile extends Relations {
 				}
 				Relation rel;
 				if( prefix == null )
-					rel = new Relation(reader.getField(0), reader.getField(1));
+					rel = new Relation(reader.getField(iUpper), reader.getField(iLower));
 				else
-					rel = new Relation(prefix+reader.getField(0), prefix+reader.getField(1));
-				if( reader.getFields().length > 2 )
-					if( !reader.getField(2).isEmpty() )
-						rel.getLabels().addAll(Arrays.asList(reader.getField(2).split(SUB_SEP)));
-				if( reader.getFields().length > 3 )
-					if( !reader.getField(2).isEmpty() )
-						try {
-							rel.setCoeficient(Numbers.parseDouble(reader.getField(3)));
-						} catch (ParseException e) {
-							logger.warning(e.getMessage());
-						}
+					rel = new Relation(prefix+reader.getField(iUpper), prefix+reader.getField(iLower));
+				if( useMeta ) {
+					if( reader.getFields().length > 2 )
+						if( !reader.getField(2).isEmpty() )
+							rel.getLabels().addAll(Arrays.asList(reader.getField(2).split(SUB_SEP)));
+					if( reader.getFields().length > 3 )
+						if( !reader.getField(2).isEmpty() )
+							try {
+								rel.setCoeficient(Numbers.parseDouble(reader.getField(3)));
+							} catch (ParseException e) {
+								logger.warning(e.getMessage());
+							}
+				}
 				relations.addEntry(rel);				
 			}
 			logger.info(String.format("Loaded %d relations", relations.getEntries().size()));

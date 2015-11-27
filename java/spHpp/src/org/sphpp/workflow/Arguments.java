@@ -16,6 +16,8 @@ public class Arguments {
 	public static final int OPT_DISCARD = OPT_DEFAULTS+8;
 	public static final int OPT_PREFIX = OPT_DEFAULTS+9;
 	public static final int OPT_VAR_MODS = OPT_DEFAULTS+10;
+	public static final int OPT_UPPER_INDEX = OPT_DEFAULTS+11;
+	public static final int OPT_LOWER_INDEX = OPT_DEFAULTS+12;
 	
 	public static Argument getDiscard() {
 		Argument arg = new Argument(OPT_DISCARD,null,"discard",true);
@@ -91,6 +93,22 @@ public class Arguments {
 		arg.setParamName("aalist");
 		arg.setDescription("Sequence of amino acids with variable modifications.");
 		arg.setDefaultValue("M");
+		return arg;
+	}
+	
+	public static Argument getUpperIndex() {
+		Argument arg = new Argument(OPT_UPPER_INDEX, null, "upperIndex");
+		arg.setParamName("index");
+		arg.setDescription("Index of TSV field with upper-level ids.");
+		arg.setDefaultValue(0);
+		return arg;
+	}
+	
+	public static Argument getLowerIndex() {
+		Argument arg = new Argument(OPT_LOWER_INDEX, null, "lowerIndex");
+		arg.setParamName("index");
+		arg.setDescription("Index of TSV field with lower-level ids.");
+		arg.setDefaultValue(1);
 		return arg;
 	}
 }

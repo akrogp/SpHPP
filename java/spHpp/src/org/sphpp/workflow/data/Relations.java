@@ -21,17 +21,25 @@ public class Relations {
 	public LinkMap<Link<Void,Void>,Link<Void,Void>> getLinkMap() {
 		return getLinkMap(Void.class);
 	}
+	
+	public LinkMap<Link<Void,Void>,Link<Void,Void>> getLinkMap( boolean toLowerCase ) {
+		return getLinkMap(Void.class, this, toLowerCase);
+	}
 		
 	public <T> LinkMap<Link<T,T>,Link<T,T>> getLinkMap( Class<T> cls ) {
 		return getLinkMap(cls, this);
 	}
 	
-	public static <T> LinkMap<Link<T,T>,Link<T,T>> getLinkMap( Class<T> cls, Relations rels ) {		
+	public static <T> LinkMap<Link<T,T>,Link<T,T>> getLinkMap( Class<T> cls, Relations rels ) {
+		return getLinkMap(cls, rels, false);
+	}
+	
+	public static <T> LinkMap<Link<T,T>,Link<T,T>> getLinkMap( Class<T> cls, Relations rels, boolean toLowerCase ) {		
 		LinkMap<Link<T,T>,Link<T,T>> map = new LinkMap<>();
 		for( Relation rel : rels.getEntries() ) {
 			Link<T,T> upper = new Link<>(rel.getUpperId());
 			Link<T,T> lower = new Link<>(rel.getLowerId());
-			map.addLink(upper, lower);
+			map.addLink(upper, lower, toLowerCase);
 		}
 		return map;
 	}

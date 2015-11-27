@@ -6,17 +6,25 @@ import java.util.Map;
 
 public class LinkMap<U extends InterMapeable<U,L>, L extends InterMapeable<L,U>> {
 	public void addLink( U upper, L lower) {
-		U uqUpper = upperMap.get(upper.getId());
+		addLink(upper, lower, false);
+	}
+	
+	public void addLink( U upper, L lower, boolean toLowerCase) {
+		U uqUpper = upperMap.get(getId(upper, toLowerCase));
 		if( uqUpper == null ) {
-			upperMap.put(upper.getId(), upper);
+			upperMap.put(getId(upper, toLowerCase), upper);
 			uqUpper = upper;
 		}
-		L uqLower = lowerMap.get(lower.getId());
+		L uqLower = lowerMap.get(getId(lower, toLowerCase));
 		if( uqLower == null ) {
-			lowerMap.put(lower.getId(), lower);
+			lowerMap.put(getId(lower, toLowerCase), lower);
 			uqLower = lower;
 		}
 		uqUpper.link(uqLower);
+	}
+	
+	private String getId(Identifiable item, boolean toLowerCase) {
+		return toLowerCase?item.getId().toLowerCase():item.getId();
 	}
 
 	public Map<String, U> getUpperMap() {
