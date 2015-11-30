@@ -30,9 +30,11 @@ public abstract class WorkflowModule {
 				}
 				logger.info(str.toString());
 			}
-			logger.info(String.format("Running '%s' ...", getClass().getSimpleName()));						
+			logger.info(String.format("Running '%s' ...", getClass().getSimpleName()));
+			long t1 = System.currentTimeMillis();
 			run(opts);
-			logger.info(String.format("'%s' finished successfully!!", getClass().getSimpleName()));
+			long t2 = System.currentTimeMillis();
+			logger.info(String.format("'%s' finished successfully in %d seconds!!", getClass().getSimpleName(), (t2-t1)/1000));
 			System.exit(0);
 		} catch( ArgException e ) {
 			logger.warning(e.getMessage());

@@ -1,6 +1,9 @@
 package org.sphpp.workflow.module;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.logging.Logger;
 
 import org.sphpp.workflow.Arguments;
 import org.sphpp.workflow.data.Link;
@@ -88,10 +91,16 @@ public class Relator extends WorkflowModule {
 	}
 
 	public Relations run(Relations relUp, Relations relLo, boolean uselower) {
+		logger.info("Mapping relations ...");
 		LinkMap<Link<Void,Void>,Link<Void,Void>> mapUp = relUp.getLinkMap(true);
 		LinkMap<Link<Void,Void>,Link<Void,Void>> mapLo = relLo.getLinkMap(true);
 		Relations rels = new Relations();
-		for(Link<Void,Void> upper : mapUp.getUpperList())
+		Set<String> usedUpper = new HashSet<>();
+		Set<String> usedMiddle = new HashSet<>();
+		Set<String> usedLower = new HashSet<>();
+		boolean upperMapped;
+		for(Link<Void,Void> upper : mapUp.getUpperList()) {
+			upperMapped = false;
 			for(Link<Void,Void> common : upper.getLinks() ) {
 				Link<Void,Void> dual;
 				if( uselower )
@@ -100,12 +109,29 @@ public class Relator extends WorkflowModule {
 					dual = mapLo.getUpper(common.getId().toLowerCase());
 				if( dual == null )
 					continue;
-				for(Link<Void,Void> lower : dual.getLinks() )
+				usedMiddle.add(dual.getId());
+				upperMapped = true;
+				for(Link<Void,Void> lower : dual.getLinks() ) {
 					rels.addEntry(new Relation(upper.getId(), lower.getId()));
+					usedLower.add(lower.getId());
+				}
 			}
+			if( upperMapped )
+				usedUpper.add(upper.getId());
+		}
+		int middleCount = Math.min(mapUp.getLowerList().size(), uselower ? mapLo.getLowerList().size() : mapLo.getUpperList().size());
+		logger.info(String.format(
+			"Mapped %d (of %d) lower items to %d (of %d) upper items using %d (of %d) intermediate items",
+			usedLower.size(), uselower ? mapLo.getUpperList().size() : mapLo.getLowerList().size(),
+			usedUpper.size(), mapUp.getUpperList().size(),
+			usedMiddle.size(), middleCount
+		));
+		if( usedMiddle.size() != middleCount )
+			logger.warning(String.format("%d of %d intermediate items not used!", middleCount-usedMiddle.size(), middleCount));
 		return rels;
 	}
 
+	private static final Logger logger = Logger.getLogger(Relator.class.getName()); 
 	private static final int OPT_REL_UP = 1;
 	private static final int OPT_REL_LO = 2;
 	private static final int OPT_REL_OUT = 3;

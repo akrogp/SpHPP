@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -18,16 +17,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
-import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.sphpp.tools.AppArgs.Arg;
 
 import es.ehubio.Strings;
@@ -36,13 +31,10 @@ import es.ehubio.db.fasta.Fasta.InvalidSequenceException;
 import es.ehubio.io.CsvUtils;
 import es.ehubio.io.Streams;
 import es.ehubio.model.Aminoacid;
-import es.ehubio.proteomics.AmbiguityItem;
 import es.ehubio.proteomics.Decoyable;
-import es.ehubio.proteomics.Enzyme;
 import es.ehubio.proteomics.Gene;
 import es.ehubio.proteomics.MsMsData;
 import es.ehubio.proteomics.MsMsData.GroupingLevel;
-import es.ehubio.proteomics.DecoyBase;
 import es.ehubio.proteomics.MsMsLevel;
 import es.ehubio.proteomics.Peptide;
 import es.ehubio.proteomics.Protein;
@@ -56,18 +48,14 @@ import es.ehubio.proteomics.io.EhubioCsv;
 import es.ehubio.proteomics.io.MsMsFile;
 import es.ehubio.proteomics.pipeline.ConfigDetector;
 import es.ehubio.proteomics.pipeline.ConfigDetector.Modification;
-import es.ehubio.proteomics.pipeline.DecoyMatcher;
 import es.ehubio.proteomics.pipeline.Digester;
 import es.ehubio.proteomics.pipeline.FdrCalculator;
-import es.ehubio.proteomics.pipeline.FdrCalculator.FdrResult;
-import es.ehubio.proteomics.pipeline.Inferer;
-import es.ehubio.proteomics.pipeline.ScoreIntegrator.IterativeResult;
-import es.ehubio.proteomics.pipeline.ScoreIntegrator.ModelFitness;
-import es.ehubio.proteomics.pipeline.AidedMatcher;
 import es.ehubio.proteomics.pipeline.Filter;
+import es.ehubio.proteomics.pipeline.Inferer;
 import es.ehubio.proteomics.pipeline.PAnalyzer;
 import es.ehubio.proteomics.pipeline.RandomMatcher;
 import es.ehubio.proteomics.pipeline.ScoreIntegrator;
+import es.ehubio.proteomics.pipeline.ScoreIntegrator.ModelFitness;
 import es.ehubio.proteomics.pipeline.Searcher;
 import es.ehubio.proteomics.pipeline.TrypticMatcher;
 
@@ -737,10 +725,10 @@ public class FdrWorkflow {
 	}
 	
 	//private final MsMsLevel fdrLevel = MsMsLevel.AMBIGUITYGROUP;
-	//private final MsMsLevel fdrLevel = MsMsLevel.GENE;
+	private final MsMsLevel fdrLevel = MsMsLevel.GENE;
 	//private final MsMsLevel fdrLevel = MsMsLevel.PROTEIN;
 	//private final GroupingLevel groupingLevel = GroupingLevel.PROTEIN;
-	//private final GroupingLevel groupingLevel = GroupingLevel.GENE;
+	private final GroupingLevel groupingLevel = GroupingLevel.GENE;
 	private final ConfigDetector detector = new ConfigDetector(1000);
 	private Digester.Config digestion = null;
 	//private Searcher.Config searching = new Searcher.Config(-1,-1,0);
@@ -751,7 +739,7 @@ public class FdrWorkflow {
 	private MsMsData data;		
 	
 	// For CLI arguments
-	private MsMsLevel fdrLevel;
+	/*private MsMsLevel fdrLevel;
 	private GroupingLevel groupingLevel;
 	private String outputDir;
 	private String targetPath, decoyPath;
@@ -761,7 +749,7 @@ public class FdrWorkflow {
 	private Searcher.Config searching;
 	private final boolean dontTrustRelations = true;
 	private String genesPath;
-	private boolean useOccam = false;
+	private boolean useOccam = false;*/
 	
 	/*private final static String targetFasta = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/SPHPP_UPV_CCD18/SP_HUMAN.fasta.gz";
 	private final static String decoyFasta = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/SPHPP_UPV_CCD18/SP_HUMAN_DECOY.fasta.gz";
@@ -870,9 +858,9 @@ public class FdrWorkflow {
 	private final String decoyPrefix = "decoy-";
 	private Searcher.Config searching = new Searcher.Config(7,-1,-1);*/
 	
-	/*private String outputDir = "/home/gorka/Descargas/Temp/Adult_Frontalcortex";	
+	private String outputDir = "/home/gorka/Descargas/Temp/Adult_Frontalcortex";	
 	private final String targetPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/PD/Adult_Frontalcortex/Target";
-	private final String decoyPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/PD/Adult_Frontalcortex/Decoy";*/
+	private final String decoyPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/PD/Adult_Frontalcortex/Decoy";
 	/*private String outputDir = "/home/gorka/Descargas/Temp/Adult_Heart";
 	private final String targetPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/PD/Adult_Heart/Target";
 	private final String decoyPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/PD/Adult_Heart/Decoy";*/
@@ -882,14 +870,14 @@ public class FdrWorkflow {
 	/*private String outputDir = "/home/gorka/Descargas/Temp/Adult_Testis";
 	private final String targetPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/PD/Adult_Testis/Target";
 	private final String decoyPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/PD/Adult_Testis/Decoy";*/
-	/*private final String targetFasta = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/ensemblCrap.fasta.gz";
+	private final String targetFasta = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/ensemblCrap.fasta.gz";
 	private final String decoyFasta = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/ensemblCrapDecoy.fasta.gz";	
 	private final ScoreType psmScoreType = ScoreType.SEQUEST_XCORR;
 	private final String decoyPrefix = "decoy-";
 	private Searcher.Config searching = new Searcher.Config(7,-1,0);
 	private final boolean dontTrustRelations = true;
 	//private final String genesPath = "/media/data/Sequences/Ensembl/current/mart_export.txt.gz";
-	private final String genesPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/iakes_mapping.txt.gz";*/
+	private final String genesPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/iakes_mapping.txt.gz";
 	
 	/*private String outputDir = "/home/gorka/Descargas/Temp/Adult_Frontalcortex";
 	private final String targetFasta = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/ensemblCrap.fasta.gz";
