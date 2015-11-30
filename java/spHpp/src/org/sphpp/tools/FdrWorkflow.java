@@ -72,12 +72,13 @@ public class FdrWorkflow {
 	}
 	
 	public static void main( String[] args ) throws Exception {
-		List<Arg> opts = parseArgs(args);
+		/*List<Arg> opts = parseArgs(args);
 		if( opts == null )
 			return;
 		FdrWorkflow app = new FdrWorkflow();
 		double fdr = configureApp(app, opts);
-		app.run(0.01);
+		app.run(0.01);*/
+		new FdrWorkflow().run(0.01);
 		/*for( double th = 0.005; th <= 0.01; th += 0.001 )
 			app.run(th);*/
 	}
@@ -724,15 +725,16 @@ public class FdrWorkflow {
 		pw.close();
 	}
 	
-	//private final MsMsLevel fdrLevel = MsMsLevel.AMBIGUITYGROUP;
-	private final MsMsLevel fdrLevel = MsMsLevel.GENE;
+	private MsMsLevel fdrLevel = MsMsLevel.AMBIGUITYGROUP;
+	//private MsMsLevel fdrLevel = MsMsLevel.GENE;
 	//private final MsMsLevel fdrLevel = MsMsLevel.PROTEIN;
 	//private final GroupingLevel groupingLevel = GroupingLevel.PROTEIN;
-	private final GroupingLevel groupingLevel = GroupingLevel.GENE;
-	private final ConfigDetector detector = new ConfigDetector(1000);
+	private GroupingLevel groupingLevel = GroupingLevel.GENE;
+	private ConfigDetector detector = new ConfigDetector(1000);
 	private Digester.Config digestion = null;
 	//private Searcher.Config searching = new Searcher.Config(-1,-1,0);
 	//private Searcher.Config searching = new Searcher.Config(-1,-1,-1);
+	private boolean useOccam = false;
 	
 	private final static Logger logger = Logger.getLogger(FdrWorkflow.class.getName());
 	private final FdrCalculator fdrCalc = new FdrCalculator(false);
@@ -859,8 +861,8 @@ public class FdrWorkflow {
 	private Searcher.Config searching = new Searcher.Config(7,-1,-1);*/
 	
 	private String outputDir = "/home/gorka/Descargas/Temp/Adult_Frontalcortex";	
-	private final String targetPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/PD/Adult_Frontalcortex/Target";
-	private final String decoyPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/PD/Adult_Frontalcortex/Decoy";
+	private String targetPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/PD/Adult_Frontalcortex/Target";
+	private String decoyPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/PD/Adult_Frontalcortex/Decoy";
 	/*private String outputDir = "/home/gorka/Descargas/Temp/Adult_Heart";
 	private final String targetPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/PD/Adult_Heart/Target";
 	private final String decoyPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/PD/Adult_Heart/Decoy";*/
@@ -870,14 +872,14 @@ public class FdrWorkflow {
 	/*private String outputDir = "/home/gorka/Descargas/Temp/Adult_Testis";
 	private final String targetPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/PD/Adult_Testis/Target";
 	private final String decoyPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/PD/Adult_Testis/Decoy";*/
-	private final String targetFasta = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/ensemblCrap.fasta.gz";
-	private final String decoyFasta = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/ensemblCrapDecoy.fasta.gz";	
-	private final ScoreType psmScoreType = ScoreType.SEQUEST_XCORR;
-	private final String decoyPrefix = "decoy-";
+	private String targetFasta = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/ensemblCrap.fasta.gz";
+	private String decoyFasta = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/ensemblCrapDecoy.fasta.gz";	
+	private ScoreType psmScoreType = ScoreType.SEQUEST_XCORR;
+	private String decoyPrefix = "decoy-";
 	private Searcher.Config searching = new Searcher.Config(7,-1,0);
-	private final boolean dontTrustRelations = true;
+	private boolean dontTrustRelations = true;
 	//private final String genesPath = "/media/data/Sequences/Ensembl/current/mart_export.txt.gz";
-	private final String genesPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/iakes_mapping.txt.gz";
+	private String genesPath = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/iakes_mapping.txt.gz";
 	
 	/*private String outputDir = "/home/gorka/Descargas/Temp/Adult_Frontalcortex";
 	private final String targetFasta = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/ensemblCrap.fasta.gz";

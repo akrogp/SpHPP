@@ -50,6 +50,12 @@ public class Competitor extends WorkflowModule {
 	protected void run(List<Argument> args) throws Exception {
 		Set<Psm> targets = PsmFile.load(getValue(OPT_IN_TARGET)).getPsms();
 		Set<Psm> decoys = PsmFile.load(getValue(OPT_IN_DECOY)).getPsms();
+		
+		logger.info("Searching for shared sequences between target and decoy ...");
+		Set<String> dups = findDuplicates(targets, decoys);
+		targets = removeDups(targets, dups);
+		decoys = removeDups(decoys, dups);
+		
 		ScoreType type = ScoreFile.selectScore(targets);
 		logger.info(String.format("Using '%s' for competition ...", type.getName()));
 		run(targets, decoys, type);
@@ -57,6 +63,32 @@ public class Competitor extends WorkflowModule {
 		PsmFile.save(decoys, getValue(OPT_OUT_DECOY), type);
 	}
 	
+	private Set<Psm> removeDups(Set<Psm> psms, Set<String> dups) {
+		Set<Psm> result = new HashSet<>();
+		for( Psm psm : psms )
+			if( !dups.contains(psm.getPeptide().getSequence().toLowerCase()) )
+				result.add(psm);
+		if( psms.size() == result.size() )
+			logger.info("No shared target/decoy sequences found");
+		else
+			logger.warning(String.format("Removed %d PSMs with same peptide sequence in target and decoy", psms.size()-result.size()));
+		return result;
+	}
+
+	private Set<String> findDuplicates(Set<Psm> targets, Set<Psm> decoys) {
+		Set<String> dups = new HashSet<>();
+		Set<String> decoySeqs = new HashSet<>();
+		for( Psm decoy : decoys )
+			decoySeqs.add(decoy.getPeptide().getSequence().toLowerCase());
+		String targetSeq;
+		for( Psm target : targets ) {
+			targetSeq = target.getPeptide().getSequence().toLowerCase();
+			if( decoySeqs.contains(targetSeq) )
+				dups.add(targetSeq);
+		}
+		return dups;
+	}
+
 	public static void run( Set<Psm> targets, Set<Psm> decoys, ScoreType type ) {		
 		Map<String, Double> mapScores = new HashMap<>();
 		addScores(targets, mapScores, type);

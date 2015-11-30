@@ -19,7 +19,7 @@ public class PepFile {
 		try( PrintWriter pw = new PrintWriter(Streams.getTextWriter(path))) {
 			pw.print("peptide");
 			pw.print(Constants.SEP);
-			pw.println("sequence");
+			pw.println("peptideSequence");
 			for( Peptide peptide : peptides ) {
 				pw.print(peptide.getMassSequence());
 				pw.print(Constants.SEP);

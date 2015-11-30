@@ -57,7 +57,7 @@ public class Digester extends WorkflowModule {
 
 	public static RelationFile run(String fasta, es.ehubio.proteomics.pipeline.Digester.Config digestion, int minPep, int maxPep) throws IOException, InvalidSequenceException {
 		RelationFile relations = new RelationFile("protein", "peptideSequence");
-		for( Fasta protein : Fasta.readEntries(fasta, SequenceType.PROTEIN) ) {			
+		for( Fasta protein : Fasta.readEntries(fasta, SequenceType.PROTEIN) ) {
 			for( String pepSeq : es.ehubio.proteomics.pipeline.Digester.digestSequence(protein.getSequence(), digestion) ) {
 				if( pepSeq.length() < minPep || pepSeq.length() > maxPep )
 					continue;
