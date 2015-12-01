@@ -734,7 +734,8 @@ public class FdrWorkflow {
 	private Digester.Config digestion = null;
 	//private Searcher.Config searching = new Searcher.Config(-1,-1,0);
 	//private Searcher.Config searching = new Searcher.Config(-1,-1,-1);
-	private boolean useOccam = false;
+	//private boolean useOccam = false;
+	private boolean useOccam = true;
 	
 	private final static Logger logger = Logger.getLogger(FdrWorkflow.class.getName());
 	private final FdrCalculator fdrCalc = new FdrCalculator(false);
