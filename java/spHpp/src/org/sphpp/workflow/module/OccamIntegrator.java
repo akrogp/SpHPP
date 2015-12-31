@@ -14,7 +14,9 @@ import org.sphpp.workflow.data.ScoreItem;
 import org.sphpp.workflow.data.ScoreLink;
 import org.sphpp.workflow.file.RelationFile;
 import org.sphpp.workflow.file.ScoreFile;
+import org.sphpp.workflow.module.Integrator.Mode;
 
+import es.ehubio.Strings;
 import es.ehubio.cli.Argument;
 import es.ehubio.proteomics.Decoyable;
 import es.ehubio.proteomics.Score;
@@ -80,6 +82,12 @@ public class OccamIntegrator extends WorkflowModule {
 		arg.setDefaultValue("Pep2ProtOccam.tsv.gz");
 		addOption(arg);
 		
+		arg = new Argument(OPT_MODE, null, "mode");
+		arg.setChoices(Strings.fromArray(Mode.values()));
+		arg.setDescription("Probabilities integration mode.");
+		arg.setDefaultValue(Mode.OR);
+		addOption(arg);
+		
 		arg = new Argument(OPT_DIFF, null, "maxDiff");
 		arg.setParamName("diff");
 		arg.setDescription("Maximum difference in LP values between iterations.");
@@ -113,7 +121,7 @@ public class OccamIntegrator extends WorkflowModule {
 		
 		Result result = run(
 			getDoubleValue(OPT_DIFF), getIntValue(OPT_ITERS),
-			rels, lppep.getItems(), mq.getItems(),
+			rels, Mode.valueOf(getValue(OPT_MODE)), lppep.getItems(), mq.getItems(),
 			lowerType, lpScore, mScore, lpcScore);
 		
 		ScoreFile.save(rels.getUpperLabel(), result.getUpper(), getValue(OPT_OUT_LP), lpScore);
@@ -122,13 +130,13 @@ public class OccamIntegrator extends WorkflowModule {
 	}
 	
 	public <T extends Identifiable & Decoyable>
-	Result run(double maxDiff, int maxIters, Relations rels, Collection<T> lowerItems, Collection<T> mValues, ScoreType lowerType, ScoreType lpScore, ScoreType mScore, ScoreType lpcScore ) {
+	Result run(double maxDiff, int maxIters, Relations rels, Mode mode, Collection<T> lowerItems, Collection<T> mValues, ScoreType lowerType, ScoreType lpScore, ScoreType mScore, ScoreType lpcScore ) {
 		if( !rels.hasCoeficients() ) {
 			logger.info("Starting with equitative sharing ...");
 			rels.setEquitative();			
 		}
 		logger.info("Integrating lower LP values ...");
-		LinkMap<ScoreLink,ScoreLink> linkmap = rels.getScoreLinkMap(Integrator.run(lowerItems,rels));
+		LinkMap<ScoreLink,ScoreLink> linkmap = rels.getScoreLinkMap(Integrator.run(lowerItems,rels,mode));
 		logger.info("Combining scores ...");
 		Utils.addScores(linkmap.getUpperList(), mValues);
 		Utils.addScores(linkmap.getLowerList(), lowerItems);
@@ -175,4 +183,5 @@ public class OccamIntegrator extends WorkflowModule {
 	private static final int OPT_OUT_REL = 6;
 	private static final int OPT_DIFF = 7;
 	private static final int OPT_ITERS = 8;
+	private static final int OPT_MODE = 9;
 }

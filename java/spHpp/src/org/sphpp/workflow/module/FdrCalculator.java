@@ -63,7 +63,7 @@ public class FdrCalculator extends WorkflowModule {
 			list.add(decoy);
 		}
 		es.ehubio.proteomics.pipeline.FdrCalculator fdr = new es.ehubio.proteomics.pipeline.FdrCalculator();
-		fdr.updateDecoyScores(list, type, null, ScoreType.LOCAL_FDR, ScoreType.Q_VALUE, ScoreType.FDR_SCORE);
+		fdr.updateDecoyScores(list, type, null, ScoreType.LOCAL_FDR, ScoreType.Q_VALUE, null );//ScoreType.FDR_SCORE);
 	}
 
 	//private final static Logger logger = Logger.getLogger(FdrCalculator.class.getName());
