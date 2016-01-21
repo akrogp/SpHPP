@@ -1,7 +1,7 @@
 #!/bin/bash
 
 JAR=EhuBio.jar
-OPTS="-Xmx10g -Djava.util.logging.config.file=logging.properties"
+OPTS="-Xmx10g -Djava.util.logging.config.file=logging.properties -Djava.awt.headless=true"
 
 if [ $# -eq 0 ]; then
 	echo "Please, select one module:"

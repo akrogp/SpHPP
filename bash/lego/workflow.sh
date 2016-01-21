@@ -4,12 +4,17 @@
 # Config
 # ======
 
-RESULTS=./tmp
+#RESULTS=UPV-MCF7
+RESULTS=CBM-MCF7-XT2
 
-TARGET_DATA="/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/PD/Adult_Frontalcortex/Target"
+#TARGET_DATA="/home/gorka/Descargas/Temp/CIMA/UPV-MCF7"
+#TARGET_DATA="/home/gorka/Descargas/GoogleDrive/DatosHPP2014-Analisis2015/CBM-MCF7"
+TARGET_DATA="/home/gorka/Descargas/Temp/CIMA/CBM-MCF7-XT"
 TARGET_FASTA="/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/ensemblCrap.fasta.gz"
 
-DECOY_DATA="/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/PD/Adult_Frontalcortex/Decoy"
+#DECOY_DATA="/home/gorka/Descargas/Temp/CIMA/UPV-MCF7-D"
+#DECOY_DATA="/home/gorka/Descargas/GoogleDrive/DatosHPP2014-Analisis2015/CBM-MCF7-D"
+DECOY_DATA="/home/gorka/Descargas/Temp/CIMA/CBM-MCF7-XT-D"
 DECOY_FASTA="/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/letter/Pandey/ensemblCrapDecoy.fasta.gz"
 
 PROT2GEN=Prot2Gen.tsv.gz
@@ -18,16 +23,17 @@ PREFIX="decoy-"
 OCCAM_DIFF="0.1"
 OCCAM_ITER="300"
 
-# module ConfigDetector --input "$TARGET_DATA" --fasta "$TARGET_FASTA"
-
 ENZYME=TRYPSIN
 #ENZYME=TRYPSINP
 MISS_CLE=2
 NTERM=2
+USE_DP=true
+
+#MIN_PEP_LEN=6
 MIN_PEP_LEN=7
 MAX_PEP_LEN=50
 VAR_MODS=M
-#MAX_PEP_MODS=3
+#MAX_PEP_MODS=6
 MAX_PEP_MODS=0
 
 # =======
@@ -35,7 +41,7 @@ MAX_PEP_MODS=0
 # =======
 
 JAR=EhuBio.jar
-OPTS="-Xmx10g -Djava.util.logging.config.file=logging.properties"
+OPTS="-Xmx10g -Djava.util.logging.config.file=logging.properties -Djava.awt.headless=true"
 
 module() {
 	java -cp "$JAR" $OPTS org.sphpp.workflow.module.$@ 2>&1 | tee -a "$RESULTS/log.txt"
@@ -46,8 +52,8 @@ module() {
 # ========
 
 database() {
-	module Digester --fasta "$TARGET_FASTA" --output $RESULTS/Seq2ProtTarget.tsv.gz --enzyme "$ENZYME" --missed "$MISS_CLE" --nterm "$NTERM" --minPepLen "$MIN_PEP_LEN" --maxPepLen "$MAX_PEP_LEN"
-	module Digester --fasta "$DECOY_FASTA" --output $RESULTS/Seq2ProtDecoy.tsv.gz --enzyme "$ENZYME" --missed "$MISS_CLE" --nterm "$NTERM" --minPepLen "$MIN_PEP_LEN" --maxPepLen "$MAX_PEP_LEN"
+	module Digester --fasta "$TARGET_FASTA" --output $RESULTS/Seq2ProtTarget.tsv.gz --enzyme "$ENZYME" --missed "$MISS_CLE" --nterm "$NTERM" --dp "$USE_DP" --minPepLen "$MIN_PEP_LEN" --maxPepLen "$MAX_PEP_LEN"
+	module Digester --fasta "$DECOY_FASTA" --output $RESULTS/Seq2ProtDecoy.tsv.gz --enzyme "$ENZYME" --missed "$MISS_CLE" --nterm "$NTERM" --dp "$USE_DP" --minPepLen "$MIN_PEP_LEN" --maxPepLen "$MAX_PEP_LEN"
 
 	module Modeller --input $RESULTS/Seq2ProtTarget.tsv.gz --output $RESULTS/MdbProtTarget.tsv.gz --varMods "$VAR_MODS" --maxPepMods "$MAX_PEP_MODS"
 	module Modeller --input $RESULTS/Seq2ProtDecoy.tsv.gz --output $RESULTS/MdbProtDecoy.tsv.gz --varMods "$VAR_MODS" --maxPepMods "$MAX_PEP_MODS"
@@ -167,10 +173,14 @@ gen2grp() {
 
 mkdir -p "$RESULTS"
 
-database
-parser
-psm2pep
-#pep2protEqui
-pep2protOccam
-prot2gen
-gen2grp
+if [ "$1" = "-d" ]; then
+	module ConfigDetector --input "$TARGET_DATA" --fasta "$TARGET_FASTA" --config "$RESULTS/config.ini" --max 10000
+else
+	database
+	parser
+	psm2pep
+	pep2protEqui
+	#pep2protOccam
+	prot2gen
+	gen2grp
+fi
