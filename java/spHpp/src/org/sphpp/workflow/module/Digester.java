@@ -47,7 +47,7 @@ public class Digester extends WorkflowModule {
 	protected void run(List<Argument> args) throws Exception {
 		Enzyme enzyme = Enzyme.valueOf(getValue(Arguments.OPT_ENZYME));
 		int missedCleavages = getIntValue(Arguments.OPT_CLEAVAGES);
-		boolean usingDP = hasArgument(Arguments.OPT_ASP_PRO);
+		boolean usingDP = getBooleanValue(Arguments.OPT_ASP_PRO);
 		int cutNterm = getIntValue(Arguments.OPT_CUT_NTERM);
 		es.ehubio.proteomics.pipeline.Digester.Config digestion =
 			new es.ehubio.proteomics.pipeline.Digester.Config(enzyme, missedCleavages, usingDP, cutNterm);

@@ -43,8 +43,10 @@ public class Arguments {
 	}
 	
 	public static Argument getAspPro() {
-		Argument arg = new Argument(OPT_ASP_PRO, null, "dp", true);
+		Argument arg = new Argument(OPT_ASP_PRO, null, "dp");
+		arg.setBoolean();
 		arg.setDescription("Enable adventitious cleavage at Asp-Pro residues. Disabled by default.");
+		arg.setDefaultValue(false);
 		return arg;
 	}
 	

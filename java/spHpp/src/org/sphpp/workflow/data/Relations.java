@@ -82,6 +82,8 @@ public class Relations {
 	}
 	
 	public boolean hasLabels() {
+		if( getEntries().isEmpty() )
+			return false;
 		Set<String> labels = getEntries().iterator().next().getLabels();
 		return labels != null && !labels.isEmpty();
 	}
