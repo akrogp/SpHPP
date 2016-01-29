@@ -11,6 +11,7 @@ import es.ehubio.cli.Argument;
 import es.ehubio.proteomics.MsMsData;
 import es.ehubio.proteomics.ScoreType;
 import es.ehubio.proteomics.io.MsMsFile;
+import es.ehubio.proteomics.pipeline.Filter;
 
 public class Parser extends WorkflowModule {
 	public Parser() {
@@ -64,6 +65,13 @@ public class Parser extends WorkflowModule {
 	
 	public static MsMsData run( String path, String decoyPrefix ) throws Exception {
 		MsMsData data = MsMsFile.autoLoad(path, false);
+		long prev = data.getPeptideCount();
+		Filter filter = new Filter(data);		
+		filter.setFilterSpecialAminoacids(true);
+		filter.run();
+		long post = data.getPeptideCount();
+		if( post != prev )
+			logger.warning(String.format("Ignored %d peptides with [bjzx] ...", prev-post));
 		data.markDecoys(decoyPrefix);
 		return data;
 	}

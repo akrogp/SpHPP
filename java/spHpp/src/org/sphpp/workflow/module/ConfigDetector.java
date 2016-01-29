@@ -7,7 +7,6 @@ import org.sphpp.workflow.file.ConfigFile;
 
 import es.ehubio.cli.Argument;
 import es.ehubio.proteomics.MsMsData;
-import es.ehubio.proteomics.io.MsMsFile;
 import es.ehubio.proteomics.pipeline.Digester;
 import es.ehubio.proteomics.pipeline.Searcher;
 
@@ -49,7 +48,7 @@ public class ConfigDetector extends WorkflowModule {
 	}
 	
 	public static ConfigFile run( String dataPath, String fastaPath ) throws Exception {
-		MsMsData data = MsMsFile.autoLoad(dataPath, false);
+		MsMsData data = Parser.run(dataPath, null);
 		data.updateProteinInformation(fastaPath);
 		es.ehubio.proteomics.pipeline.ConfigDetector detector = new es.ehubio.proteomics.pipeline.ConfigDetector(Constants.DETECT_COUNT);
 		Digester.Config digestConfig = detector.getDigestion(data);
