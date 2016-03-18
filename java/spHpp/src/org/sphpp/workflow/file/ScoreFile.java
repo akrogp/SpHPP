@@ -63,12 +63,12 @@ public class ScoreFile<T extends Identifiable & Decoyable> {
 					if( useScore[i] ) {
 						Score score = item.getScoreByType(scores[i]);
 						if( score != null )
-							pw.print(score.getValue());
+							pw.print(Numbers.toString(score.getValue()));
 						pw.print(SEP);
 					}
 				Score score = item.getScoreByType(scores[last]);
 				if( score != null )
-					pw.print(score.getValue());
+					pw.print(Numbers.toString(score.getValue()));
 				pw.println();
 			}
 		}

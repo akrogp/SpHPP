@@ -147,7 +147,8 @@ public class OccamIntegrator extends WorkflowModule {
 			iter++;
 			logger.info(String.format("Iteration %d", iter));			
 			logger.info("Calculating LPCorr values using fast approximation ...");
-			Corrector.run(linkmap.getUpperList(), mScore, lpScore, lpcScore, true);	
+			//Corrector.run(linkmap.getUpperList(), mScore, lpScore, lpcScore, true);	
+			Corrector.run(linkmap.getUpperList(), mScore, lpScore, lpcScore, false);
 			logger.info("Updating relations ...");
 			rels = Occam.next(linkmap.getUpperList(), lpcScore);
 			logger.info("Updating LP values ...");
