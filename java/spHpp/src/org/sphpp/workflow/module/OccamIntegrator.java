@@ -88,6 +88,12 @@ public class OccamIntegrator extends WorkflowModule {
 		arg.setDefaultValue(Mode.OR);
 		addOption(arg);
 		
+		arg = new Argument(OPT_TYPE, null, "type");
+		arg.setChoices(Strings.fromArray(org.sphpp.workflow.module.Corrector.Mode.values()));
+		arg.setDescription("Score correction type.");
+		arg.setDefaultValue(org.sphpp.workflow.module.Corrector.Mode.POISSON);
+		addOption(arg);
+		
 		arg = new Argument(OPT_DIFF, null, "maxDiff");
 		arg.setParamName("diff");
 		arg.setDescription("Maximum difference in LP values between iterations.");
@@ -121,7 +127,8 @@ public class OccamIntegrator extends WorkflowModule {
 		
 		Result result = run(
 			getDoubleValue(OPT_DIFF), getIntValue(OPT_ITERS),
-			rels, Mode.valueOf(getValue(OPT_MODE)), lppep.getItems(), mq.getItems(),
+			rels, Mode.valueOf(getValue(OPT_MODE)), org.sphpp.workflow.module.Corrector.Mode.valueOf(getValue(OPT_TYPE)),
+			lppep.getItems(), mq.getItems(),
 			lowerType, lpScore, mScore, lpcScore);
 		
 		ScoreFile.save(rels.getUpperLabel(), result.getUpper(), getValue(OPT_OUT_LP), lpScore);
@@ -130,7 +137,7 @@ public class OccamIntegrator extends WorkflowModule {
 	}
 	
 	public <T extends Identifiable & Decoyable>
-	Result run(double maxDiff, int maxIters, Relations rels, Mode mode, Collection<T> lowerItems, Collection<T> mValues, ScoreType lowerType, ScoreType lpScore, ScoreType mScore, ScoreType lpcScore ) {
+	Result run(double maxDiff, int maxIters, Relations rels, Mode mode, org.sphpp.workflow.module.Corrector.Mode type, Collection<T> lowerItems, Collection<T> mValues, ScoreType lowerType, ScoreType lpScore, ScoreType mScore, ScoreType lpcScore ) {
 		if( !rels.hasCoeficients() ) {
 			logger.info("Starting with equitative sharing ...");
 			rels.setEquitative();			
@@ -146,18 +153,26 @@ public class OccamIntegrator extends WorkflowModule {
 		do {
 			iter++;
 			logger.info(String.format("Iteration %d", iter));			
-			logger.info("Calculating LPCorr values using fast approximation ...");
-			//Corrector.run(linkmap.getUpperList(), mScore, lpScore, lpcScore, true);	
-			Corrector.run(linkmap.getUpperList(), mScore, lpScore, lpcScore, false);
+			
+			if( type == org.sphpp.workflow.module.Corrector.Mode.POISSON ) {
+				logger.info("Calculating LPCorr values using fast approximation ...");
+				Corrector.run(linkmap.getUpperList(), mScore, lpScore, lpcScore, org.sphpp.workflow.module.Corrector.Mode.POISSON_APPROX);
+			} else {
+				logger.info("Calculating transient LPCorr values ...");
+				Corrector.run(linkmap.getUpperList(), mScore, lpScore, lpcScore, type);
+			}
+			//Corrector.run(linkmap.getUpperList(), mScore, lpScore, lpcScore, false);
 			logger.info("Updating relations ...");
 			rels = Occam.next(linkmap.getUpperList(), lpcScore);
 			logger.info("Updating LP values ...");
 			diff = updateLpq(rels, linkmap.getLowerList(), lowerType, linkmap.getUpperList(), lpScore);
 			logger.info(String.format(Locale.ENGLISH, "Diff=%f", diff));
 		} while( diff > maxDiff && iter < maxIters );
-		
-		logger.info("Calculating LPCorr values using exact formulation ...");
-		Corrector.run(linkmap.getUpperList(), mScore, lpScore, lpcScore, false);
+		if( type == org.sphpp.workflow.module.Corrector.Mode.POISSON )
+			logger.info("Calculating LPCorr values using exact formulation ...");
+		else
+			logger.info("Calculating final LPCorr values ...");
+		Corrector.run(linkmap.getUpperList(), mScore, lpScore, lpcScore, type);
 		
 		return new Result(linkmap.getUpperList(), rels, diff, iter);
 	}
@@ -185,4 +200,5 @@ public class OccamIntegrator extends WorkflowModule {
 	private static final int OPT_DIFF = 7;
 	private static final int OPT_ITERS = 8;
 	private static final int OPT_MODE = 9;
+	private static final int OPT_TYPE = 10;
 }

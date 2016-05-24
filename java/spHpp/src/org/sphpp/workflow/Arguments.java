@@ -18,6 +18,7 @@ public class Arguments {
 	public static final int OPT_VAR_MODS = OPT_DEFAULTS+10;
 	public static final int OPT_UPPER_INDEX = OPT_DEFAULTS+11;
 	public static final int OPT_LOWER_INDEX = OPT_DEFAULTS+12;
+	public static final int OPT_SCORE_NAME = OPT_DEFAULTS+13;
 	
 	public static Argument getDiscard() {
 		Argument arg = new Argument(OPT_DISCARD,null,"discard",true);
@@ -111,6 +112,13 @@ public class Arguments {
 		arg.setParamName("index");
 		arg.setDescription("Index of TSV field with lower-level ids.");
 		arg.setDefaultValue(1);
+		return arg;
+	}
+	
+	public static Argument getScoreName() {
+		Argument arg = new Argument(OPT_SCORE_NAME, null, "score", true);
+		arg.setParamName("name");
+		arg.setDescription("Name of the desired score.");
 		return arg;
 	}
 }

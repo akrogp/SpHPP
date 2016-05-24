@@ -90,9 +90,9 @@ public class Modeller extends WorkflowModule {
 	private static long getTryptic( String peptide, int maxMods, Aminoacid... varMods ) {
 		if( varMods.length == 0 )
 			return 1;
-		int n = 0;
+		long n = 1;
 		for( int i = 0; i < varMods.length; i++ )
-			n += countChars(peptide, varMods[i], maxMods)+1;
+			n *= countChars(peptide, varMods[i], maxMods)+1;
 		return n;
 	}
 	

@@ -75,7 +75,8 @@ public class Integrator extends WorkflowModule {
 		upper.save(getValue(OPT_UPPER));
 	}
 	
-	public static <T extends Identifiable & Decoyable> Set<ScoreItem> run(Collection<T> lowerSet, Relations relations, Mode mode) {		
+	public static <T extends Identifiable & Decoyable> Set<ScoreItem>
+	run(Collection<T> lowerSet, Relations relations, Mode mode) {		
 		Map<String,T> lowerMap = new HashMap<>();		
 		for( T lower : lowerSet )
 			lowerMap.put(lower.getId(), lower);

@@ -65,13 +65,13 @@ public class Normalizer extends WorkflowModule {
 				.load(getValue(OPT_REL),getValue(Arguments.OPT_DISCARD))
 				.getScoreLinkMap(file.getItems());
 		setObserved(map.getUpperList(), obsType);
-		double factor;
+		double alpha;
 		if( getValue(OPT_ALPHA) != null )
-			factor = Numbers.parseDouble(getValue(OPT_ALPHA));
+			alpha = Numbers.parseDouble(getValue(OPT_ALPHA));
 		else
-			factor = getFactor(map.getUpperList(), obsType, dbType);
-		logger.info(String.format(Locale.ENGLISH, "alpha=%f", factor));
-		apply(map.getUpperList(), dbType, expType, factor);
+			alpha = getFactor(map.getUpperList(), obsType, dbType);
+		logger.info(String.format(Locale.ENGLISH, "alpha=%f", alpha));
+		apply(map.getUpperList(), dbType, expType, alpha);
 		//file.save(getValue(OPT_OUT), expType, obsType, dbType);
 		//ScoreFile.save(file.getId(), wrapperSet, getValue(OPT_OUT), expType, obsType, dbType);
 		ScoreFile.save(file.getId(), map.getUpperList(), getValue(OPT_OUT), expType, obsType);

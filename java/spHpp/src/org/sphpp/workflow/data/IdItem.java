@@ -23,4 +23,9 @@ public class IdItem implements Identifiable {
 	public String getId() {
 		return id;
 	}
+	
+	@Override
+	public String toString() {
+		return getId();
+	}
 }
