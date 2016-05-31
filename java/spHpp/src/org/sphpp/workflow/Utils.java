@@ -9,7 +9,8 @@ import org.sphpp.workflow.data.Identifiable;
 import es.ehubio.proteomics.Decoyable;
 
 public class Utils {
-	public static <T extends Identifiable> Map<String, T> getMap(Collection<T> items) {
+	public static <T extends Identifiable> Map<String, T>
+	getMap(Collection<T> items) {
 		Map<String, T> map = new HashMap<>(items.size());
 		for( T item : items )
 			map.put(item.getId(), item);
