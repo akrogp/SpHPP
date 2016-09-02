@@ -5,9 +5,12 @@
 # ======
 
 LEGO=/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/lego
-TARGET_FASTA="/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/cima/HPP2014/ensemblCrap.fasta"
-DECOY_FASTA="/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/cima/HPP2014/ensemblCrapDecoy.fasta"
-PROT2GEN="$LEGO/Prot2Gen.tsv.gz"
+#TARGET_FASTA="/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/cima/HPP2014/ensemblCrap.fasta"
+#DECOY_FASTA="/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/cima/HPP2014/ensemblCrapDecoy.fasta"
+TARGET_FASTA="/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/datasets/gencode24-principal-unique.target.fasta"
+DECOY_FASTA="/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/datasets/gencode24-principal-unique.decoy.fasta"
+#PROT2GEN="$LEGO/Prot2Gen.tsv.gz"
+PROT2GEN="$LEGO/Prot2Gencode24.tsv.gz"
 
 if [ $# -eq 5 ]; then
 	MODE="$1"
@@ -36,7 +39,8 @@ USE_DP=true
 MIN_PEP_LEN=7
 MAX_PEP_LEN=70
 VAR_MODS=M
-MAX_PEP_MODS=6
+#MAX_PEP_MODS=6
+MAX_PEP_MODS=0
 
 # =======
 # Runtime
@@ -47,6 +51,7 @@ LOGGING="$LEGO/logging.properties"
 OPTS="-Xmx10g -Djava.util.logging.config.file=$LOGGING -Djava.awt.headless=true"
 
 module() {
+	echo
 	java -cp "$JAR" $OPTS org.sphpp.workflow.module.$@ 2>&1 | tee -a "$RESULTS/log.txt"
 }
 
