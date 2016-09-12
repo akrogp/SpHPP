@@ -658,17 +658,17 @@ public class FdrWorkflow {
 	}
 	
 	private void showFdrs() {
-		double psm = fdrCalc.getFdr(data.getPsms()).getRatio();
-		double pep = fdrCalc.getFdr(data.getPeptides()).getRatio();
-		double prot = fdrCalc.getFdr(data.getProteins()).getRatio();
-		double grp = fdrCalc.getFdr(data.getGroups()).getRatio();
+		double psm = fdrCalc.getGlobalFdr(data.getPsms()).getRatio();
+		double pep = fdrCalc.getGlobalFdr(data.getPeptides()).getRatio();
+		double prot = fdrCalc.getGlobalFdr(data.getProteins()).getRatio();
+		double grp = fdrCalc.getGlobalFdr(data.getGroups()).getRatio();
 		StringBuilder sb = new StringBuilder(String.format("FDRs: PSM=%s, Peptide=%s, Protein=%s, Group=%s", psm, pep, prot, grp));
 		if( !data.getTranscripts().isEmpty() ) {
-			double tra = fdrCalc.getFdr(data.getTranscripts()).getRatio();
+			double tra = fdrCalc.getGlobalFdr(data.getTranscripts()).getRatio();
 			sb.append(String.format(", Transcript=%s", tra));
 		}
 		if( !data.getGenes().isEmpty() ) {
-			double gen = fdrCalc.getFdr(data.getGenes()).getRatio();
+			double gen = fdrCalc.getGlobalFdr(data.getGenes()).getRatio();
 			sb.append(String.format(", Gene=%s", gen));
 		}		
 		logger.info(sb.toString());
@@ -691,7 +691,7 @@ public class FdrWorkflow {
 					decoyProteins.add(protein.getAccession());
 				else
 					targetProteins.add(protein.getAccession());			
-			if( fdrCalc.getFdr(decoyProteins.size(),targetProteins.size()) > protFdrTh )
+			if( fdrCalc.getFdr(decoyProteins.size(),targetProteins.size(),0,0) > protFdrTh )
 				break;
 			result = psm.getScoreByType(psmScoreType).getValue();
 		}
@@ -738,7 +738,7 @@ public class FdrWorkflow {
 	private boolean useOccam = true;
 	
 	private final static Logger logger = Logger.getLogger(FdrWorkflow.class.getName());
-	private final FdrCalculator fdrCalc = new FdrCalculator(false);
+	private final FdrCalculator fdrCalc = new FdrCalculator();
 	private MsMsData data;		
 	
 	// For CLI arguments

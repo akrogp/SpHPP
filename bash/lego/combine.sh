@@ -19,6 +19,7 @@ LEGO=/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/lego
 JAR="$LEGO/EhuBio.jar"
 LOGGING="$LEGO/logging.properties"
 OPTS="-Xmx10g -Djava.util.logging.config.file=$LOGGING -Djava.awt.headless=true"
+USE_MAYU=true
 
 module() {
     java -cp "$JAR" $OPTS org.sphpp.workflow.module.$@ 2>&1 | tee -a "$OUTPUT/log.txt"
@@ -40,4 +41,4 @@ FDRDECOY="$OUTPUT/FdrCombDecoy.tsv.gz"
 module Combinator --input1 "$INPUT1/${PREFIX1}Target.tsv.gz" --input2 "$INPUT2/${PREFIX2}Target.tsv.gz" --output "$TARGET"
 module Combinator --input1 "$INPUT1/${PREFIX1}Decoy.tsv.gz" --input2 "$INPUT2/${PREFIX2}Decoy.tsv.gz" --output "$DECOY"
 
-module FdrCalculator --inTarget "$TARGET" --inDecoy "$DECOY" --outTarget "$FDRTARGET" --outDecoy "$FDRDECOY"
+module FdrCalculator --inTarget "$TARGET" --inDecoy "$DECOY" --outTarget "$FDRTARGET" --outDecoy "$FDRDECOY" --useMayu "$USE_MAYU"

@@ -31,6 +31,10 @@ PREFIX="decoy-"
 OCCAM_DIFF="0.1"
 OCCAM_ITER="300"
 
+USE_MAYU=true
+#BIN_SIZE=150
+BIN_SIZE=0
+
 ENZYME=TRYPSIN
 MISS_CLE=2
 NTERM=2
@@ -125,9 +129,9 @@ pep2prot() {
 			module OccamIntegrator --inputScores $RESULTS/LPPepDecoy.tsv.gz --inputRelations $RESULTS/Pep2ProtDecoy.tsv.gz -m $RESULTS/MProtDecoy.tsv.gz --outputScores $RESULTS/LPProtDecoy.tsv.gz --outputCorrScores $RESULTS/LPCorrProtDecoy.tsv.gz --outputRelations $RESULTS/Pep2ProtDecoy.tsv.gz --maxDiff $OCCAM_DIFF --maxIters $OCCAM_ITER
 		fi
 
-		module FdrCalculator --inTarget $RESULTS/LPCorrProtTarget.tsv.gz --inDecoy $RESULTS/LPCorrProtDecoy.tsv.gz --outTarget $RESULTS/FdrProtTarget.tsv.gz --outDecoy $RESULTS/FdrProtDecoy.tsv.gz
+		module FdrCalculator --inTarget $RESULTS/LPCorrProtTarget.tsv.gz --inDecoy $RESULTS/LPCorrProtDecoy.tsv.gz --outTarget $RESULTS/FdrProtTarget.tsv.gz --outDecoy $RESULTS/FdrProtDecoy.tsv.gz --useMayu "$USE_MAYU" --mTarget $RESULTS/MdbProtTarget.tsv.gz --mDecoy $RESULTS/MdbProtDecoy.tsv.gz --binSize "$BIN_SIZE"
 	else
-		module FdrCalculator --inTarget $RESULTS/LPProtTarget.tsv.gz --inDecoy $RESULTS/LPProtDecoy.tsv.gz --outTarget $RESULTS/FdrProtTarget.tsv.gz --outDecoy $RESULTS/FdrProtDecoy.tsv.gz
+		module FdrCalculator --inTarget $RESULTS/LPProtTarget.tsv.gz --inDecoy $RESULTS/LPProtDecoy.tsv.gz --outTarget $RESULTS/FdrProtTarget.tsv.gz --outDecoy $RESULTS/FdrProtDecoy.tsv.gz --useMayu "$USE_MAYU" --mTarget $RESULTS/MdbProtTarget.tsv.gz --mDecoy $RESULTS/MdbProtDecoy.tsv.gz --binSize "$BIN_SIZE"
 	fi
 }
 
@@ -147,9 +151,9 @@ prot2gen() {
 		module Corrector --input $RESULTS/LPGenTarget.tsv.gz -m $RESULTS/MGenTarget.tsv.gz --output $RESULTS/LPGenCorrTarget.tsv.gz --mode $CORR
 		module Corrector --input $RESULTS/LPGenDecoy.tsv.gz -m $RESULTS/MGenDecoy.tsv.gz --output $RESULTS/LPGenCorrDecoy.tsv.gz --mode $CORR
 
-		module FdrCalculator --inTarget $RESULTS/LPGenCorrTarget.tsv.gz --inDecoy $RESULTS/LPGenCorrDecoy.tsv.gz --outTarget $RESULTS/FdrGenTarget.tsv.gz --outDecoy $RESULTS/FdrGenDecoy.tsv.gz
+		module FdrCalculator --inTarget $RESULTS/LPGenCorrTarget.tsv.gz --inDecoy $RESULTS/LPGenCorrDecoy.tsv.gz --outTarget $RESULTS/FdrGenTarget.tsv.gz --outDecoy $RESULTS/FdrGenDecoy.tsv.gz --useMayu "$USE_MAYU" --mTarget $RESULTS/MGenTarget.tsv.gz --mDecoy $RESULTS/MGenDecoy.tsv.gz --binSize "$BIN_SIZE"
 	else
-		module FdrCalculator --inTarget $RESULTS/LPGenTarget.tsv.gz --inDecoy $RESULTS/LPGenDecoy.tsv.gz --outTarget $RESULTS/FdrGenTarget.tsv.gz --outDecoy $RESULTS/FdrGenDecoy.tsv.gz
+		module FdrCalculator --inTarget $RESULTS/LPGenTarget.tsv.gz --inDecoy $RESULTS/LPGenDecoy.tsv.gz --outTarget $RESULTS/FdrGenTarget.tsv.gz --outDecoy $RESULTS/FdrGenDecoy.tsv.gz --useMayu "$USE_MAYU" --mTarget $RESULTS/MGenTarget.tsv.gz --mDecoy $RESULTS/MGenDecoy.tsv.gz --binSize "$BIN_SIZE"
 	fi
 }
 
@@ -178,9 +182,9 @@ gen2grp() {
 		module Corrector --input $RESULTS/LPGrpTarget.tsv.gz -m $RESULTS/MGrpTarget.tsv.gz --output $RESULTS/LPCorrGrpTarget.tsv.gz --mode $CORR
 		module Corrector --input $RESULTS/LPGrpDecoy.tsv.gz -m $RESULTS/MGrpDecoy.tsv.gz --output $RESULTS/LPCorrGrpDecoy.tsv.gz --mode $CORR
 
-		module FdrCalculator --inTarget $RESULTS/LPCorrGrpTarget.tsv.gz --inDecoy $RESULTS/LPCorrGrpDecoy.tsv.gz --outTarget $RESULTS/FdrGrpTarget.tsv.gz --outDecoy $RESULTS/FdrGrpDecoy.tsv.gz
+		module FdrCalculator --inTarget $RESULTS/LPCorrGrpTarget.tsv.gz --inDecoy $RESULTS/LPCorrGrpDecoy.tsv.gz --outTarget $RESULTS/FdrGrpTarget.tsv.gz --outDecoy $RESULTS/FdrGrpDecoy.tsv.gz --useMayu "$USE_MAYU" --mTarget $RESULTS/MGrpTarget.tsv.gz --mDecoy $RESULTS/MGrpDecoy.tsv.gz --binSize "$BIN_SIZE"
 	else
-		module FdrCalculator --inTarget $RESULTS/LPGrpTarget.tsv.gz --inDecoy $RESULTS/LPGrpDecoy.tsv.gz --outTarget $RESULTS/FdrGrpTarget.tsv.gz --outDecoy $RESULTS/FdrGrpDecoy.tsv.gz
+		module FdrCalculator --inTarget $RESULTS/LPGrpTarget.tsv.gz --inDecoy $RESULTS/LPGrpDecoy.tsv.gz --outTarget $RESULTS/FdrGrpTarget.tsv.gz --outDecoy $RESULTS/FdrGrpDecoy.tsv.gz --useMayu "$USE_MAYU" --mTarget $RESULTS/MGrpTarget.tsv.gz --mDecoy $RESULTS/MGrpDecoy.tsv.gz --binSize "$BIN_SIZE"
 	fi
 }
 
