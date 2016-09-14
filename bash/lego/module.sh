@@ -1,7 +1,9 @@
 #!/bin/bash
 
-JAR=EhuBio.jar
-OPTS="-Xmx10g -Djava.util.logging.config.file=logging.properties -Djava.awt.headless=true"
+LEGO=/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/lego
+JAR="$LEGO/EhuBio.jar"
+LOGGING="$LEGO/logging.properties"
+OPTS="-Xmx10g -Djava.util.logging.config.file=$LOGGING -Djava.awt.headless=true"
 
 if [ $# -eq 0 ]; then
 	echo "Please, select one module:"

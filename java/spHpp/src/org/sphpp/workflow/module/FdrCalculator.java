@@ -64,7 +64,7 @@ public class FdrCalculator extends WorkflowModule {
 		arg = new Argument(OPT_BIN_SIZE, null, "binSize");
 		arg.setParamName("size");
 		arg.setDescription("Bin size used for Mayu database partitioning.");
-		arg.setDefaultValue("150");
+		arg.setDefaultValue("0");
 		addOption(arg);
 	}
 	
@@ -77,13 +77,14 @@ public class FdrCalculator extends WorkflowModule {
 		ScoreFile<ScoreItem> target = ScoreFile.load(getValue(OPT_IN_TARGET));
 		ScoreFile<ScoreItem> decoy = ScoreFile.load(getValue(OPT_IN_DECOY));
 		boolean mayu = getBooleanValue(OPT_USE_MAYU);
-		if( mayu ) {
+		int binSize = getIntValue(OPT_BIN_SIZE);
+		if( mayu && binSize > 0 ) {
 			ScoreFile<ScoreItem> sizes = ScoreFile.load(getValue(OPT_M_TARGET));
 			Utils.addScores(target.getItems(), sizes.getItems());
 			sizes = ScoreFile.load(getValue(OPT_M_DECOY));
 			Utils.addScores(decoy.getItems(), sizes.getItems());
 		}
-		run(target.getItems(), decoy.getItems(), ScoreFile.selectScore(target.getItems()), mayu, getIntValue(OPT_BIN_SIZE));
+		run(target.getItems(), decoy.getItems(), ScoreFile.selectScore(target.getItems()), mayu, binSize);
 		target.save(getValue(OPT_OUT_TARGET));
 		decoy.save(getValue(OPT_OUT_DECOY));
 	}
