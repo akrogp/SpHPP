@@ -4,6 +4,7 @@
 
 # General parameters
 #MODE=lpc
+USE_FEAT=false
 USE_OCCAM=false
 OCCAM_DIFF=0.1
 OCCAM_ITER=300
@@ -42,20 +43,21 @@ USAGE=Type "make help" for usage information
 ifeq ($(MODE),lpc)
 CORR=POISSON
 INTEG=OR
-FEAT=--features true
 endif
 ifeq ($(MODE),lpc2)
 CORR=GAMMA
 INTEG=OR
-FEAT=--features true
 endif
 ifeq ($(MODE),lpm)
 INTEG=MIN
-FEAT=--bestPsm true
 endif
 ifeq ($(MODE),lpm2)
 CORR=LOGN
 INTEG=OR
+endif
+ifeq ($(USE_FEAT),true)
+FEAT=--features true
+else
 FEAT=--bestPsm true
 endif
 
@@ -84,6 +86,7 @@ help:
 	@echo
 	@echo "General parameters:"
 	@echo "\tMODE:\t\tAny of lpc|lpc2|lpm|lpm2"
+	@echo "\tUSE_FEAT:\tUse features (true) or best PSM (false) for peptide score (default: $(USE_FEAT))"
 	@echo "\tUSE_OCCAM:\tUse OCCAM (true) or equitative (false) pep->prot distribution (default: $(USE_OCCAM))"
 	@echo "\tUSE_MAYU:\tUse MAYU (true) instead of D/T (false) for FDR calculation (default: $(USE_MAYU))"
 	@echo
@@ -93,7 +96,7 @@ help:
 	@echo "\tRESULTS:\tDirectory for saving output files of the identification workflow"
 	@echo "\tTARGET_FASTA:\tPath to target fasta file"
 	@echo "\tDECOY_FASTA:\tPath to decoy fasta file"
-	@echo "\tPROT2GEN:\tPath to protein accession to gene accession relations file"
+	@echo "\tPROT2GEN:\tPath to protein to gene relations file"
 	@echo "\tLEGO:\t\tPath to Workflow libraries"
 	@echo
 	@echo "Digestion parameters:"
@@ -180,10 +183,10 @@ $(RESULTS)/PsmDecoy.tsv.gz: $(DECOY_DATA)
 $(RESULTS)/CompPsmTarget.tsv.gz $(RESULTS)/CompPsmDecoy.tsv.gz: $(RESULTS)/PsmTarget.tsv.gz $(RESULTS)/PsmDecoy.tsv.gz
 	@$(call module,Competitor,--inTarget $(RESULTS)/PsmTarget.tsv.gz --inDecoy $(RESULTS)/PsmDecoy.tsv.gz --outTarget $(RESULTS)/CompPsmTarget.tsv.gz --outDecoy $(RESULTS)/CompPsmDecoy.tsv.gz)
 
-$(RESULTS)/FilterPsmTarget.tsv.gz $(RESULTS)/Seq2PepTarget.tsv.gz $(RESULTS)/Feat2PepTarget.tsv.gz: $(RESULTS)/CompPsmTarget.tsv.gz
-	@$(call module,PsmFilter,--input $(RESULTS)/CompPsmTarget.tsv.gz --outputPsm $(RESULTS)/FilterPsmTarget.tsv.gz --outputPep $(RESULTS)/Seq2PepTarget.tsv.gz --relations $(RESULTS)/Feat2PepTarget.tsv.gz --rank 1 $(FEAT))
-$(RESULTS)/FilterPsmDecoy.tsv.gz $(RESULTS)/Seq2PepDecoy.tsv.gz $(RESULTS)/Feat2PepDecoy.tsv.gz: $(RESULTS)/CompPsmDecoy.tsv.gz
-	@$(call module,PsmFilter --input $(RESULTS)/CompPsmDecoy.tsv.gz --outputPsm $(RESULTS)/FilterPsmDecoy.tsv.gz --outputPep $(RESULTS)/Seq2PepDecoy.tsv.gz --relations $(RESULTS)/Feat2PepDecoy.tsv.gz --rank 1 $(FEAT))
+$(RESULTS)/FilterPsmTarget.tsv.gz $(RESULTS)/Seq2PepTarget.tsv.gz $(RESULTS)/Psm2PepTarget.tsv.gz: $(RESULTS)/CompPsmTarget.tsv.gz
+	@$(call module,PsmFilter,--input $(RESULTS)/CompPsmTarget.tsv.gz --outputPsm $(RESULTS)/FilterPsmTarget.tsv.gz --outputPep $(RESULTS)/Seq2PepTarget.tsv.gz --relations $(RESULTS)/Psm2PepTarget.tsv.gz --rank 1 $(FEAT))
+$(RESULTS)/FilterPsmDecoy.tsv.gz $(RESULTS)/Seq2PepDecoy.tsv.gz $(RESULTS)/Psm2PepDecoy.tsv.gz: $(RESULTS)/CompPsmDecoy.tsv.gz
+	@$(call module,PsmFilter --input $(RESULTS)/CompPsmDecoy.tsv.gz --outputPsm $(RESULTS)/FilterPsmDecoy.tsv.gz --outputPep $(RESULTS)/Seq2PepDecoy.tsv.gz --relations $(RESULTS)/Psm2PepDecoy.tsv.gz --rank 1 $(FEAT))
 
 $(RESULTS)/LPPsmTarget.tsv.gz $(RESULTS)/LPPsmDecoy.tsv.gz: $(RESULTS)/FilterPsmTarget.tsv.gz $(RESULTS)/FilterPsmDecoy.tsv.gz
 	@$(call module,LPCalculator,--inTarget $(RESULTS)/FilterPsmTarget.tsv.gz --inDecoy $(RESULTS)/FilterPsmDecoy.tsv.gz --outTarget $(RESULTS)/LPPsmTarget.tsv.gz --outDecoy $(RESULTS)/LPPsmDecoy.tsv.gz)
@@ -192,10 +195,10 @@ $(RESULTS)/LPPsmTarget.tsv.gz $(RESULTS)/LPPsmDecoy.tsv.gz: $(RESULTS)/FilterPsm
 # Pepide level
 #
 
-$(RESULTS)/LPPepTarget.tsv.gz: $(RESULTS)/LPPsmTarget.tsv.gz $(RESULTS)/Feat2PepTarget.tsv.gz
-	@$(call module,Integrator,--input $(RESULTS)/LPPsmTarget.tsv.gz --relations $(RESULTS)/Feat2PepTarget.tsv.gz --output $(RESULTS)/LPPepTarget.tsv.gz --mode $(INTEG))
-$(RESULTS)/LPPepDecoy.tsv.gz: $(RESULTS)/LPPsmDecoy.tsv.gz $(RESULTS)/Feat2PepDecoy.tsv.gz
-	@$(call module,Integrator,--input $(RESULTS)/LPPsmDecoy.tsv.gz --relations $(RESULTS)/Feat2PepDecoy.tsv.gz --output $(RESULTS)/LPPepDecoy.tsv.gz --mode $(INTEG))
+$(RESULTS)/LPPepTarget.tsv.gz: $(RESULTS)/LPPsmTarget.tsv.gz $(RESULTS)/Psm2PepTarget.tsv.gz
+	@$(call module,Integrator,--input $(RESULTS)/LPPsmTarget.tsv.gz --relations $(RESULTS)/Psm2PepTarget.tsv.gz --output $(RESULTS)/LPPepTarget.tsv.gz --mode $(INTEG))
+$(RESULTS)/LPPepDecoy.tsv.gz: $(RESULTS)/LPPsmDecoy.tsv.gz $(RESULTS)/Psm2PepDecoy.tsv.gz
+	@$(call module,Integrator,--input $(RESULTS)/LPPsmDecoy.tsv.gz --relations $(RESULTS)/Psm2PepDecoy.tsv.gz --output $(RESULTS)/LPPepDecoy.tsv.gz --mode $(INTEG))
 
 $(RESULTS)/FdrPepTarget.tsv.gz $(RESULTS)/FdrPepDecoy.tsv.gz: $(RESULTS)/LPPepTarget.tsv.gz $(RESULTS)/LPPepDecoy.tsv.gz
 	@$(call module,FdrCalculator,--inTarget $(RESULTS)/LPPepTarget.tsv.gz --inDecoy $(RESULTS)/LPPepDecoy.tsv.gz --outTarget $(RESULTS)/FdrPepTarget.tsv.gz --outDecoy $(RESULTS)/FdrPepDecoy.tsv.gz)
@@ -209,13 +212,13 @@ $(RESULTS)/Seq2ProtTarget.tsv.gz: $(TARGET_FASTA)
 $(RESULTS)/Seq2ProtDecoy.tsv.gz: $(DECOY_FASTA)
 	@$(call module,Digester,--fasta $(DECOY_FASTA) --output $(RESULTS)/Seq2ProtDecoy.tsv.gz --enzyme $(ENZYME) --missed $(MISS_CLE) --nterm $(NTERM) --dp $(USE_DP) --minPepLen $(MIN_PEP_LEN) --maxPepLen $(MAX_PEP_LEN))
 
-ifneq ($(MODE),lpm)
+#ifneq ($(MODE),lpm)
 $(RESULTS)/MdbProtTarget.tsv.gz: $(RESULTS)/Seq2ProtTarget.tsv.gz
 	@$(call module,Modeller,--input $(RESULTS)/Seq2ProtTarget.tsv.gz --output $(RESULTS)/MdbProtTarget.tsv.gz --varMods $(VAR_MODS) --maxPepMods $(MAX_PEP_MODS))
 $(RESULTS)/MdbProtDecoy.tsv.gz: $(RESULTS)/Seq2ProtDecoy.tsv.gz
 	@$(call module,Modeller,--input $(RESULTS)/Seq2ProtDecoy.tsv.gz --output $(RESULTS)/MdbProtDecoy.tsv.gz --varMods $(VAR_MODS) --maxPepMods $(MAX_PEP_MODS))
 USAGE=Type "make help" for usage information
-endif
+#endif
 
 $(RESULTS)/Pep2ProtTarget.tsv.gz: $(RESULTS)/Seq2ProtTarget.tsv.gz $(RESULTS)/Seq2PepTarget.tsv.gz
 	@$(call module,Relator,--upper $(RESULTS)/Seq2ProtTarget.tsv.gz --lower $(RESULTS)/Seq2PepTarget.tsv.gz --output $(RESULTS)/Pep2ProtTarget.tsv.gz)
