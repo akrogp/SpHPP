@@ -32,13 +32,14 @@ import es.ehubio.proteomics.ScoreType;
 
 public class ProteinSummary {
 	public static class Experiment {
-		public Experiment(String subdir, String name, boolean showPeptides) {
+		public Experiment(String subdir, String name, boolean showScore, boolean showPeptides) {
 			this.name = name == null ? subdir : name;
-			this.dir = new File(INPUT,subdir).getAbsolutePath();			
+			this.dir = new File(INPUT,subdir).getAbsolutePath();
+			this.showScore = showScore;
 			this.showPeptides = showPeptides;
 		}
 		public String dir, name;
-		public boolean showPeptides;
+		public boolean showPeptides, showScore;
 	}
 	
 	public static class Peptide {
@@ -48,7 +49,8 @@ public class ProteinSummary {
 	}
 	
 	public static class Details {
-		public double score, fdr, qValue;
+		public double score;
+		public Double fdr, qValue;
 		public final List<Peptide> peptides = new ArrayList<>();
 	}
 	
@@ -62,10 +64,12 @@ public class ProteinSummary {
 	
 	public static void main(String[] args) throws Exception {
 		List<Experiment> exps = new ArrayList<>();
-		exps.add(new Experiment("lpm0", "lpm", true));
-		exps.add(new Experiment("lpm", "lpm mayu", false));
-		exps.add(new Experiment("lpc2", "lpc2 mayu", false));
-		exps.add(new Experiment("lpc2-lpm", "lpc2-lpm mayu", false));
+		exps.add(new Experiment("lpm0", "lpm", true, true));
+		exps.add(new Experiment("lpm", "lpm mayu", false, false));
+		exps.add(new Experiment("lpc2", "lpc2 mayu", true, false));
+		exps.add(new Experiment("lpc2comp", "lpc2 comp", false, false));
+		exps.add(new Experiment("lpc2-lpm", "lpc2-lpm mayu", true, false));
+		exps.add(new Experiment("lpc2-lpm-comp", "lpc2-lpm comp", false, false));
 				
 		Collection<Protein> summaryTarget = createSummary(false, exps, 2);
 		Collection<Protein> summaryDecoy = createSummary(true, exps, 2);
@@ -107,8 +111,12 @@ public class ProteinSummary {
 			if( score == null )
 				score = item.getScoreByType(ScoreType.LP_SCORE);
 			details.score = score.getValue();
-			details.fdr = item.getScoreByType(ScoreType.LOCAL_FDR).getValue();
-			details.qValue = item.getScoreByType(ScoreType.Q_VALUE).getValue();
+			score = item.getScoreByType(ScoreType.LOCAL_FDR);
+			if( score != null )
+				details.fdr = score.getValue();
+			score = item.getScoreByType(ScoreType.Q_VALUE);
+			if( score != null )
+				details.qValue = score.getValue();
 			protein.exps.add(details);
 			if( !exp.showPeptides )
 				continue;
@@ -171,7 +179,11 @@ public class ProteinSummary {
 		pw.print(CsvUtils.getCsv(SEP, "protein", "name", "gene", "T/D", "length", "M(obs)", "M(exp)"));		
 		for( Experiment exp : exps ) {
 			pw.print(SEP);
-			pw.print(CsvUtils.getCsv(SEP,String.format("score (%s)", exp.name), String.format("fdr (%s)", exp.name),String.format("q-value (%s)", exp.name)));
+			if( exp.showScore ) {
+				pw.print(String.format("score (%s)", exp.name));
+				pw.print(SEP);
+			}
+			pw.print(CsvUtils.getCsv(SEP,String.format("fdr (%s)", exp.name),String.format("q-value (%s)", exp.name)));
 		}
 		for( Experiment exp : exps )
 			if( exp.showPeptides ) {
@@ -190,12 +202,18 @@ public class ProteinSummary {
 			}
 		pw.println();
 		for( Protein protein : summary ) {
-			pw.print(CsvUtils.getCsv(SEP, protein.acc, protein.name, protein.gene, protein.decoy?"D":"T", protein.len, protein.mObs, protein.mExp));			
+			pw.print(CsvUtils.getCsv(SEP, protein.acc, protein.name, protein.gene, protein.decoy?"D":"T", protein.len, protein.mObs, protein.mExp));
+			int exp = 0;
 			for( Details details : protein.exps ) {
 				pw.print(SEP);
-				pw.print(CsvUtils.getCsv(SEP, details.score, details.fdr, details.qValue));						
+				if( exps.get(exp).showScore ) {
+					pw.print(details.score);
+					pw.print(SEP);
+				}
+				pw.print(CsvUtils.getCsv(SEP, details.fdr, details.qValue));
+				exp++;
 			}
-			int exp = 0;
+			exp = 0;
 			for( Details details : protein.exps ) {
 				if( exps.get(exp).showPeptides ) {
 					pw.print(SEP);
@@ -234,8 +252,8 @@ public class ProteinSummary {
 	}
 
 	private static final Logger LOG = Logger.getLogger(ProteinSummary.class.getName());
-	private static final String INPUT = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/fdr/AdultFrontalCortex/Sep16/lego";
-	private static final String OUTPUT = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/fdr/AdultFrontalCortex/Sep16/comparison/summary.tsv";
+	private static final String INPUT = "/home/gorka/Descargas/ownCloud/Bio/Pandey-UniquePeptipes/AdultFrontalCortex/lego";
+	private static final String OUTPUT = "/home/gorka/Descargas/ownCloud/Bio/Pandey-UniquePeptipes/summary/AdultFrontalCortex.tsv";
 	private static final String FASTA = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/datasets/gencode24-principal-unique.target.fasta";
 	private static final String SEP = "\t";
 	private static final String SEP2 = ",";

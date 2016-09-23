@@ -10,18 +10,19 @@ import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
 import org.sphpp.workflow.Arguments;
 
+import es.ehubio.Strings;
 import es.ehubio.cli.Argument;
 import es.ehubio.db.fasta.Fasta.InvalidSequenceException;
 import es.ehubio.io.Streams;
 import es.ehubio.proteomics.Enzyme;
 import es.ehubio.proteomics.pipeline.DecoyDb;
-import es.ehubio.proteomics.pipeline.DecoyDb.Strategy;
 
 public class PseudoInverter extends WorkflowModule {	
 	private final static Logger logger = Logger.getLogger(PseudoInverter.class.getName());
 	private static final int OPT_TARGET = 1;
 	private static final int OPT_DECOY = 2;
 	private static final int OPT_CONCAT = 3;
+	private static final int OPT_STRATEGY = 4;
 	
 	public static void main( String[] args ) throws Exception {
 		new PseudoInverter().run(args);
@@ -47,24 +48,32 @@ public class PseudoInverter extends WorkflowModule {
 				
 		addOption(Arguments.getDecoyPrefix());		
 		addOption(Arguments.getEnzyme());
+		
+		arg = new Argument(OPT_STRATEGY, null, "strategy", true);
+		arg.setChoices(Strings.fromArray(DecoyDb.Strategy.values()));
+		arg.setDescription("Strategy for generating decoy entries.");
+		arg.setDefaultValue(DecoyDb.Strategy.PSEUDO_REVERSE);
+		addOption(arg);
 	}
 	
 	@Override
 	protected void run(List<Argument> args) throws Exception {		
 		run(
 			getValue(OPT_TARGET), getValue(OPT_DECOY), getValue(OPT_CONCAT),
-			getValue(Arguments.OPT_PREFIX), Enzyme.valueOf(getValue(Arguments.OPT_ENZYME))
+			getValue(Arguments.OPT_PREFIX),
+			DecoyDb.Strategy.valueOf(getValue(OPT_STRATEGY)),
+			Enzyme.valueOf(getValue(Arguments.OPT_ENZYME))
 		);
 	}
 	
-	public static void run( String target, String decoy, String concat, String prefix, Enzyme enzyme ) throws FileNotFoundException, IOException, InvalidSequenceException {
+	public static void run( String target, String decoy, String concat, String prefix, DecoyDb.Strategy strategy, Enzyme enzyme ) throws FileNotFoundException, IOException, InvalidSequenceException {
 		if( decoy == null )
 			decoy = target.replaceAll(".fasta", ".decoy.fasta");
 		if( concat == null )
 			concat = target.replaceAll(".fasta", ".concat.fasta");
 		
 		logger.info(String.format("Creating decoy in '%s' ...", decoy));
-		DecoyDb.create(target, decoy, Strategy.PSEUDO_REVERSE, enzyme, prefix);
+		DecoyDb.create(target, decoy, strategy, enzyme, prefix);
 		
 		logger.info(String.format("Concatenating target and decoy into '%s' ...", concat));
 		try(				
