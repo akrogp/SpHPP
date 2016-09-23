@@ -8,7 +8,7 @@ USE_FEAT=false
 USE_OCCAM=false
 OCCAM_DIFF=0.1
 OCCAM_ITER=300
-USE_MAYU=true
+FDR=NORMAL
 BIN_SIZE=0
 
 # Path parameters
@@ -88,7 +88,7 @@ help:
 	@echo "\tMODE:\t\tAny of lpc|lpc2|lpm|lpm2"
 	@echo "\tUSE_FEAT:\tUse features (true) or best PSM (false) for peptide score (default: $(USE_FEAT))"
 	@echo "\tUSE_OCCAM:\tUse OCCAM (true) or equitative (false) pep->prot distribution (default: $(USE_OCCAM))"
-	@echo "\tUSE_MAYU:\tUse MAYU (true) instead of D/T (false) for FDR calculation (default: $(USE_MAYU))"
+	@echo "\tFDR:\t\tFDR type: NORMAL|MAYU|COMP (default: $(FDR))"
 	@echo
 	@echo "Path parameters:"
 	@echo "\tTARGET_DATA:\tDirectory with search engine output files for target DB"
@@ -254,10 +254,10 @@ endif
 
 ifneq ($(MODE),lpm)
 $(RESULTS)/FdrProtTarget.tsv.gz $(RESULTS)/FdrProtDecoy.tsv.gz: $(RESULTS)/LPCorrProtTarget.tsv.gz $(RESULTS)/LPCorrProtDecoy.tsv.gz $(RESULTS)/MdbProtTarget.tsv.gz $(RESULTS)/MdbProtDecoy.tsv.gz
-	@$(call module,FdrCalculator,--inTarget $(RESULTS)/LPCorrProtTarget.tsv.gz --inDecoy $(RESULTS)/LPCorrProtDecoy.tsv.gz --outTarget $(RESULTS)/FdrProtTarget.tsv.gz --outDecoy $(RESULTS)/FdrProtDecoy.tsv.gz --useMayu $(USE_MAYU) --mTarget $(RESULTS)/MdbProtTarget.tsv.gz --mDecoy $(RESULTS)/MdbProtDecoy.tsv.gz --binSize $(BIN_SIZE))
+	@$(call module,FdrCalculator,--inTarget $(RESULTS)/LPCorrProtTarget.tsv.gz --inDecoy $(RESULTS)/LPCorrProtDecoy.tsv.gz --outTarget $(RESULTS)/FdrProtTarget.tsv.gz --outDecoy $(RESULTS)/FdrProtDecoy.tsv.gz --type $(FDR) --mTarget $(RESULTS)/MdbProtTarget.tsv.gz --mDecoy $(RESULTS)/MdbProtDecoy.tsv.gz --binSize $(BIN_SIZE) --decoyPrefix $(PREFIX))
 else
 $(RESULTS)/FdrProtTarget.tsv.gz $(RESULTS)/FdrProtDecoy.tsv.gz: $(RESULTS)/LPProtTarget.tsv.gz $(RESULTS)/LPProtDecoy.tsv.gz $(RESULTS)/MdbProtTarget.tsv.gz $(RESULTS)/MdbProtDecoy.tsv.gz
-	@$(call module,FdrCalculator,--inTarget $(RESULTS)/LPProtTarget.tsv.gz --inDecoy $(RESULTS)/LPProtDecoy.tsv.gz --outTarget $(RESULTS)/FdrProtTarget.tsv.gz --outDecoy $(RESULTS)/FdrProtDecoy.tsv.gz --useMayu $(USE_MAYU) --mTarget $(RESULTS)/MdbProtTarget.tsv.gz --mDecoy $(RESULTS)/MdbProtDecoy.tsv.gz --binSize $(BIN_SIZE))
+	@$(call module,FdrCalculator,--inTarget $(RESULTS)/LPProtTarget.tsv.gz --inDecoy $(RESULTS)/LPProtDecoy.tsv.gz --outTarget $(RESULTS)/FdrProtTarget.tsv.gz --outDecoy $(RESULTS)/FdrProtDecoy.tsv.gz --type $(FDR) --mTarget $(RESULTS)/MdbProtTarget.tsv.gz --mDecoy $(RESULTS)/MdbProtDecoy.tsv.gz --binSize $(BIN_SIZE) --decoyPrefix $(PREFIX))
 endif
 
 #
@@ -281,10 +281,10 @@ $(RESULTS)/LPCorrGenDecoy.tsv.gz: $(RESULTS)/LPGenDecoy.tsv.gz $(RESULTS)/MGenDe
 	@$(call module,Corrector,--input $(RESULTS)/LPGenDecoy.tsv.gz -m $(RESULTS)/MGenDecoy.tsv.gz --output $(RESULTS)/LPCorrGenDecoy.tsv.gz --mode $(CORR))
 
 $(RESULTS)/FdrGenTarget.tsv.gz $(RESULTS)/FdrGenDecoy.tsv.gz: $(RESULTS)/LPCorrGenTarget.tsv.gz $(RESULTS)/LPCorrGenDecoy.tsv.gz
-	@$(call module,FdrCalculator,--inTarget $(RESULTS)/LPCorrGenTarget.tsv.gz --inDecoy $(RESULTS)/LPCorrGenDecoy.tsv.gz --outTarget $(RESULTS)/FdrGenTarget.tsv.gz --outDecoy $(RESULTS)/FdrGenDecoy.tsv.gz --useMayu $(USE_MAYU))
+	@$(call module,FdrCalculator,--inTarget $(RESULTS)/LPCorrGenTarget.tsv.gz --inDecoy $(RESULTS)/LPCorrGenDecoy.tsv.gz --outTarget $(RESULTS)/FdrGenTarget.tsv.gz --outDecoy $(RESULTS)/FdrGenDecoy.tsv.gz --type $(FDR) --decoyPrefix $(PREFIX))
 else
 $(RESULTS)/FdrGenTarget.tsv.gz $(RESULTS)/FdrGenDecoy.tsv.gz: $(RESULTS)/LPGenTarget.tsv.gz $(RESULTS)/LPGenDecoy.tsv.gz
-	@$(call module,FdrCalculator,--inTarget $(RESULTS)/LPGenTarget.tsv.gz --inDecoy $(RESULTS)/LPGenDecoy.tsv.gz --outTarget $(RESULTS)/FdrGenTarget.tsv.gz --outDecoy $(RESULTS)/FdrGenDecoy.tsv.gz --useMayu $(USE_MAYU))
+	@$(call module,FdrCalculator,--inTarget $(RESULTS)/LPGenTarget.tsv.gz --inDecoy $(RESULTS)/LPGenDecoy.tsv.gz --outTarget $(RESULTS)/FdrGenTarget.tsv.gz --outDecoy $(RESULTS)/FdrGenDecoy.tsv.gz --type $(FDR) --decoyPrefix $(PREFIX))
 endif
 
 #
@@ -320,8 +320,8 @@ $(RESULTS)/LPCorrGrpDecoy.tsv.gz: $(RESULTS)/LPGrpDecoy.tsv.gz $(RESULTS)/MGrpDe
 	@$(call module,Corrector,--input $(RESULTS)/LPGrpDecoy.tsv.gz -m $(RESULTS)/MGrpDecoy.tsv.gz --output $(RESULTS)/LPCorrGrpDecoy.tsv.gz --mode $(CORR))
 
 $(RESULTS)/FdrGrpTarget.tsv.gz $(RESULTS)/FdrGrpDecoy.tsv.gz: $(RESULTS)/LPCorrGrpTarget.tsv.gz $(RESULTS)/LPCorrGrpDecoy.tsv.gz
-	@$(call module,FdrCalculator,--inTarget $(RESULTS)/LPCorrGrpTarget.tsv.gz --inDecoy $(RESULTS)/LPCorrGrpDecoy.tsv.gz --outTarget $(RESULTS)/FdrGrpTarget.tsv.gz --outDecoy $(RESULTS)/FdrGrpDecoy.tsv.gz --useMayu $(USE_MAYU))
+	@$(call module,FdrCalculator,--inTarget $(RESULTS)/LPCorrGrpTarget.tsv.gz --inDecoy $(RESULTS)/LPCorrGrpDecoy.tsv.gz --outTarget $(RESULTS)/FdrGrpTarget.tsv.gz --outDecoy $(RESULTS)/FdrGrpDecoy.tsv.gz)
 else
 $(RESULTS)/FdrGrpTarget.tsv.gz $(RESULTS)/FdrGrpDecoy.tsv.gz: $(RESULTS)/LPGrpTarget.tsv.gz $(RESULTS)/LPGrpDecoy.tsv.gz
-	@$(call module,FdrCalculator,--inTarget $(RESULTS)/LPGrpTarget.tsv.gz --inDecoy $(RESULTS)/LPGrpDecoy.tsv.gz --outTarget $(RESULTS)/FdrGrpTarget.tsv.gz --outDecoy $(RESULTS)/FdrGrpDecoy.tsv.gz --useMayu $(USE_MAYU))
+	@$(call module,FdrCalculator,--inTarget $(RESULTS)/LPGrpTarget.tsv.gz --inDecoy $(RESULTS)/LPGrpDecoy.tsv.gz --outTarget $(RESULTS)/FdrGrpTarget.tsv.gz --outDecoy $(RESULTS)/FdrGrpDecoy.tsv.gz)
 endif
