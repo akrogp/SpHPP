@@ -67,9 +67,12 @@ public class ProteinSummary {
 		exps.add(new Experiment("lpm0", "lpm", true, true));
 		exps.add(new Experiment("lpm", "lpm mayu", false, false));
 		exps.add(new Experiment("lpc2", "lpc2 mayu", true, false));
-		exps.add(new Experiment("lpc2comp", "lpc2 comp", false, false));
+		exps.add(new Experiment("lpc3", "lpc3 mayu", true, false));
+		exps.add(new Experiment("lpc4", "lpc4 mayu", true, false));
+		//exps.add(new Experiment("lpc2comp", "lpc2 comp", false, false));
 		exps.add(new Experiment("lpc2-lpm", "lpc2-lpm mayu", true, false));
-		exps.add(new Experiment("lpc2-lpm-comp", "lpc2-lpm comp", false, false));
+		//exps.add(new Experiment("lpc2-lpm-comp", "lpc2-lpm comp", false, false));
+		exps.add(new Experiment("lpc4-lpc2", "lpc4-lpc2 mayu", true, false));
 				
 		Collection<Protein> summaryTarget = createSummary(false, exps, 2);
 		Collection<Protein> summaryDecoy = createSummary(true, exps, 2);
@@ -252,8 +255,8 @@ public class ProteinSummary {
 	}
 
 	private static final Logger LOG = Logger.getLogger(ProteinSummary.class.getName());
-	private static final String INPUT = "/home/gorka/Descargas/ownCloud/Bio/Pandey-UniquePeptipes/AdultFrontalCortex/lego";
-	private static final String OUTPUT = "/home/gorka/Descargas/ownCloud/Bio/Pandey-UniquePeptipes/summary/AdultFrontalCortex.tsv";
+	private static final String INPUT = "/home/gorka/Descargas/ownCloud/Bio/Pandey-UniquePeptipes/AdultTestis";
+	private static final String OUTPUT = "/home/gorka/Descargas/ownCloud/Bio/Pandey-UniquePeptipes/summary/AdultTestis.tsv";
 	private static final String FASTA = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/datasets/gencode24-principal-unique.target.fasta";
 	private static final String SEP = "\t";
 	private static final String SEP2 = ",";
