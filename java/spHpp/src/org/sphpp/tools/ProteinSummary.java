@@ -64,15 +64,13 @@ public class ProteinSummary {
 	
 	public static void main(String[] args) throws Exception {
 		List<Experiment> exps = new ArrayList<>();
-		exps.add(new Experiment("lpm0", "lpm", true, true));
-		exps.add(new Experiment("lpm", "lpm mayu", false, false));
-		exps.add(new Experiment("lpc2", "lpc2 mayu", true, false));
-		exps.add(new Experiment("lpc3", "lpc3 mayu", true, false));
-		exps.add(new Experiment("lpc4", "lpc4 mayu", true, false));
-		//exps.add(new Experiment("lpc2comp", "lpc2 comp", false, false));
-		exps.add(new Experiment("lpc2-lpm", "lpc2-lpm mayu", true, false));
-		//exps.add(new Experiment("lpc2-lpm-comp", "lpc2-lpm comp", false, false));
-		exps.add(new Experiment("lpc4-lpc2", "lpc4-lpc2 mayu", true, false));
+		exps.add(new Experiment("LPQ", null, true, true));
+		exps.add(new Experiment("LPQF", null, true, false));		
+		exps.add(new Experiment("LPM", null, true, false));
+		exps.add(new Experiment("LPQG", null, true, false));
+		exps.add(new Experiment("LPQG1", null, true, false));
+		exps.add(new Experiment("LPQGn", null, true, false));
+		exps.add(new Experiment("LPQGb", null, true, false));
 				
 		Collection<Protein> summaryTarget = createSummary(false, exps, 2);
 		Collection<Protein> summaryDecoy = createSummary(true, exps, 2);
@@ -89,7 +87,7 @@ public class ProteinSummary {
 		String refExp = exps.get(ref).dir;
 		loadAccessions(map, new File(refExp,decoy?"FdrProtDecoy.tsv.gz":"FdrProtTarget.tsv.gz"));
 		loadFastaInfo(map, decoy, FASTA);
-		loadM(map, new File(refExp,decoy?"MProtDecoy.tsv.gz":"MProtTarget.tsv.gz"));
+		loadM(map, new File(refExp,decoy?"../MProtDecoy.tsv.gz":"../MProtTarget.tsv.gz"));
 		for( Protein protein : map.values() )
 			protein.decoy = decoy;
 		for( Experiment exp : exps )
@@ -102,8 +100,8 @@ public class ProteinSummary {
 		Map<String,ScoreItem> pepScores = null;
 		LinkMap<Link<Void, Void>, Link<Void, Void>> pep2prot = null;		
 		if( exp.showPeptides ) {
-			pepScores = Utils.getMap(ScoreFile.load(FileUtils.concat(exp.dir,decoy?"FdrPepDecoy.tsv.gz":"FdrPepTarget.tsv.gz")).getItems());
-			pep2prot = RelationFile.load(FileUtils.concat(exp.dir,decoy?"Pep2ProtDecoy.tsv.gz":"Pep2ProtTarget.tsv.gz")).getLinkMap();
+			pepScores = Utils.getMap(ScoreFile.load(FileUtils.concat(exp.dir,decoy?"../FdrPepDecoy.tsv.gz":"../FdrPepTarget.tsv.gz")).getItems());
+			pep2prot = RelationFile.load(FileUtils.concat(exp.dir,decoy?"../Pep2ProtDecoy.tsv.gz":"../Pep2ProtTarget.tsv.gz")).getLinkMap();
 		}
 		for( ScoreItem item : protScores.getItems() ) {
 			Protein protein = map.get(item.getId());
