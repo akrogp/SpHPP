@@ -9,7 +9,9 @@ public class IdItem implements Identifiable {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if( !IdItem.class.isInstance(obj) )
+		if( obj instanceof String )
+			return getId().equals(obj);
+		if( !(obj instanceof IdItem) )
 			return false;
 		return getId().equals(((IdItem)obj).getId());
 	};

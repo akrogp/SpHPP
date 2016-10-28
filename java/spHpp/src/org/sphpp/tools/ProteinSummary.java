@@ -24,7 +24,6 @@ import org.sphpp.workflow.file.ScoreFile;
 import es.ehubio.db.fasta.Fasta;
 import es.ehubio.db.fasta.Fasta.InvalidSequenceException;
 import es.ehubio.db.fasta.Fasta.SequenceType;
-import es.ehubio.io.CsvReader;
 import es.ehubio.io.CsvUtils;
 import es.ehubio.io.FileUtils;
 import es.ehubio.proteomics.Score;
@@ -59,21 +58,28 @@ public class ProteinSummary {
 		public boolean decoy;
 		public int len;
 		public double mObs, mExp;
-		public final List<Details> exps = new ArrayList<>();
+		public final Map<String,Details> exps = new HashMap<>();
 	}
 	
 	public static void main(String[] args) throws Exception {
 		List<Experiment> exps = new ArrayList<>();
-		exps.add(new Experiment("LPQ", null, true, true));
-		exps.add(new Experiment("LPQF", null, true, false));		
-		exps.add(new Experiment("LPM", null, true, false));
-		exps.add(new Experiment("LPQG", null, true, false));
-		exps.add(new Experiment("LPQG1", null, true, false));
-		exps.add(new Experiment("LPQGn", null, true, false));
-		exps.add(new Experiment("LPQGb", null, true, false));
-				
-		Collection<Protein> summaryTarget = createSummary(false, exps, 2);
-		Collection<Protein> summaryDecoy = createSummary(true, exps, 2);
+		exps.add(new Experiment("AdultFrontalCortex/LPM", null, true, false));
+		exps.add(new Experiment("AdultFrontalCortex/LPQGb", null, true, false));
+		exps.add(new Experiment("AdultHeart/LPM", null, true, false));
+		exps.add(new Experiment("AdultHeart/LPQGb", null, true, false));
+		exps.add(new Experiment("AdultLiver/LPM", null, true, false));
+		exps.add(new Experiment("AdultLiver/LPQGb", null, true, false));
+		exps.add(new Experiment("AdultTestis/LPM", null, true, false));
+		exps.add(new Experiment("AdultTestis/LPQGb", null, true, false));
+		exps.add(new Experiment("Proteome/REPLICA-LPM", null, true, false));
+		exps.add(new Experiment("Proteome/REPLICA-LPQGb", null, true, false));
+		exps.add(new Experiment("Proteome/TISSUE-LPM", null, true, false));
+		exps.add(new Experiment("Proteome/TISSUE-LPQGb", null, true, false));
+		exps.add(new Experiment("Proteome/HOUSE_KEEPING-LPM", null, true, false));
+		exps.add(new Experiment("Proteome/HOUSE_KEEPING-LPQGb", null, true, false));
+		
+		Collection<Protein> summaryTarget = createSummary(false, exps);
+		Collection<Protein> summaryDecoy = createSummary(true, exps);
 		List<Protein> summary = new ArrayList<>();
 		summary.addAll(summaryTarget);
 		summary.addAll(summaryDecoy);
@@ -82,16 +88,15 @@ public class ProteinSummary {
 		LOG.info("finished!");
 	}
 	
-	private static Collection<Protein> createSummary(boolean decoy, List<Experiment> exps, int ref) throws Exception {
-		Map<String, Protein> map = new HashMap<>();
-		String refExp = exps.get(ref).dir;
-		loadAccessions(map, new File(refExp,decoy?"FdrProtDecoy.tsv.gz":"FdrProtTarget.tsv.gz"));
-		loadFastaInfo(map, decoy, FASTA);
-		loadM(map, new File(refExp,decoy?"../MProtDecoy.tsv.gz":"../MProtTarget.tsv.gz"));
-		for( Protein protein : map.values() )
-			protein.decoy = decoy;
+	private static Collection<Protein> createSummary(boolean decoy, List<Experiment> exps) throws Exception {
+		Map<String, Protein> map = new HashMap<>();		
 		for( Experiment exp : exps )
 			loadDetails(map, decoy, exp);
+		loadFastaInfo(map, decoy, FASTA);
+		String refDir = exps.get(0).dir;
+		loadM(map, new File(refDir,decoy?"../MProtDecoy.tsv.gz":"../MProtTarget.tsv.gz"));
+		for( Protein protein : map.values() )
+			protein.decoy = decoy;		
 		return map.values();
 	}
 
@@ -105,8 +110,11 @@ public class ProteinSummary {
 		}
 		for( ScoreItem item : protScores.getItems() ) {
 			Protein protein = map.get(item.getId());
-			if( protein == null )
-				continue;
+			if( protein == null ) {
+				protein = new Protein();
+				protein.acc = item.getId();
+				map.put(protein.acc, protein);
+			}
 			Details details = new Details();
 			Score score = item.getScoreByType(ScoreType.LPCORR_SCORE);
 			if( score == null )
@@ -118,7 +126,7 @@ public class ProteinSummary {
 			score = item.getScoreByType(ScoreType.Q_VALUE);
 			if( score != null )
 				details.qValue = score.getValue();
-			protein.exps.add(details);
+			protein.exps.put(exp.name, details);
 			if( !exp.showPeptides )
 				continue;
 			for( Link<Void, Void> pepLink : pep2prot.getUpper(protein.acc).getLinks() ) {
@@ -139,6 +147,8 @@ public class ProteinSummary {
 	}
 
 	private static void loadM(Map<String, Protein> map, File file) throws IOException, ParseException {
+		if( !file.exists() )
+			return;
 		ScoreFile<ScoreItem> scores = ScoreFile.load(file.getAbsolutePath());
 		for( ScoreItem item : scores.getItems() ) {
 			Protein protein = map.get(item.getId());
@@ -162,17 +172,6 @@ public class ProteinSummary {
 			protein.gene = fasta.getGeneName();
 			protein.len = fasta.getSequence().length();
 		}
-	}
-
-	private static void loadAccessions(Map<String, Protein> map, File file) throws IOException {
-		CsvReader csv = new CsvReader(SEP, true, false);
-		csv.open(file.getAbsolutePath());
-		while( csv.readLine() != null ) {
-			Protein protein = new Protein();
-			protein.acc = csv.getField(0);
-			map.put(protein.acc, protein);
-		}
-		csv.close();
 	}
 
 	private static void printSummary(Collection<Protein> summary, List<Experiment> exps) throws FileNotFoundException {
@@ -204,26 +203,23 @@ public class ProteinSummary {
 		pw.println();
 		for( Protein protein : summary ) {
 			pw.print(CsvUtils.getCsv(SEP, protein.acc, protein.name, protein.gene, protein.decoy?"D":"T", protein.len, protein.mObs, protein.mExp));
-			int exp = 0;
-			for( Details details : protein.exps ) {
-				pw.print(SEP);
-				if( exps.get(exp).showScore ) {
-					pw.print(details.score);
+			for( Experiment exp : exps ) {
+				Details details = protein.exps.get(exp.name);				
+				pw.print(SEP);				
+				if( exp.showScore ) {
+					pw.print(details==null?"":details.score);
 					pw.print(SEP);
 				}
-				pw.print(CsvUtils.getCsv(SEP, details.fdr, details.qValue));
-				exp++;
+				pw.print(CsvUtils.getCsv(SEP, details==null?"":details.fdr, details==null?"":details.qValue));
 			}
-			exp = 0;
-			for( Details details : protein.exps ) {
-				if( exps.get(exp).showPeptides ) {
+			for( Experiment exp : exps )
+				if( exp.showPeptides ) {
+					Details details = protein.exps.get(exp.name);
 					pw.print(SEP);
-					printPeptides(pw, details.peptides);
+					printPeptides(pw, details==null?null:details.peptides);
 					pw.print(SEP);
-					printPeptides(pw, fdrFilter(details.peptides,FDR));
+					printPeptides(pw, details==null?null:fdrFilter(details.peptides,FDR));
 				}
-				exp++;
-			}
 			pw.println();
 		}
 		pw.close();
@@ -238,6 +234,10 @@ public class ProteinSummary {
 	}
 
 	private static void printPeptides(PrintWriter pw, List<Peptide> peptides ) {
+		if( peptides == null ) {
+			pw.print(CsvUtils.getCsv(SEP, "", "", ""));
+			return;
+		}
 		pw.print(peptides.size());
 		pw.print(SEP);
 		Object[] tmp = new String[peptides.size()];
@@ -253,8 +253,8 @@ public class ProteinSummary {
 	}
 
 	private static final Logger LOG = Logger.getLogger(ProteinSummary.class.getName());
-	private static final String INPUT = "/home/gorka/Descargas/ownCloud/Bio/Pandey-UniquePeptipes/AdultTestis";
-	private static final String OUTPUT = "/home/gorka/Descargas/ownCloud/Bio/Pandey-UniquePeptipes/summary/AdultTestis.tsv";
+	private static final String INPUT = "/home/gorka/Descargas/ownCloud/Bio/Pandey-UniquePeptipes";
+	private static final String OUTPUT = "/home/gorka/Descargas/ownCloud/Bio/Pandey-UniquePeptipes/summary/Proteome.tsv";
 	private static final String FASTA = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/datasets/gencode24-principal-unique.target.fasta";
 	private static final String SEP = "\t";
 	private static final String SEP2 = ",";
