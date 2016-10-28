@@ -9,7 +9,6 @@ USE_OCCAM=false
 OCCAM_DIFF=0.1
 OCCAM_ITER=300
 FDR=NORMAL
-BIN_SIZE=0
 
 # Path parameters
 LEGO=/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/lego
@@ -88,7 +87,7 @@ help:
 	@echo "\tMODE:\t\tAny of lpc|lpc2|lpm|lpm2"
 	@echo "\tUSE_FEAT:\tUse features (true) or best PSM (false) for peptide score (default: $(USE_FEAT))"
 	@echo "\tUSE_OCCAM:\tUse OCCAM (true) or equitative (false) pep->prot distribution (default: $(USE_OCCAM))"
-	@echo "\tFDR:\t\tFDR type: NORMAL|MAYU|COMP (default: $(FDR))"
+	@echo "\tFDR:\t\tFDR type: NORMAL|MAYU|PICKED|REFINED (default: $(FDR))"
 	@echo
 	@echo "Path parameters:"
 	@echo "\tTARGET_DATA:\tDirectory with search engine output files for target DB"
@@ -253,11 +252,11 @@ endif
 endif
 
 ifneq ($(MODE),lpm)
-$(RESULTS)/FdrProtTarget.tsv.gz $(RESULTS)/FdrProtDecoy.tsv.gz: $(RESULTS)/LPCorrProtTarget.tsv.gz $(RESULTS)/LPCorrProtDecoy.tsv.gz $(RESULTS)/MdbProtTarget.tsv.gz $(RESULTS)/MdbProtDecoy.tsv.gz
-	@$(call module,FdrCalculator,--inTarget $(RESULTS)/LPCorrProtTarget.tsv.gz --inDecoy $(RESULTS)/LPCorrProtDecoy.tsv.gz --outTarget $(RESULTS)/FdrProtTarget.tsv.gz --outDecoy $(RESULTS)/FdrProtDecoy.tsv.gz --type $(FDR) --mTarget $(RESULTS)/MdbProtTarget.tsv.gz --mDecoy $(RESULTS)/MdbProtDecoy.tsv.gz --binSize $(BIN_SIZE) --decoyPrefix $(PREFIX))
+$(RESULTS)/FdrProtTarget.tsv.gz $(RESULTS)/FdrProtDecoy.tsv.gz: $(RESULTS)/LPCorrProtTarget.tsv.gz $(RESULTS)/LPCorrProtDecoy.tsv.gz
+	@$(call module,FdrCalculator,--inTarget $(RESULTS)/LPCorrProtTarget.tsv.gz --inDecoy $(RESULTS)/LPCorrProtDecoy.tsv.gz --outTarget $(RESULTS)/FdrProtTarget.tsv.gz --outDecoy $(RESULTS)/FdrProtDecoy.tsv.gz --type $(FDR) --decoyPrefix $(PREFIX))
 else
-$(RESULTS)/FdrProtTarget.tsv.gz $(RESULTS)/FdrProtDecoy.tsv.gz: $(RESULTS)/LPProtTarget.tsv.gz $(RESULTS)/LPProtDecoy.tsv.gz $(RESULTS)/MdbProtTarget.tsv.gz $(RESULTS)/MdbProtDecoy.tsv.gz
-	@$(call module,FdrCalculator,--inTarget $(RESULTS)/LPProtTarget.tsv.gz --inDecoy $(RESULTS)/LPProtDecoy.tsv.gz --outTarget $(RESULTS)/FdrProtTarget.tsv.gz --outDecoy $(RESULTS)/FdrProtDecoy.tsv.gz --type $(FDR) --mTarget $(RESULTS)/MdbProtTarget.tsv.gz --mDecoy $(RESULTS)/MdbProtDecoy.tsv.gz --binSize $(BIN_SIZE) --decoyPrefix $(PREFIX))
+$(RESULTS)/FdrProtTarget.tsv.gz $(RESULTS)/FdrProtDecoy.tsv.gz: $(RESULTS)/LPProtTarget.tsv.gz $(RESULTS)/LPProtDecoy.tsv.gz
+	@$(call module,FdrCalculator,--inTarget $(RESULTS)/LPProtTarget.tsv.gz --inDecoy $(RESULTS)/LPProtDecoy.tsv.gz --outTarget $(RESULTS)/FdrProtTarget.tsv.gz --outDecoy $(RESULTS)/FdrProtDecoy.tsv.gz --type $(FDR) --decoyPrefix $(PREFIX))
 endif
 
 #
