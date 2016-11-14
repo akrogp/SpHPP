@@ -38,12 +38,12 @@ public class RelationFile extends Relations {
 	public static RelationFile load( String path, String discard, String prefix, int iUpper, int iLower, boolean useMeta ) throws IOException {
 		logger.info("Loading relations ...");
 		try(CsvReader reader = new CsvReader(SEP, true)) {
-			long count = 0;
+			long discardedCount = 0;
 			reader.open(path);
 			RelationFile relations = new RelationFile(reader.getHeaderName(iUpper), reader.getHeaderName(iLower));
 			while(reader.readLine()!=null) {
 				if( discard != null && reader.getLine().contains(discard) ) {
-					count++;
+					discardedCount++;
 					continue;
 				}
 				Relation rel;
@@ -66,8 +66,8 @@ public class RelationFile extends Relations {
 				relations.addEntry(rel);				
 			}
 			logger.info(String.format("Loaded %d relations", relations.getEntries().size()));
-			if( count != 0 )
-				logger.info(String.format("Discarded %d relations", count));
+			if( discardedCount != 0 )
+				logger.info(String.format("Discarded %d relations", discardedCount));
 			return relations;
 		}
 	}

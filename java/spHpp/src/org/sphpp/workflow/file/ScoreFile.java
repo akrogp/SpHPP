@@ -36,19 +36,27 @@ public class ScoreFile<T extends Identifiable & Decoyable> {
 	public static <T extends Identifiable & Decoyable>
 	void save(String id, Collection<T> items, String path, ScoreType... scores) throws FileNotFoundException, IOException {
 		logger.info("Saving scores ...");
-		T first = items.iterator().next();
+		boolean[] useScore;
+		int last;
 		if( scores.length == 0 ) {
-			scores = new ScoreType[first.getScores().size()];
-			int i = 0;
-			for( Score score : first.getScores() )
-				scores[i++] = score.getType();
-		}
-		boolean[] useScore = new boolean[scores.length];
-		int last = 0;
-		for( int i = 0; i < useScore.length; i++ ) {
-			useScore[i] = first.getScoreByType(scores[i]) != null;
-			if( useScore[i] )
-				last = i;
+			Set<ScoreType> set = new LinkedHashSet<>();
+			for( T item : items )
+				for( Score score : item.getScores() )
+					set.add(score.getType());			
+			scores = set.toArray(new ScoreType[0]);
+			useScore = new boolean[scores.length];
+			for( int i = 0; i < useScore.length; i++ )
+				useScore[i] = true;
+			last = useScore.length-1;
+		} else {
+			useScore = new boolean[scores.length];
+			T first = items.iterator().next();
+			last = 0;			
+			for( int i = 0; i < useScore.length; i++ ) {
+				useScore[i] = first.getScoreByType(scores[i]) != null;
+				if( useScore[i] )
+					last = i;
+			}
 		}
 		try( PrintWriter pw = new PrintWriter(Streams.getTextWriter(path))) {
 			pw.print(id); pw.print(SEP);

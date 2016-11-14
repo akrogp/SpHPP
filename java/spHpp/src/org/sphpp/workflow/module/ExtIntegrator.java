@@ -18,10 +18,11 @@ import es.ehubio.proteomics.ScoreType;
 
 public class ExtIntegrator extends WorkflowModule {
 	public enum Mode {
-		REPLICA,		// 1-(1-min(p))^r
-		TISSUE,			// gamma(sum(LPQ),t)
+		LPG1,			// 1-(1-min(p))^r
+		LPG,			// gamma(sum(LPQ),t)
+		LPGN,			// -log(Gamma(LPQF,n)*COMBI(N,n))
 		HOUSE_KEEPING,	// 1-gamma(prod(1-p),t)
-		SIMPLE,			// min(p)
+		BEST,			// min(p)
 		FILTER			// FDRi < 1%
 	}
 	
@@ -57,7 +58,7 @@ public class ExtIntegrator extends WorkflowModule {
 		List<Set<ScoreItem>> list = new ArrayList<>();
 		list.add(file.getItems());		
 		for( int i = 1; i < inputs.length; i++ )
-			if( mode == Mode.FILTER )
+			if( mode == Mode.FILTER || mode == Mode.LPGN )
 				list.add(ScoreFile.load(inputs[i], scoreType, ScoreType.Q_VALUE).getItems());
 			else
 				list.add(ScoreFile.load(inputs[i], scoreType).getItems());
@@ -74,8 +75,8 @@ public class ExtIntegrator extends WorkflowModule {
 	private Collection<ScoreItem> integrate(List<Set<ScoreItem>> list, ScoreType scoreType, Mode mode) {
 		Map<String, ScoreItem> map = new HashMap<>();
 		for( Set<ScoreItem> input : list ) {
-			for( ScoreItem item : input ) {
-				if( mode == Mode.FILTER && item.getScoreByType(ScoreType.Q_VALUE).getValue() >= 0.01 )
+			for( ScoreItem item : input ) {				
+				if( (mode == Mode.FILTER || mode == Mode.LPGN) && item.getScoreByType(ScoreType.Q_VALUE).getValue() >= 0.01 )
 					continue;
 				Score score = item.getScoreByType(scoreType);
 				if( mode == Mode.HOUSE_KEEPING ) {						
@@ -83,14 +84,20 @@ public class ExtIntegrator extends WorkflowModule {
 					score.setValue(getLp(1.0-p));
 				}
 				ScoreItem prev = map.get(item.getId());
-				if( prev == null )
+				if( prev == null ) {
 					map.put(item.getId(), item);
-				else {
+					if( mode == Mode.FILTER || mode == Mode.LPGN )
+						item.putScore(new Score(ScoreType.ID_COUNT, 1));
+				} else {
 					Score prevScore = prev.getScoreByType(scoreType);
-					if( mode == Mode.REPLICA || mode == Mode.SIMPLE || mode == Mode.FILTER )
+					if( mode == Mode.LPG1 || mode == Mode.BEST || mode == Mode.FILTER )
 						prevScore.setValue(Math.max(prevScore.getValue(), score.getValue()));
 					else
 						prevScore.setValue(prevScore.getValue()+score.getValue());
+					if( mode == Mode.FILTER || mode == Mode.LPGN ) {
+						Score countScore = prev.getScoreByType(ScoreType.ID_COUNT);
+						countScore.setValue(countScore.getValue()+1);
+					}
 				}
 			}
 		}
@@ -98,27 +105,45 @@ public class ExtIntegrator extends WorkflowModule {
 	}
 	
 	private void finalize(Collection<ScoreItem> items, ScoreType scoreType, int n, Mode mode) {
-		if( mode == Mode.SIMPLE || mode == Mode.FILTER )
+		if( mode == Mode.BEST || mode == Mode.FILTER )
 			return;
 		for( ScoreItem item : items ) {
 			Score score = item.getScoreByType(scoreType);
 			switch( mode ) {			
-				case REPLICA:
+				case LPG1:
 					double p = Math.pow(10.0, -score.getValue());
 					score.setValue(getLp(1.0-Math.pow(1.0-p,n)));
 					break;
-				case TISSUE:
+				case LPG:
 					score.setValue(getLp(gamma(score.getValue(),n)));
+					break;
+				case LPGN:
+					finalizeLpgn(score, item.getScoreByType(ScoreType.ID_COUNT), n);
 					break;
 				case HOUSE_KEEPING:
 					score.setValue(getLp(1.0-gamma(score.getValue(),n)));
-					break;
+					break;					
 				default:
 					return;
 			}
 		}		
 	}
 	
+	private void finalizeLpgn(Score score, Score count, int N) {
+		if( count == null || count.getValue() == 0 ) {
+			double p = Math.pow(10.0, -score.getValue());
+			score.setValue(getLp(1.0-Math.pow(1.0-p,N)));
+			return;
+		}
+		int n = (int)count.getValue();
+		double lpgn = -Math.log10(gamma(score.getValue(), n));
+		for( int i = n+1; i <= N; i++ )
+			lpgn += -Math.log10(i);
+		for( int i = 2; i <= N-n; i++ )
+			lpgn -= -Math.log10(i);
+		score.setValue(lpgn>300?300:lpgn);
+	}
+
 	private static double gamma(double lp, int n) {
 		double loge = Math.log(10.0);
 		GammaDistribution gamma = new GammaDistribution(n, 1);

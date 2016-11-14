@@ -34,7 +34,7 @@ public class ExtCorrector extends WorkflowModule {
 	}
 	
 	public ExtCorrector() {
-		super("Calculates LPCorr(max).");
+		super("Calculates extended scores.");
 		
 		Argument arg = new Argument(OPT_INPUT, 'i', "input");
 		arg.setParamName("LPScores.tsv");

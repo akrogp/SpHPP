@@ -1,6 +1,8 @@
 package org.sphpp.workflow.data;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -96,6 +98,19 @@ public class Relations {
 	
 	public Relation get( String upper, String lower ) {
 		return rels.get(new Relation(upper, lower).getId());
+	}
+	
+	public void filterShared() {
+		Map<String,String> lower = new HashMap<>();
+		Set<String> dups = new HashSet<>();
+		String prev;
+		for( Map.Entry<String, Relation> entry : rels.entrySet() )
+			if( (prev=lower.put(entry.getValue().getLowerId(),entry.getValue().getId())) != null ) {
+				dups.add(prev);
+				dups.add(entry.getValue().getId());
+			}
+		for( String dup : dups )
+			rels.remove(dup);
 	}
 	
 	private final Map<String, Relation> rels = new LinkedHashMap<>();
