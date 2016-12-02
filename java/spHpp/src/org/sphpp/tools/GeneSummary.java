@@ -64,14 +64,14 @@ public class GeneSummary {
 	
 	public static void main(String[] args) throws Exception {
 		List<Experiment> exps = new ArrayList<>();
-		exps.add(new Experiment("Adult_Liver/LPM-FDRn"));
-		exps.add(new Experiment("Adult_Liver/LPM-FDRm",false));
-		exps.add(new Experiment("Adult_Liver/LPF-FDRn"));
-		exps.add(new Experiment("Adult_Liver/LPM-FDRp"));
-		exps.add(new Experiment("Adult_Liver/LPG1-FDRr"));
-		exps.add(new Experiment("Adult_Liver/LPGN-FDRr",null,true,true));
-		exps.add(new Experiment("Adult_Liver/LPG-FDRr"));
-		exps.add(new Experiment("Adult_Liver/LPGB-FDRr"));
+		exps.add(new Experiment("Adult_Heart/LPM-FDRn"));
+		exps.add(new Experiment("Adult_Heart/LPM-FDRm",false));
+		exps.add(new Experiment("Adult_Heart/LPF-FDRn"));
+		exps.add(new Experiment("Adult_Heart/LPM-FDRp"));
+		exps.add(new Experiment("Adult_Heart/LPG1-FDRr"));
+		exps.add(new Experiment("Adult_Heart/LPGN-FDRr",null,true,true));
+		exps.add(new Experiment("Adult_Heart/LPG-FDRr"));
+		exps.add(new Experiment("Adult_Heart/LPGB-FDRr"));
 		/*exps.add(new Experiment("Proteome/FILTER-LPM-FDRn"));
 		exps.add(new Experiment("Proteome/BEST-LPM-FDRn"));
 		exps.add(new Experiment("Proteome/BEST-LPM-FDRm"));
@@ -254,8 +254,8 @@ public class GeneSummary {
 	}
 
 	private static final Logger LOG = Logger.getLogger(GeneSummary.class.getName());
-	private static final String INPUT = "/home/gorka/Descargas/ownCloud/Bio/Pandey-GeneUniquePeptides";
-	private static final String OUTPUT = "/home/gorka/Descargas/ownCloud/Bio/Pandey-GeneUniquePeptides/Summary/Adult_Liver.tsv";
+	private static final String INPUT = "/home/gorka/Descargas/ownCloud/Bio/Pandey-GeneUnique-Decoy";
+	private static final String OUTPUT = "/home/gorka/Descargas/ownCloud/Bio/Pandey-GeneUnique-Decoy/Summary/Adult_Heart.tsv";
 	//private static final String OUTPUT = "/home/gorka/Descargas/ownCloud/Bio/Pandey-GeneUniquePeptides/Summary/Proteome.tsv";
 	//private static final String FASTA = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/datasets/gencode25.target.fasta";
 	private static final String SEP = "\t";
