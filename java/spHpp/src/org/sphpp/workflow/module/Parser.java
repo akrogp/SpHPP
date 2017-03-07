@@ -35,7 +35,7 @@ public class Parser extends WorkflowModule {
 		addOption(arg);
 				
 		arg = Arguments.getDecoyPrefix();
-		arg.setDescription(String.format("%s If none given, separate output files for decoys will not be generated.", arg.getDescription()));
+		arg.setDescription(String.format("%s If none given, separated output files for decoys will not be generated.", arg.getDescription()));
 		arg.setDefaultValue(null);
 		arg.setOptional();
 		addOption(arg);
