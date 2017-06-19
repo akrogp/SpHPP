@@ -67,24 +67,37 @@ public class GeneSummary {
 			throw new Exception(String.format("Usage: %s <path> <tissue>", GeneSummary.class.getCanonicalName()));
 		run(args[0], args[1]);*/
 		//run("/home/gorka/Descargas/ownCloud/Bio/Feb17-IL","Proteome");
-		run("/home/gorka/Descargas/ownCloud/Bio/Feb17-IL","HouseKeeping");
+		//run("/home/gorka/Descargas/ownCloud/Bio/Feb17-IL","HouseKeeping");
 		/*run("/home/gorka/Descargas/ownCloud/Bio/Feb17-IL","Adult_Testis");
 		run("/home/gorka/Descargas/ownCloud/Bio/Feb17-IL","Adult_Frontalcortex");
 		run("/home/gorka/Descargas/ownCloud/Bio/Feb17-IL","Adult_Heart");
 		run("/home/gorka/Descargas/ownCloud/Bio/Feb17-IL","Adult_Liver");*/
+		//run("/home/gorka/Descargas/ownCloud/Bio/Mar17-Sequest","Adult_Heart");
+		run("/media/gorka/EhuBio/Lego","Comet","Proteome");
+		run("/media/gorka/EhuBio/Lego","XTandem","Proteome");
+		
+		/*File dir = new File("/media/gorka/EhuBio/Lego");
+		File[] tissues = dir.listFiles(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.contains("Adult_") || name.contains("Fetal_");
+			}
+		});
+		for( File tissue : tissues )
+			run(dir.getAbsolutePath(), "Comet", tissue.getName());*/
 	}
 	
-	public static void run( String path, String tissue ) throws Exception {
+	public static void run( String path, String engine, String tissue ) throws Exception {
 		List<Experiment> exps = new ArrayList<>();
 		
-		/*exps.add(new Experiment(path,tissue+"/LPM-FDRn"));
-		exps.add(new Experiment(path,tissue+"/LPM-FDRm",false));
-		exps.add(new Experiment(path,tissue+"/LPF-FDRn"));
-		exps.add(new Experiment(path,tissue+"/LPM-FDRp"));
-		exps.add(new Experiment(path,tissue+"/LPG1-FDRr"));
-		exps.add(new Experiment(path,tissue+"/LPGN-FDRr",null,true,true));
-		exps.add(new Experiment(path,tissue+"/LPG-FDRr"));
-		exps.add(new Experiment(path,tissue+"/LPGB-FDRr"));*/
+		/*exps.add(new Experiment(path,String.format("%s/%s/LPM-FDRn",tissue,engine)));
+		exps.add(new Experiment(path,String.format("%s/%s/LPM-FDRm",tissue,engine),false));
+		exps.add(new Experiment(path,String.format("%s/%s/LPF-FDRn",tissue,engine)));
+		exps.add(new Experiment(path,String.format("%s/%s/LPM-FDRp",tissue,engine)));
+		exps.add(new Experiment(path,String.format("%s/%s/LPG1-FDRr",tissue,engine)));
+		exps.add(new Experiment(path,String.format("%s/%s/LPGN-FDRr",tissue,engine),null,true,true));
+		exps.add(new Experiment(path,String.format("%s/%s/LPG-FDRr",tissue,engine)));
+		exps.add(new Experiment(path,String.format("%s/%s/LPGB-FDRr",tissue,engine)));*/
 		
 		/*exps.add(new Experiment(path,"Proteome/FILTER-LPM-FDRn"));
 		exps.add(new Experiment(path,"All_Tissues/LPM-FDRn"));
@@ -96,14 +109,26 @@ public class GeneSummary {
 		exps.add(new Experiment(path,"Proteome/LPG1-LPGN-FDRr"));
 		exps.add(new Experiment(path,"Proteome/LPG1-LPGB-FDRr"));*/
 		
-		exps.add(new Experiment(path,"Adult_Frontalcortex/LPG1-FDRr"));
+		exps.add(new Experiment(path,String.format("Proteome/%s/FILTER-LPM-FDRn",engine)));
+		exps.add(new Experiment(path,String.format("All_Tissues/%s/LPM-FDRn",engine)));
+		exps.add(new Experiment(path,String.format("All_Tissues/%s/LPM-FDRm",engine)));
+		exps.add(new Experiment(path,String.format("All_Tissues/%s/LPM-FDRp",engine)));
+		exps.add(new Experiment(path,String.format("All_Tissues/%s/LPF-FDRn",engine)));
+		exps.add(new Experiment(path,String.format("All_Tissues/%s/LPGN-FDRr",engine)));
+		//exps.add(new Experiment(path,String.format("All_Tissues/%s/LPGN-FDRr",engine),null,true,true));
+		exps.add(new Experiment(path,String.format("Proteome/%s/LPG1-LPG-FDRr",engine)));
+		exps.add(new Experiment(path,String.format("Proteome/%s/LPG1-LPG1-FDRr",engine)));
+		exps.add(new Experiment(path,String.format("Proteome/%s/LPG1-LPGN-FDRr",engine)));
+		exps.add(new Experiment(path,String.format("Proteome/%s/LPG1-LPGB-FDRr",engine)));
+		
+		/*exps.add(new Experiment(path,"Adult_Frontalcortex/LPG1-FDRr"));
 		exps.add(new Experiment(path,"Adult_Frontalcortex/LPGN-FDRr"));
 		exps.add(new Experiment(path,"Adult_Testis/LPG1-FDRr"));
 		exps.add(new Experiment(path,"Adult_Testis/LPGN-FDRr"));
 		exps.add(new Experiment(path,"Adult_Heart/LPG1-FDRr"));
 		exps.add(new Experiment(path,"Adult_Heart/LPGN-FDRr"));
 		exps.add(new Experiment(path,"Adult_Liver/LPG1-FDRr"));
-		exps.add(new Experiment(path,"Adult_Liver/LPGN-FDRr"));
+		exps.add(new Experiment(path,"Adult_Liver/LPGN-FDRr"));*/
 		
 		
 		Collection<Gene> summaryTarget = createSummary(false, exps);
@@ -111,7 +136,7 @@ public class GeneSummary {
 		List<Gene> summary = new ArrayList<>();
 		summary.addAll(summaryTarget);
 		summary.addAll(summaryDecoy);
-		printSummary(summary, exps,String.format("%s/Summary/%s.tsv",path,tissue));
+		printSummary(summary, exps,String.format("%s/Summary/%s-%s.tsv",path,tissue,engine));
 		
 		LOG.info("finished!");
 	}

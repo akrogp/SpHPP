@@ -82,7 +82,7 @@ public class PsmFilter extends WorkflowModule {
 		Set<Peptide> peptides = getPeptides(psms);
 		logger.info(String.format("Saving %s peptides ...", peptides.size()));
 		PepFile.save(peptides, getValue(OPT_OUTPUT_PEP));
-		logger.info("Saving peptide to protein relations ...");
+		logger.info("Saving PSM to peptide relations ...");
 		saveRelations(psms, getValue(OPT_PSM2PEP));		
 	}	
 

@@ -34,8 +34,8 @@ public class RankPlotter extends WorkflowModule {
 		addOption(arg);
 		
 		arg = new Argument(OPT_OUTPUT, 'o', "output");
-		arg.setParamName("LPScores.pdf");
-		arg.setDescription("Output pdf file with LP score vs rank chart.");
+		arg.setParamName("LPScores");
+		arg.setDescription("Output pdf files prefix for LP score vs rank charts.");
 		addOption(arg);
 	}
 	
@@ -50,10 +50,13 @@ public class RankPlotter extends WorkflowModule {
 		File file = new File(getValue(OPT_INPUT));
 		File parent = file.getParentFile();
 		String title = new File(parent.getName(),file.getName()).getPath();
-		plot(input.getItems(), lpScore, title, getValue(OPT_OUTPUT));
+		plotLog(input.getItems(), lpScore, title, getValue(OPT_OUTPUT)+"-log-all.pdf",0);
+		//plotLog(input.getItems(), lpScore, title, getValue(OPT_OUTPUT)+"-log-top.pdf",100);
+		plotLin(input.getItems(), lpScore, title, getValue(OPT_OUTPUT)+"-lin-all.pdf",0);
+		plotLin(input.getItems(), lpScore, title, getValue(OPT_OUTPUT)+"-lin-top.pdf",100);
 	}
 
-	private void plot(Collection<? extends ScoreItem> items, final ScoreType lpScore, String title, String path) throws FileNotFoundException {
+	private void plotLog(Collection<? extends ScoreItem> items, final ScoreType lpScore, String title, String path, int count) throws FileNotFoundException {
 		List<ScoreItem> list = new ArrayList<>(items);
 		Collections.sort(list, new Comparator<ScoreItem>() {
 			@Override
@@ -61,18 +64,49 @@ public class RankPlotter extends WorkflowModule {
 				return o2.getScoreByType(lpScore).compare(o1.getScoreByType(lpScore).getValue());
 			}
 		});
+		count = count == 0 ? list.size() : Math.min(count, list.size());
 		int i = 0;
-		double[] x = new double[list.size()];
-		double[] y = new double[list.size()];
+		double[] x = new double[count];
+		double[] y = new double[count];
 		for( ScoreItem item : list ) {
 			y[i] = item.getScoreByType(lpScore).getValue();
 			double lin = ((double)(i+1))/list.size();
 			x[i] = lin < 1e-300 ? 300 : -Math.log10(lin);
 			i++;
+			if( --count <= 0 )
+				break;
 		}
 		PDFJob job = new PDFJob(new FileOutputStream(path),title);
 		Graphics g = job.getGraphics(PageFormat.LANDSCAPE);
-		plot(g,x,y,title,X_LABEL,Y_LABEL);
+		plot(g,x,y,title,X_LOG_LABEL,Y_LOG_LABEL);
+		g.dispose();
+		job.end();
+	}
+	
+	private void plotLin(Collection<? extends ScoreItem> items, final ScoreType lpScore, String title, String path, int count) throws FileNotFoundException {
+		List<ScoreItem> list = new ArrayList<>(items);
+		Collections.sort(list, new Comparator<ScoreItem>() {
+			@Override
+			public int compare(ScoreItem o1, ScoreItem o2) {
+				return o2.getScoreByType(lpScore).compare(o1.getScoreByType(lpScore).getValue());
+			}
+		});
+		count = count == 0 ? list.size() : Math.min(count, list.size());
+		int i = 0;
+		double[] x = new double[count];
+		double[] y = new double[count];
+		for( ScoreItem item : list ) {
+			y[i] = Math.pow(10.0, -item.getScoreByType(lpScore).getValue());
+			x[i] = ((double)(i+1))/list.size();
+			if( x[i] > 1.0 ) x[i] = 1.0;
+			if( y[i] > 1.0 ) y[i] = 1.0;
+			i++;
+			if( --count <= 0 )
+				break;
+		}
+		PDFJob job = new PDFJob(new FileOutputStream(path),title);
+		Graphics g = job.getGraphics(PageFormat.LANDSCAPE);
+		plot(g,x,y,title,X_LIN_LABEL,Y_LIN_LABEL);
 		g.dispose();
 		job.end();
 	}
@@ -137,8 +171,10 @@ public class RankPlotter extends WorkflowModule {
 	}
 
 	private static final Logger logger = Logger.getLogger(RankPlotter.class.getName());
-	private static final String Y_LABEL = "LP";
-	private static final String X_LABEL = "-log(rank/N)";
+	private static final String Y_LOG_LABEL = "LP";
+	private static final String X_LOG_LABEL = "-log(rank/N)";
+	private static final String Y_LIN_LABEL = "prob";
+	private static final String X_LIN_LABEL = "rank/N";
 	private static final int FONT_SIZE = 16;
 	
 	private static final int OPT_INPUT = 1;
