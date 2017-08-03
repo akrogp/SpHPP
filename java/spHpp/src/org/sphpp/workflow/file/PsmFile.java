@@ -57,6 +57,7 @@ public class PsmFile {
 				pw.print(psm.getUniqueString()); pw.print(Constants.SEP);
 				pw.print(psm.getSpectrum().getUniqueString()); pw.print(Constants.SEP);
 				//pw.print(psm.getSpectrum().getScan()); pw.print(Constants.SEP);
+				//pw.print(String.format("%s@%s", psm.getSpectrum().getFileName(), psm.getSpectrum().getScan())); pw.print(Constants.SEP);
 				pw.print(psm.getRank()); pw.print(Constants.SEP);				
 				pw.print(Numbers.toString(psm.getExpMz())); pw.print(Constants.SEP);
 				pw.print(psm.getCharge()); pw.print(Constants.SEP);
