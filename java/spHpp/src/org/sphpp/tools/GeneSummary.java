@@ -1,7 +1,7 @@
 package org.sphpp.tools;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.ParseException;
@@ -21,27 +21,37 @@ import org.sphpp.workflow.data.ScoreItem;
 import org.sphpp.workflow.file.RelationFile;
 import org.sphpp.workflow.file.ScoreFile;
 
+import es.ehubio.db.fasta.Fasta;
+import es.ehubio.db.fasta.Fasta.InvalidSequenceException;
+import es.ehubio.db.fasta.Fasta.SequenceType;
 import es.ehubio.io.CsvUtils;
 import es.ehubio.io.FileUtils;
+import es.ehubio.io.Streams;
 import es.ehubio.proteomics.Score;
 import es.ehubio.proteomics.ScoreType;
 
 public class GeneSummary {
 	private static class Experiment {
-		public Experiment(String dir, String subdir, String name, boolean showScore, boolean showPeptides) {
+		public Experiment(String dir, String subdir, String name, boolean showScore, boolean showPeptides, boolean showPeptideCount) {
 			this.name = name == null ? subdir : name;
 			this.dir = new File(dir,subdir).getAbsolutePath();
 			this.showScore = showScore;
 			this.showPeptides = showPeptides;
+			this.showPeptideCount = showPeptideCount;
 		}
+		
+		public Experiment(String dir, String subdir, String name, boolean showScore, boolean showPeptides) {
+			this(dir, subdir, name, showScore, showPeptides, false);
+		}
+		
 		public Experiment(String dir, String subdir) {
 			this(dir,subdir,null,true,false);
 		}
 		public Experiment(String dir, String subdir, boolean showScore) {
 			this(dir,subdir,null,showScore,false);
 		}
-		public String dir, name;
-		public boolean showPeptides, showScore;
+		public final String dir, name;
+		public final boolean showPeptides, showScore, showPeptideCount;
 	}
 	
 	private static class Peptide {
@@ -58,6 +68,7 @@ public class GeneSummary {
 	
 	private static class Gene {
 		public String acc;
+		public String name;
 		public boolean decoy;
 		public final Map<String,Details> exps = new HashMap<>();
 	}
@@ -73,42 +84,86 @@ public class GeneSummary {
 		run("/home/gorka/Descargas/ownCloud/Bio/Feb17-IL","Adult_Heart");
 		run("/home/gorka/Descargas/ownCloud/Bio/Feb17-IL","Adult_Liver");*/
 		//run("/home/gorka/Descargas/ownCloud/Bio/Mar17-Sequest","Adult_Heart");
-		run("/media/gorka/EhuBio/Lego","Comet","Proteome");
-		run("/media/gorka/EhuBio/Lego","XTandem","Proteome");
+		//run("/media/gorka/EhuBio/Lego","Comet","Proteome");
+		//run("/media/gorka/EhuBio/Lego","XTandem","Proteome");
 		
-		/*File dir = new File("/media/gorka/EhuBio/Lego");
-		File[] tissues = dir.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.contains("Adult_") || name.contains("Fetal_");
-			}
-		});
-		for( File tissue : tissues )
-			run(dir.getAbsolutePath(), "Comet", tissue.getName());*/
+		//runAll("/media/gorka/EhuBio/Lego");
+		
+		//runEngineComp("/media/gorka/EhuBio/Lego", "Proteome", "LPG1-LPGN-FDRr");
+		
+		runProteomeTissues("/media/gorka/EhuBio/Lego");
 	}
 	
-	public static void run( String path, String engine, String tissue ) throws Exception {
+	public static void runAll( String path ) throws Exception {
+		String[] engines = { "XTandem" };
+		
+		for( String engine : engines ) {
+			File dir = new File(path);
+			File[] tissues = dir.listFiles(new FilenameFilter() {
+				@Override
+				public boolean accept(File dir, String name) {
+					return name.contains("Adult_") || name.contains("Fetal_");
+				}
+			});
+			for( File tissue : tissues ) {
+				LOG.info(String.format("Engine: %s, Tissue: %s", engine, tissue.getName()));
+				runExp(dir.getAbsolutePath(), engine, tissue.getName());
+			}
+			runProteome(path, engine);
+		}
+	}
+	
+	public static void runProteomeTissues( String path ) throws Exception {
+		String[] engines = { "XTandem", "Comet", "Fragger" };
+		//String[] engines = { "XTandem" };
+		//int count = 0;
+		for( String engine : engines ) {
+			File dir = new File(path);
+			File[] tissues = dir.listFiles(new FilenameFilter() {
+				@Override
+				public boolean accept(File dir, String name) {
+					return name.contains("Adult_") || name.contains("Fetal_");
+				}
+			});
+			List<Experiment> exps = new ArrayList<>();
+			exps.add(new Experiment(path, String.format("Proteome/%s/LPG1-LPGN-FDRr", engine), null, true, false, false));
+			for( File tissue : tissues ) {
+				exps.add(new Experiment(path, String.format("%s/%s/LPGN-FDRr", tissue.getName(), engine), null, true, false, true));
+				/*if( count++ > 2 )
+					break;*/
+			}
+			run(exps, String.format("%s/Summary/ProteomeTissues-%s.tsv.gz", path, engine));
+		}
+	}
+	
+	public static void runEngineComp( String path, String tissue, String score ) throws Exception {
 		List<Experiment> exps = new ArrayList<>();
 		
-		/*exps.add(new Experiment(path,String.format("%s/%s/LPM-FDRn",tissue,engine)));
+		exps.add(new Experiment(path,String.format("%s/XTandem/%s",tissue,score)));
+		exps.add(new Experiment(path,String.format("%s/Comet/%s",tissue,score)));
+		exps.add(new Experiment(path,String.format("%s/Fragger/%s",tissue,score)));
+		
+		run(exps, String.format("%s/Summary/%s-%s-Engines.tsv.gz",path,tissue,score));
+	} 
+	
+	public static void runExp( String path, String engine, String tissue ) throws Exception {
+		List<Experiment> exps = new ArrayList<>();
+		
+		exps.add(new Experiment(path,String.format("%s/%s/LPM-FDRn",tissue,engine)));
 		exps.add(new Experiment(path,String.format("%s/%s/LPM-FDRm",tissue,engine),false));
 		exps.add(new Experiment(path,String.format("%s/%s/LPF-FDRn",tissue,engine)));
 		exps.add(new Experiment(path,String.format("%s/%s/LPM-FDRp",tissue,engine)));
 		exps.add(new Experiment(path,String.format("%s/%s/LPG1-FDRr",tissue,engine)));
 		exps.add(new Experiment(path,String.format("%s/%s/LPGN-FDRr",tissue,engine),null,true,true));
 		exps.add(new Experiment(path,String.format("%s/%s/LPG-FDRr",tissue,engine)));
-		exps.add(new Experiment(path,String.format("%s/%s/LPGB-FDRr",tissue,engine)));*/
+		exps.add(new Experiment(path,String.format("%s/%s/LPGB-FDRr",tissue,engine)));
 		
-		/*exps.add(new Experiment(path,"Proteome/FILTER-LPM-FDRn"));
-		exps.add(new Experiment(path,"All_Tissues/LPM-FDRn"));
-		exps.add(new Experiment(path,"All_Tissues/LPM-FDRm"));
-		exps.add(new Experiment(path,"All_Tissues/LPM-FDRp"));
-		exps.add(new Experiment(path,"All_Tissues/LPF-FDRn"));
-		exps.add(new Experiment(path,"Proteome/LPG1-LPG-FDRr"));
-		exps.add(new Experiment(path,"Proteome/LPG1-LPG1-FDRr"));
-		exps.add(new Experiment(path,"Proteome/LPG1-LPGN-FDRr"));
-		exps.add(new Experiment(path,"Proteome/LPG1-LPGB-FDRr"));*/
-		
+		run(exps, String.format("%s/Summary/%s-%s.tsv.gz",path,tissue,engine));
+	}
+	
+	public static void runProteome( String path, String engine ) throws Exception {
+		List<Experiment> exps = new ArrayList<>();
+				
 		exps.add(new Experiment(path,String.format("Proteome/%s/FILTER-LPM-FDRn",engine)));
 		exps.add(new Experiment(path,String.format("All_Tissues/%s/LPM-FDRn",engine)));
 		exps.add(new Experiment(path,String.format("All_Tissues/%s/LPM-FDRm",engine)));
@@ -121,22 +176,16 @@ public class GeneSummary {
 		exps.add(new Experiment(path,String.format("Proteome/%s/LPG1-LPGN-FDRr",engine)));
 		exps.add(new Experiment(path,String.format("Proteome/%s/LPG1-LPGB-FDRr",engine)));
 		
-		/*exps.add(new Experiment(path,"Adult_Frontalcortex/LPG1-FDRr"));
-		exps.add(new Experiment(path,"Adult_Frontalcortex/LPGN-FDRr"));
-		exps.add(new Experiment(path,"Adult_Testis/LPG1-FDRr"));
-		exps.add(new Experiment(path,"Adult_Testis/LPGN-FDRr"));
-		exps.add(new Experiment(path,"Adult_Heart/LPG1-FDRr"));
-		exps.add(new Experiment(path,"Adult_Heart/LPGN-FDRr"));
-		exps.add(new Experiment(path,"Adult_Liver/LPG1-FDRr"));
-		exps.add(new Experiment(path,"Adult_Liver/LPGN-FDRr"));*/
-		
-		
+		run(exps, String.format("%s/Summary/Proteome-%s.tsv.gz",path,engine));
+	}
+	
+	public static void run( List<Experiment> exps, String outputPath ) throws Exception {
 		Collection<Gene> summaryTarget = createSummary(false, exps);
 		Collection<Gene> summaryDecoy = createSummary(true, exps);
 		List<Gene> summary = new ArrayList<>();
 		summary.addAll(summaryTarget);
 		summary.addAll(summaryDecoy);
-		printSummary(summary, exps,String.format("%s/Summary/%s-%s.tsv",path,tissue,engine));
+		printSummary(summary, exps, outputPath);
 		
 		LOG.info("finished!");
 	}
@@ -145,9 +194,8 @@ public class GeneSummary {
 		Map<String, Gene> map = new HashMap<>();		
 		for( Experiment exp : exps )
 			loadDetails(map, decoy, exp);
-		//loadFastaInfo(map, decoy, FASTA);
-		//String refDir = exps.get(0).dir;
-		//loadM(map, new File(refDir,decoy?"../MProtDecoy.tsv.gz":"../MProtTarget.tsv.gz"));
+		if( !decoy )
+			loadFastaInfo(map, FASTA);
 		for( Gene gene : map.values() )
 			gene.decoy = decoy;		
 		return map.values();
@@ -157,7 +205,7 @@ public class GeneSummary {
 		ScoreFile<ScoreItem> genScores = ScoreFile.load(new File(exp.dir,decoy?"FdrGenDecoy.tsv.gz":"FdrGenTarget.tsv.gz").getAbsolutePath());
 		Map<String,ScoreItem> pepScores = null;
 		LinkMap<Link<Void, Void>, Link<Void, Void>> pep2gen = null;		
-		if( exp.showPeptides ) {
+		if( exp.showPeptides || exp.showPeptideCount ) {
 			pepScores = Utils.getMap(ScoreFile.load(FileUtils.concat(exp.dir,decoy?"../FdrPepDecoy.tsv.gz":"../FdrPepTarget.tsv.gz")).getItems());
 			pep2gen = RelationFile.load(FileUtils.concat(exp.dir,decoy?"../UPep2GenDecoy.tsv.gz":"../UPep2GenTarget.tsv.gz")).getLinkMap();
 		}
@@ -180,7 +228,7 @@ public class GeneSummary {
 			if( score != null )
 				details.qValue = score.getValue();
 			gene.exps.put(exp.name, details);
-			if( !exp.showPeptides )
+			if( !exp.showPeptides && !exp.showPeptideCount )
 				continue;
 			for( Link<Void, Void> pepLink : pep2gen.getUpper(gene.acc).getLinks() ) {
 				ScoreItem pepScore = pepScores.get(pepLink.getId());
@@ -200,46 +248,28 @@ public class GeneSummary {
 		}
 	}
 
-	/*private static void loadM(Map<String, Protein> map, File file) throws IOException, ParseException {
-		if( !file.exists() )
-			return;
-		ScoreFile<ScoreItem> scores = ScoreFile.load(file.getAbsolutePath());
-		for( ScoreItem item : scores.getItems() ) {
-			Protein protein = map.get(item.getId());
-			if( protein == null )
-				continue;
-			protein.mExp = item.getScoreByType(ScoreType.M_EVALUE).getValue();
-			protein.mObs = item.getScoreByType(ScoreType.M_OVALUE).getValue();
-		}
-	}*/
-
-	/*private static void loadFastaInfo(Map<String, Protein> map, boolean decoy, String fastaPath ) throws IOException, InvalidSequenceException {
+	private static void loadFastaInfo(Map<String, Gene> map, String fastaPath ) throws IOException, InvalidSequenceException {
 		List<Fasta> fastas = Fasta.readEntries(fastaPath, SequenceType.PROTEIN);
 		for( Fasta fasta : fastas ) {
-			String acc = fasta.getAccession();
-			if( decoy )
-				acc = PREFIX+acc;
-			Protein protein = map.get(acc);
-			if( protein == null )
+			String acc = fasta.getGeneAccession();
+			Gene gene = map.get(acc);
+			if( gene == null )
 				continue;
-			protein.name = fasta.getProteinName();
-			protein.gene = fasta.getGeneName();
-			protein.len = fasta.getSequence().length();
+			gene.name = fasta.getGeneName();
 		}
-	}*/
+	}
 
-	private static void printSummary(Collection<Gene> summary, List<Experiment> exps, String output) throws FileNotFoundException {
-		PrintWriter pw = new PrintWriter(output);
-		pw.print(CsvUtils.getCsv(SEP, "gene", "T/D"));	
+	private static void printSummary(Collection<Gene> summary, List<Experiment> exps, String output) throws IOException {
+		PrintWriter pw = new PrintWriter(Streams.getTextWriter(output));
+		pw.print(CsvUtils.getCsv(SEP, "gene", "name", "T/D"));	
 		for( Experiment exp : exps ) {
 			pw.print(SEP);
 			if( exp.showScore ) {
 				pw.print(String.format("score (%s)", exp.name));
 				pw.print(SEP);
 			}
-			pw.print(CsvUtils.getCsv(SEP,String.format("fdr (%s)", exp.name),String.format("q-value (%s)", exp.name)));
-		}
-		for( Experiment exp : exps )
+			//pw.print(CsvUtils.getCsv(SEP,String.format("fdr (%s)", exp.name),String.format("q-value (%s)", exp.name)));
+			pw.print(CsvUtils.getCsv(SEP,String.format("q-value (%s)", exp.name)));
 			if( exp.showPeptides ) {
 				pw.print(SEP);
 				pw.print(CsvUtils.getCsv(SEP,
@@ -253,10 +283,12 @@ public class GeneSummary {
 					String.format("LPPep < %.2f FDR (%s)",FDR,exp.name),
 					String.format("peps < %.2f FDR (%s)",FDR,exp.name)
 				));
-			}
+			} else if ( exp.showPeptideCount )
+				pw.print(String.format("%s#peps (%s)%s#peps < %.2f FDR (%s)", SEP, exp.name, SEP, FDR, exp.name));
+		}
 		pw.println();
 		for( Gene gene : summary ) {
-			pw.print(CsvUtils.getCsv(SEP, gene.acc, gene.decoy?"D":"T"));
+			pw.print(CsvUtils.getCsv(SEP, gene.acc, gene.name, gene.decoy?"D":"T"));
 			for( Experiment exp : exps ) {
 				Details details = gene.exps.get(exp.name);				
 				pw.print(SEP);				
@@ -264,16 +296,25 @@ public class GeneSummary {
 					pw.print(details==null?"":details.score);
 					pw.print(SEP);
 				}
-				pw.print(CsvUtils.getCsv(SEP, details==null?"":details.fdr, details==null?"":details.qValue));
-			}
-			for( Experiment exp : exps )
+				//pw.print(CsvUtils.getCsv(SEP, details==null?"":details.fdr, details==null?"":details.qValue));
+				pw.print(CsvUtils.getCsv(SEP, details==null?"":details.qValue));
 				if( exp.showPeptides ) {
-					Details details = gene.exps.get(exp.name);
 					pw.print(SEP);
 					printPeptides(pw, details==null?null:details.peptides);
 					pw.print(SEP);
 					printPeptides(pw, details==null?null:fdrFilter(details.peptides,FDR));
+				} else if ( exp.showPeptideCount ) {
+					if( details == null )
+						pw.print(String.format("%s%s", SEP, SEP));
+					else {
+						int nFdr = 0;
+						for ( Peptide peptide : details.peptides )
+							if ( peptide.qValue < FDR )
+								nFdr++;
+						pw.print(String.format("%s%d%s%d", SEP, details.peptides.size(), SEP, nFdr));
+					}
 				}
+			}
 			pw.println();
 		}
 		pw.close();
@@ -309,6 +350,7 @@ public class GeneSummary {
 	private static final Logger LOG = Logger.getLogger(GeneSummary.class.getName());
 	//private static final String OUTPUT = "/home/gorka/Descargas/ownCloud/Bio/Pandey-GeneUniquePeptides/Summary/Proteome.tsv";
 	//private static final String FASTA = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/datasets/gencode25.target.fasta";
+	private static final String FASTA = "/media/gorka/EhuBio/Fasta/gencode25.target.IL.gorka.fasta";
 	private static final String SEP = "\t";
 	private static final String SEP2 = ",";
 	private static final double FDR = 0.01;
