@@ -91,11 +91,14 @@ public class GeneSummary {
 		
 		//runEngineComp("/media/gorka/EhuBio/Lego", "Proteome", "LPG1-LPGN-FDRr");
 		
-		runProteomeTissues("/media/gorka/EhuBio/Lego");
+		//runProteomeTissues("/media/gorka/EhuBio/Lego");
+		
+		runPandeyComp("/media/gorka/EhuBio/Lego");
 	}
-	
+
 	public static void runAll( String path ) throws Exception {
-		String[] engines = { "XTandem" };
+		//String[] engines = { "XTandem" };
+		String[] engines = { "Comet", "Fragger" };
 		
 		for( String engine : engines ) {
 			File dir = new File(path);
@@ -144,7 +147,16 @@ public class GeneSummary {
 		exps.add(new Experiment(path,String.format("%s/Fragger/%s",tissue,score)));
 		
 		run(exps, String.format("%s/Summary/%s-%s-Engines.tsv.gz",path,tissue,score));
-	} 
+	}
+	
+	private static void runPandeyComp(String path) throws Exception {
+		List<Experiment> exps = new ArrayList<>();
+		
+		exps.add(new Experiment(path,"Proteome/XTandem/FILTER-LPM-FDRn"));
+		exps.add(new Experiment(path,"Proteome/XTandem/LPG1-LPGN-FDRr"));
+		
+		run(exps, String.format("%s/Proteome/Studies/Pandey/genes.tsv",path));
+	}
 	
 	public static void runExp( String path, String engine, String tissue ) throws Exception {
 		List<Experiment> exps = new ArrayList<>();

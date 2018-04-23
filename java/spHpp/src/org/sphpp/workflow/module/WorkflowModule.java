@@ -15,10 +15,10 @@ public abstract class WorkflowModule {
 		args = new ArgParser(getClass().getSimpleName(), description);
 	}
 	
-	public void run(String[] args) {
+	public int run(String[] args) {
 		if( args.length == 1 && args[0].equals("?") ) {
 			System.out.println(this.args.getDescription());
-			System.exit(0);
+			return 0;
 		}
 		try {			
 			List<Argument> opts = this.args.parseArgs(args);			
@@ -35,7 +35,7 @@ public abstract class WorkflowModule {
 			run(opts);
 			long t2 = System.currentTimeMillis();
 			logger.info(String.format("'%s' finished successfully in %d seconds!!", getClass().getSimpleName(), (t2-t1)/1000));
-			System.exit(0);
+			return 0;
 		} catch( ArgException e ) {
 			logger.warning(e.getMessage());
 			System.out.println("== Usage ==\n\n"+this.args.getUsage());
@@ -43,7 +43,7 @@ public abstract class WorkflowModule {
 			logger.severe(e.getMessage());
 			e.printStackTrace();
 		}
-		System.exit(1);
+		return 1;
 	}
 	
 	protected void addOption( Argument opt ) {

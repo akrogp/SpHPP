@@ -25,7 +25,8 @@ public class ExtIntegrator extends WorkflowModule {
 		HK1,	// House Keeping test1: 1-gamma(prod(1-p),t)
 		HK2,	// House Keeping test2: P(housekeeping, N tejidos)=p(peor)^count(N)
 		BEST,	// min(p)
-		FILTER	// FDRi < 1%
+		FILTER,	// FDRi < 1%
+		MERGE	// BEST if score > 0
 	}
 	
 	public ExtIntegrator() {
@@ -90,12 +91,14 @@ public class ExtIntegrator extends WorkflowModule {
 				}
 				ScoreItem prev = map.get(item.getId());
 				if( prev == null ) {
+					if( mode == Mode.MERGE && score.getValue() == 0 )
+						continue;
 					map.put(item.getId(), item);
 					if( mode == Mode.FILTER || mode == Mode.LPGN || mode == Mode.HK2 || mode == Mode.HK0 )
 						item.putScore(new Score(ScoreType.ID_COUNT, 1));
 				} else {
 					Score prevScore = prev.getScoreByType(scoreType);
-					if( mode == Mode.LPG1 || mode == Mode.BEST || mode == Mode.FILTER || mode == Mode.HK0 )
+					if( mode == Mode.LPG1 || mode == Mode.BEST || mode == Mode.FILTER || mode == Mode.HK0 || mode == Mode.MERGE )
 						prevScore.setValue(Math.max(prevScore.getValue(), score.getValue()));
 					else if( mode == Mode.HK2 )
 						prevScore.setValue(Math.min(prevScore.getValue(), score.getValue()));

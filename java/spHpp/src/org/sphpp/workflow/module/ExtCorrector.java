@@ -21,10 +21,13 @@ import es.ehubio.proteomics.Score;
 import es.ehubio.proteomics.ScoreType;
 
 public class ExtCorrector extends WorkflowModule {
+	public static final double FDR_THRESHOLD = 0.01;
+	
 	public enum Mode {
 		LP,		// sum LP
 		LPF,	// sum LP < FDR
 		LPM,	// best LP
+		LPFM,	// best LP < FDR
 		LPG,	// gamma distribution for N peptides
 		LPGM,	// add peptides until reaching the maximum LPG
 		LPGC,	// -log ( (p1 x p2 x…x pn)) * COMBINACION(N,n) * FACTORIAL(n))
@@ -55,15 +58,15 @@ public class ExtCorrector extends WorkflowModule {
 		arg = new Argument(OPT_MODE, null, "mode");
 		arg.setChoices(Strings.fromArray(Mode.values()));
 		arg.setDescription("LP scores correction mode.");
-		arg.setDefaultValue(Mode.LPGC);
+		arg.setDefaultValue(Mode.LPGN);
 		addOption(arg);
 
 		addOption(Arguments.getScoreName());
 		addOption(Arguments.getDiscard());
 	}
 	
-	public static void main(String[] args) {
-		new ExtCorrector().run(args);
+	public static int main(String[] args) {
+		return new ExtCorrector().run(args);
 	}
 
 	@Override
@@ -89,10 +92,13 @@ public class ExtCorrector extends WorkflowModule {
 					score = runLp(item, lpScore);
 					break;
 				case LPF:
-					score = runLpf(item, lpScore, fdrScore, 0.01);
+					score = runLpf(item, lpScore, fdrScore, FDR_THRESHOLD);
 					break;
 				case LPM:
 					score = runLpm(item, lpScore);
+					break;
+				case LPFM:
+					score = runLpfm(item, lpScore, fdrScore, FDR_THRESHOLD);
 					break;
 				case LPG:
 					score = runLpg(item, lpScore);
@@ -107,10 +113,10 @@ public class ExtCorrector extends WorkflowModule {
 					score = runLpg1(item, lpScore);
 					break;
 				case LPGN:
-					score = runLpgn(item, lpScore, fdrScore, 0.01);
+					score = runLpgn(item, lpScore, fdrScore, FDR_THRESHOLD);
 					break;
 				case LPGB:
-					score = runLpgb(item, lpScore, fdrScore, 0.01);
+					score = runLpgb(item, lpScore, fdrScore, FDR_THRESHOLD);
 					break;
 			}			
 			item.putScore(new Score(lpcScore, score>300?300:score));
@@ -140,6 +146,17 @@ public class ExtCorrector extends WorkflowModule {
 	private double runLpm(ScoreLink item, ScoreType lpScore) {
 		double score = 0.0;
 		for( ScoreLink subItem : item.getLinks() ) {
+			double coef = 1.0 / subItem.getLinks().size();
+			score = Math.max(score, subItem.getScoreByType(lpScore).getValue()*coef);
+		}
+		return score;
+	}
+	
+	private double runLpfm(ScoreLink item, ScoreType lpScore, ScoreType fdrScore, double fdr) {
+		double score = 0.0;
+		for( ScoreLink subItem : item.getLinks() ) {
+			if( subItem.getScoreByType(fdrScore).getValue() >= fdr )
+				continue;
 			double coef = 1.0 / subItem.getLinks().size();
 			score = Math.max(score, subItem.getScoreByType(lpScore).getValue()*coef);
 		}
