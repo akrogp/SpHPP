@@ -16,7 +16,7 @@ public class TestExtCorrector {
 			"-o", res("LPCorrGenTarget.tsv"),
 			"--mode", "LPFM"
 		};
-		assertEquals(0, ExtCorrector.main(args));
+		assertEquals(0, ExtCorrector.mainTest(args));
 		ScoreFile<ScoreItem> output = ScoreFile.load(res("LPCorrGenTarget.tsv"));
 		int count = 0;
 		for( ScoreItem item : output.getItems() )

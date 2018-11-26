@@ -65,7 +65,11 @@ public class ExtCorrector extends WorkflowModule {
 		addOption(Arguments.getDiscard());
 	}
 	
-	public static int main(String[] args) {
+	public static void main(String[] args) {
+		mainTest(args);
+	}
+	
+	public static int mainTest(String[] args) {
 		return new ExtCorrector().run(args);
 	}
 

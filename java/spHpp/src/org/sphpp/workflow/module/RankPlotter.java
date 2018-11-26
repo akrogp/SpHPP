@@ -10,11 +10,13 @@ import java.awt.print.PageFormat;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Logger;
 
 import org.sphpp.workflow.data.ScoreItem;
@@ -81,6 +83,7 @@ public class RankPlotter extends WorkflowModule {
 		plot(g,x,y,title,X_LOG_LABEL,Y_LOG_LABEL);
 		g.dispose();
 		job.end();
+		save(x,y,path.replaceAll("\\.pdf$", ".tsv"));
 	}
 	
 	private void plotLin(Collection<? extends ScoreItem> items, final ScoreType lpScore, String title, String path, int count) throws FileNotFoundException {
@@ -109,6 +112,14 @@ public class RankPlotter extends WorkflowModule {
 		plot(g,x,y,title,X_LIN_LABEL,Y_LIN_LABEL);
 		g.dispose();
 		job.end();
+		save(x,y,path.replaceAll("\\.pdf$", ".tsv"));
+	}
+
+	private void save(double[] x, double[] y, String path) throws FileNotFoundException {
+		try(PrintWriter pw = new PrintWriter(path)) {
+			for( int i = 0; i < x.length; i++ )
+				pw.println(String.format(Locale.US, "%f\t%f", x[i], y[i]));
+		}
 	}
 
 	private void plot(Graphics g, double[] x, double[] y, String title, String xLabel, String yLabel) {
