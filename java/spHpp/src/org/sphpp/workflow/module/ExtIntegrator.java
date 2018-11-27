@@ -26,7 +26,7 @@ public class ExtIntegrator extends WorkflowModule {
 		HK2,	// House Keeping test2: P(housekeeping, N tejidos)=p(peor)^count(N)
 		BEST,	// min(p)
 		FILTER,	// FDRi < 1%
-		MERGE	// BEST if score > 0
+		MERGE	// BEST if score > 0 (to be compatible with LPFM)
 	}
 	
 	public ExtIntegrator() {

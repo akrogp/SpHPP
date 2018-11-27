@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import org.sphpp.workflow.Utils;
@@ -24,6 +25,9 @@ import org.sphpp.workflow.file.ScoreFile;
 import es.ehubio.db.fasta.Fasta;
 import es.ehubio.db.fasta.Fasta.InvalidSequenceException;
 import es.ehubio.db.fasta.Fasta.SequenceType;
+import es.ehubio.db.gencode.Feature;
+import es.ehubio.db.gencode.Gencode;
+import es.ehubio.io.CsvReader;
 import es.ehubio.io.CsvUtils;
 import es.ehubio.io.FileUtils;
 import es.ehubio.io.Streams;
@@ -69,6 +73,8 @@ public class GeneSummary {
 	private static class Gene {
 		public String acc;
 		public String name;
+		public String desc;
+		public String g25type, g28type; 
 		public boolean decoy;
 		public final Map<String,Details> exps = new HashMap<>();
 	}
@@ -152,10 +158,15 @@ public class GeneSummary {
 	private static void runPandeyComp(String path) throws Exception {
 		List<Experiment> exps = new ArrayList<>();
 		
+		exps.add(new Experiment(path,"Proteome/XTandem/MERGE-LPFM-FDRn"));
 		exps.add(new Experiment(path,"Proteome/XTandem/FILTER-LPM-FDRn"));
+		exps.add(new Experiment(path,"All_Tissues/XTandem/LPFM-FDRn"));
+		exps.add(new Experiment(path,"Proteome/XTandem/BEST-LPM-FDRn"));
+		exps.add(new Experiment(path,"Proteome/XTandem/BEST-LPM-FDRp"));
 		exps.add(new Experiment(path,"Proteome/XTandem/LPG1-LPGN-FDRr"));
+		exps.add(new Experiment(path,"Proteome/XTandem/LPG1-LPGN-FDRp"));
 		
-		run(exps, String.format("%s/Proteome/Studies/Pandey/genes.tsv",path));
+		run(exps, true, String.format("%s/Proteome/Studies/Pandey/all_genes.tsv",path));
 	}
 	
 	public static void runExp( String path, String engine, String tissue ) throws Exception {
@@ -192,8 +203,12 @@ public class GeneSummary {
 	}
 	
 	public static void run( List<Experiment> exps, String outputPath ) throws Exception {
-		Collection<Gene> summaryTarget = createSummary(false, exps);
-		Collection<Gene> summaryDecoy = createSummary(true, exps);
+		run(exps, false, outputPath);
+	}
+	
+	public static void run( List<Experiment> exps, boolean addDbEntries, String outputPath ) throws Exception {
+		Collection<Gene> summaryTarget = createSummary(false, exps, addDbEntries);
+		Collection<Gene> summaryDecoy = createSummary(true, exps, false);
 		List<Gene> summary = new ArrayList<>();
 		summary.addAll(summaryTarget);
 		summary.addAll(summaryDecoy);
@@ -202,12 +217,17 @@ public class GeneSummary {
 		LOG.info("finished!");
 	}
 	
-	private static Collection<Gene> createSummary(boolean decoy, List<Experiment> exps) throws Exception {
+	private static Collection<Gene> createSummary(boolean decoy, List<Experiment> exps, boolean addDbEntries) throws Exception {
 		Map<String, Gene> map = new HashMap<>();		
 		for( Experiment exp : exps )
 			loadDetails(map, decoy, exp);
-		if( !decoy )
-			loadFastaInfo(map, FASTA);
+		if( !decoy ) {
+			LOG.info("Loading metadata");
+			//loadFastaInfo(map, FASTA, addDbEntries);
+			loadGencodeInfo(map, GENCODE25, GENCODE28);
+			loadDescriptions(map, DESCRIPTIONS);
+			LOG.info("loaded");
+		}
 		for( Gene gene : map.values() )
 			gene.decoy = decoy;		
 		return map.values();
@@ -260,20 +280,65 @@ public class GeneSummary {
 		}
 	}
 
-	private static void loadFastaInfo(Map<String, Gene> map, String fastaPath ) throws IOException, InvalidSequenceException {
+	private static void loadFastaInfo(Map<String, Gene> map, String fastaPath, boolean addEntries ) throws IOException, InvalidSequenceException {
 		List<Fasta> fastas = Fasta.readEntries(fastaPath, SequenceType.PROTEIN);
+		int missing = 0;
 		for( Fasta fasta : fastas ) {
 			String acc = fasta.getGeneAccession();
+			if( acc == null ) {
+				missing++;
+				continue;
+			}
 			Gene gene = map.get(acc);
 			if( gene == null )
-				continue;
+				if( !addEntries )
+					continue;
+				else {
+					gene = new Gene();
+					gene.acc = acc;
+					map.put(acc, gene);
+				}
 			gene.name = fasta.getGeneName();
+		}
+		if( missing > 0 )
+			LOG.warning(String.format("Missing %d gene accessions", missing));
+	}
+	
+	private static void loadGencodeInfo(Map<String, Gene> map, String g25path, String g28path) throws IOException, InvalidSequenceException {		
+		Map<String, Feature> g25 = Gencode.mapGtf(g25path, "gene", "gene_id", true);
+		Map<String, Feature> g28 = Gencode.mapGtf(g28path, "gene", "gene_id", true);
+		for( Entry<String, Gene> entry : map.entrySet() ) {
+			String ensg = entry.getKey().replaceAll("\\..*", "");
+			Gene gene = entry.getValue();
+			Feature feat;
+			feat = g25.get(ensg);
+			if( feat != null ) {
+				gene.g25type = feat.getInfo().get("gene_type");
+				gene.name = feat.getInfo().get("gene_name");
+			}
+			feat = g28.get(ensg);
+			if( feat != null )
+				gene.g28type = feat.getInfo().get("gene_type");
+		}
+	}
+	
+	private static void loadDescriptions(Map<String, Gene> map, String csvPath ) throws IOException, InvalidSequenceException {
+		Map<String, String> mapDesc = new HashMap<>();
+		CsvReader csv = new CsvReader("\t", true);
+		csv.open(csvPath);
+		while( csv.readLine() != null )
+			mapDesc.put(csv.getField(0), csv.getField(1));
+		csv.close();
+		for( Entry<String, Gene> entry : map.entrySet() ) {
+			String ensg = entry.getKey();
+			Gene gene = entry.getValue();
+			gene.desc = mapDesc.get(ensg.replaceAll("\\..*", ""));
 		}
 	}
 
 	private static void printSummary(Collection<Gene> summary, List<Experiment> exps, String output) throws IOException {
 		PrintWriter pw = new PrintWriter(Streams.getTextWriter(output));
-		pw.print(CsvUtils.getCsv(SEP, "gene", "name", "T/D"));	
+		pw.print(CsvUtils.getCsv(SEP, "gene", "name", "g25_genetype", "g28_genetype", "description", "T/D"));	
 		for( Experiment exp : exps ) {
 			pw.print(SEP);
 			if( exp.showScore ) {
@@ -300,7 +365,7 @@ public class GeneSummary {
 		}
 		pw.println();
 		for( Gene gene : summary ) {
-			pw.print(CsvUtils.getCsv(SEP, gene.acc, gene.name, gene.decoy?"D":"T"));
+			pw.print(CsvUtils.getCsv(SEP, gene.acc, gene.name, gene.g25type, gene.g28type, gene.desc, gene.decoy?"D":"T"));
 			for( Experiment exp : exps ) {
 				Details details = gene.exps.get(exp.name);				
 				pw.print(SEP);				
@@ -363,6 +428,9 @@ public class GeneSummary {
 	//private static final String OUTPUT = "/home/gorka/Descargas/ownCloud/Bio/Pandey-GeneUniquePeptides/Summary/Proteome.tsv";
 	//private static final String FASTA = "/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/datasets/gencode25.target.fasta";
 	private static final String FASTA = "/media/gorka/EhuBio/Fasta/gencode25.target.IL.gorka.fasta";
+	private static final String GENCODE25 = "/media/gorka/EhuBio/Fasta/gencode.v25.annotation.gtf.gz";
+	private static final String GENCODE28 = "/media/gorka/EhuBio/Fasta/gencode.v28.annotation.gtf.gz";
+	private static final String DESCRIPTIONS = "/media/gorka/EhuBio/Fasta/gencode.v25.description.txt";
 	private static final String SEP = "\t";
 	private static final String SEP2 = ",";
 	private static final double FDR = 0.01;
