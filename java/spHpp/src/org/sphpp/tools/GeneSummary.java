@@ -1,6 +1,9 @@
 package org.sphpp.tools;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -10,9 +13,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.sphpp.workflow.Utils;
@@ -76,6 +81,7 @@ public class GeneSummary {
 		public String desc;
 		public String g25type, g28type; 
 		public boolean decoy;
+		public boolean pa, hpa;
 		public final Map<String,Details> exps = new HashMap<>();
 	}
 	
@@ -103,7 +109,9 @@ public class GeneSummary {
 		
 		//runFdrComp("/media/gorka/EhuBio/Lego");
 		
-		runWorkflowComp("/media/gorka/EhuBio/Lego");
+		//runWorkflowComp("/media/gorka/EhuBio/Lego");
+		
+		runEvidences("/media/gorka/EhuBio/Lego");
 	}
 
 	public static void runAll( String path ) throws Exception {
@@ -194,6 +202,18 @@ public class GeneSummary {
 		run(exps, true, String.format("%s/Summary/Adult_Liver_Validation.tsv",path));
 	}
 	
+	private static void runEvidences(String path) throws Exception {
+		Map<String, Gene> map = new HashMap<>();
+		loadFastaInfo(map, FASTA, true, false);
+		loadGencodeInfo(map, GENCODE25, GENCODE28);
+		loadDescriptions(map, DESCRIPTIONS);
+		loadEvidencesPA(map, PA_EVIDENCES);
+		loadEvidencesHPA(map, HPA_EVIDENCES);
+		printEvidences(map.values(), String.format("%s/Summary/Evidences.tsv", path));
+		
+		LOG.info("finished!");
+	}
+
 	public static void runExp( String path, String engine, String tissue ) throws Exception {
 		List<Experiment> exps = new ArrayList<>();
 		
@@ -305,7 +325,7 @@ public class GeneSummary {
 		}
 	}
 
-	private static void loadFastaInfo(Map<String, Gene> map, String fastaPath, boolean addEntries ) throws IOException, InvalidSequenceException {
+	private static void loadFastaInfo(Map<String, Gene> map, String fastaPath, boolean addEntries, boolean version ) throws IOException, InvalidSequenceException {
 		List<Fasta> fastas = Fasta.readEntries(fastaPath, SequenceType.PROTEIN);
 		int missing = 0;
 		for( Fasta fasta : fastas ) {
@@ -314,6 +334,8 @@ public class GeneSummary {
 				missing++;
 				continue;
 			}
+			if( !version )
+				acc = acc.split("\\.")[0];
 			Gene gene = map.get(acc);
 			if( gene == null )
 				if( !addEntries )
@@ -359,6 +381,33 @@ public class GeneSummary {
 			Gene gene = entry.getValue();
 			gene.desc = mapDesc.get(ensg.replaceAll("\\..*", ""));
 		}
+	}
+	
+	private static void loadEvidencesPA(Map<String, Gene> map, String path ) throws FileNotFoundException, IOException {
+		Set<String> pa = new HashSet<>();
+		try(BufferedReader br = new BufferedReader(new FileReader(path))) {
+			String ensg;
+			while( (ensg=br.readLine()) != null)
+				pa.add(ensg);
+		}
+		for( Gene gene : map.values() )
+			gene.pa = pa.contains(gene.acc);
+	}
+	
+	private static void loadEvidencesHPA(Map<String, Gene> map, String path ) throws FileNotFoundException, IOException {
+		Set<String> hpa = new HashSet<>();
+		try(BufferedReader br = new BufferedReader(new FileReader(path))) {
+			String line;
+			while( (line=br.readLine()) != null) {
+				String[] fields = line.split("\t");
+				String ensg = fields[2];
+				String evidence = fields[7];
+				if( evidence.contains("protein") )
+					hpa.add(ensg);
+			}
+		}
+		for( Gene gene : map.values() )
+			gene.hpa = hpa.contains(gene.acc);
 	}
 
 	private static void printSummary(Collection<Gene> summary, List<Experiment> exps, String output) throws IOException {
@@ -421,6 +470,15 @@ public class GeneSummary {
 		}
 		pw.close();
 	}
+	
+	private static void printEvidences(Collection<Gene> genes, String path) throws FileNotFoundException {
+		try(PrintWriter pw = new PrintWriter(path)) {
+			pw.println("Gene\tName\tG25_GeneType\tG28_GeneType\tDesc\tPA\tHPA");
+			for( Gene gene : genes )
+				pw.println(String.format("%s\t%s\t%s\t%s\t%s\t%d\t%d",
+						gene.acc, gene.name, gene.g25type, gene.g28type, gene.desc, gene.pa ? 1 : 0, gene.hpa ? 1 : 0));
+		}
+	}
 
 	private static List<Peptide> fdrFilter(List<Peptide> peptides, double fdr) {
 		List<Peptide> result = new ArrayList<>();
@@ -456,6 +514,8 @@ public class GeneSummary {
 	private static final String GENCODE25 = "/media/gorka/EhuBio/Fasta/gencode.v25.annotation.gtf.gz";
 	private static final String GENCODE28 = "/media/gorka/EhuBio/Fasta/gencode.v28.annotation.gtf.gz";
 	private static final String DESCRIPTIONS = "/media/gorka/EhuBio/Fasta/gencode.v25.description.txt";
+	private static final String PA_EVIDENCES = "/media/gorka/EhuBio/Lego/Proteome/Studies/Pandey/pa2ensg-uniq.txt";
+	private static final String HPA_EVIDENCES = "/media/gorka/EhuBio/Lego/Proteome/Studies/Pandey/proteinatlas-v18.tsv";
 	private static final String SEP = "\t";
 	private static final String SEP2 = ",";
 	private static final double FDR = 0.01;
