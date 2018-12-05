@@ -109,11 +109,11 @@ public class GeneSummary {
 		
 		//runFdrComp("/media/gorka/EhuBio/Lego");
 		
-		//runWorkflowComp("/media/gorka/EhuBio/Lego");
+		runValidation("/media/gorka/EhuBio/Lego");
 		
 		//runEvidences("/media/gorka/EhuBio/Lego");
 		
-		runWorkflowsComp("/media/gorka/EhuBio/Lego");
+		//runWorkflowsComp("/media/gorka/EhuBio/Lego");
 	}
 
 	public static void runAll( String path ) throws Exception {
@@ -205,14 +205,20 @@ public class GeneSummary {
 		run(exps, true, String.format("%s/Summary/Adult_Liver_FDR.tsv",path));
 	}
 	
-	private static void runWorkflowComp(String path) throws Exception {
-		List<Experiment> exps = new ArrayList<>();
-		
-		exps.add(new Experiment(path,"Adult_Liver/XTandem/LPF-FDRn"));
-		exps.add(new Experiment(path,"Adult_Liver/XTandem/LPM-FDRp"));
-		exps.add(new Experiment(path,"Adult_Liver/XTandem/LPGN-FDRr"));
-		
-		run(exps, true, String.format("%s/Summary/Adult_Liver_Validation.tsv",path));
+	private static void runValidation(String path) throws Exception {
+		String[] tissues = {"Adult_Heart", "Adult_Liver", "Adult_Testis"};
+		for( String tissue : tissues ) {
+			List<Experiment> exps = new ArrayList<>();
+			
+			exps.add(new Experiment(path,tissue+"/XTandem/LPFM-FDRn"));
+			exps.add(new Experiment(path,tissue+"/XTandem/LPM-FDRn"));
+			
+			exps.add(new Experiment(path,tissue+"/XTandem/LPF-FDRn"));
+			exps.add(new Experiment(path,tissue+"/XTandem/LPM-FDRp"));
+			exps.add(new Experiment(path,tissue+"/XTandem/LPGN-FDRr"));
+			
+			run(exps, true, String.format("%s/Summary/%s_Validation.tsv",path, tissue));
+		}
 	}
 	
 	private static void runEvidences(String path) throws Exception {
