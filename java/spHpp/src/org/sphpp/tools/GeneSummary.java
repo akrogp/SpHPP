@@ -109,11 +109,12 @@ public class GeneSummary {
 		
 		//runFdrComp("/media/gorka/EhuBio/Lego");
 		
-		runValidation("/media/gorka/EhuBio/Lego");
+		//runValidation("/media/gorka/EhuBio/Lego");
 		
 		//runEvidences("/media/gorka/EhuBio/Lego");
 		
-		//runWorkflowsComp("/media/gorka/EhuBio/Lego");
+		runWorkflowsComp("/media/gorka/EhuBio/Lego", "Comet2");
+		runWorkflowsComp("/media/gorka/EhuBio/Lego", "Fragger");
 	}
 
 	public static void runAll( String path ) throws Exception {
@@ -159,14 +160,14 @@ public class GeneSummary {
 		}
 	}
 	
-	private static void runWorkflowsComp(String path) throws Exception {
+	private static void runWorkflowsComp(String path, String engine) throws Exception {
 		String[] tissues = {"Adult_Heart", "Adult_Liver", "Adult_Testis"};
 		for( String tissue : tissues ) {
 			List<Experiment> exps = new ArrayList<>();
-			exps.add(new Experiment(path, String.format("%s/XTandem/LPF-FDRn", tissue), "FDRn(LPF)", true, true, true));
-			exps.add(new Experiment(path, String.format("%s/XTandem/LPM-FDRp", tissue), "FDRp(LPM)", true, true, true));
-			exps.add(new Experiment(path, String.format("%s/XTandem/LPGN-FDRr", tissue), "FDRr(LPGF)", true, true, true));
-			run(exps, String.format("%s/Summary/%s-Workflows.csv.gz", path, tissue));
+			exps.add(new Experiment(path, String.format("%s/%s/LPF-FDRn", tissue, engine), "FDRn(LPF)", true, true, true));
+			exps.add(new Experiment(path, String.format("%s/%s/LPM-FDRp", tissue, engine), "FDRp(LPM)", true, true, true));
+			exps.add(new Experiment(path, String.format("%s/%s/LPGN-FDRr", tissue, engine), "FDRr(LPGF)", true, true, true));
+			run(exps, String.format("%s/Summary/%s-%s-Workflows.csv.gz", path, tissue, engine));
 		}
 	}
 	

@@ -10,19 +10,21 @@ OUTPUT_DIR=/media/gorka/EhuBio/Lego
 #ENGINES="Sequest XTandem-MGF XTandem-mzML Comet"
 #ENGINES="XTandem+Comet-NoCal XTandem+Comet-Cal"
 #ENGINES="Comet"
-ENGINES="Comet2"
+ENGINES="Comet2 Fragger"
 #ENGINES="Comet3"
 #ENGINES="Comet5"
 #ENGINES="Fragger"
 #ENGINES="XTandem+Fragger-NoCal XTandem+Fragger-Cal"
 
 #SCORES="LPF LPM LPG LPG1 LPGN LPGB"
-SCORES="LPM LPF LPGN"
+#SCORES="LPM LPF LPGN"
+SCORES="LP"
 
 #FDRS="NORMAL MAYU PICKED REFINED"
-FDRS="NORMAL PICKED REFINED"
+#FDRS="NORMAL PICKED REFINED"
+FDRS="NORMAL"
 
-TISSUES="Adult_Liver Adult_Testis"
+TISSUES="Adult_Heart Adult_Liver Adult_Testis"
 
 #for T in "$INPUT_DIR"/Adult* "$INPUT_DIR"/Fetal*; do
 for T in $TISSUES; do

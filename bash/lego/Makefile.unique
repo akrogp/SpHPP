@@ -37,7 +37,7 @@ MIN_PEP_LEN=7
 MAX_PEP_LEN=70
 
 # Java settings
-JAR=/home/gorka/Aplicaciones/EhuBio.jar
+JAR=/media/gorka/EhuBio/Lego/EhuBio.jar
 LOGGING=./logging.properties
 OPTS=-Xmx16g -Djava.util.logging.config.file=$(LOGGING) -Djava.awt.headless=true
 
