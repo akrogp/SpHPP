@@ -113,8 +113,10 @@ public class GeneSummary {
 		
 		//runEvidences("/media/gorka/EhuBio/Lego");
 		
-		runWorkflowsComp("/media/gorka/EhuBio/Lego", "Comet2");
-		runWorkflowsComp("/media/gorka/EhuBio/Lego", "Fragger");
+		//runWorkflowsComp("/media/gorka/EhuBio/Lego", "Comet2");
+		//runWorkflowsComp("/media/gorka/EhuBio/Lego", "Fragger");
+		
+		runLpgsIssue("/media/gorka/EhuBio/Lego");
 	}
 
 	public static void runAll( String path ) throws Exception {
@@ -169,6 +171,18 @@ public class GeneSummary {
 			exps.add(new Experiment(path, String.format("%s/%s/LPGN-FDRr", tissue, engine), "FDRr(LPGF)", true, true, true));
 			run(exps, String.format("%s/Summary/%s-%s-Workflows.csv.gz", path, tissue, engine));
 		}
+	}
+	
+	private static void runLpgsIssue(String path) throws Exception {
+		String tissue = "Adult_Heart";
+		String[] engines = {"XTandem", "Comet2", "Fragger"};
+		List<Experiment> exps = new ArrayList<>();
+		for( String engine : engines ) {
+			exps.add(new Experiment(path, String.format("%s/%s/LPG1-FDRr", tissue, engine), "LPGM-"+engine, true, true, true));
+			exps.add(new Experiment(path, String.format("%s/%s/LPG-FDRr", tissue, engine), "LPGS-"+engine, true, true, true));
+			exps.add(new Experiment(path, String.format("%s/%s/LPGN-FDRr", tissue, engine), "LPGF-"+engine, true, true, true));
+		}
+		run(exps, String.format("%s/Summary/%s-LPGS.csv.gz", path, tissue));
 	}
 	
 	public static void runEngineComp( String path, String tissue, String score ) throws Exception {
