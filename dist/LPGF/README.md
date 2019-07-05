@@ -10,7 +10,7 @@
 ## Source code and binaries
 
 The executable code is available at:
-* https://github.com/akrogp/SpHPP/tree/master/dist/LPGF/lpgf-v1.0.tar.gz
+* https://github.com/akrogp/SpHPP/raw/master/dist/LPGF/lpgf-v1.0.tar.gz
 
 The source code is available at:
 * EhuBio: https://github.com/akrogp/EhuBio
