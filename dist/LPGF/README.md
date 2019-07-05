@@ -7,8 +7,12 @@
 * Contact: Gorka Prieto <gorka.prieto@ehu.eus>
 * Journal: Journal of Proteome Research, 2019
 
-## Source code
+## Source code and binaries
 
+The latest executable code is available at:
+* https://github.com/akrogp/SpHPP/tree/master/dist/LPGF
+
+Source code is available at:
 * EhuBio: https://github.com/akrogp/EhuBio
 * SpHPP: https://github.com/akrogp/SpHPP
 
