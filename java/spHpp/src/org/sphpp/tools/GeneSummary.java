@@ -116,8 +116,10 @@ public class GeneSummary {
 		//runWorkflowsComp("/media/gorka/EhuBio/Lego", "Comet2");
 		//runWorkflowsComp("/media/gorka/EhuBio/Lego", "Fragger");
 		
-		runLpgsIssue("/media/gorka/EhuBio/Lego");
-	}
+		//runLpgsIssue("/media/gorka/EhuBio/Lego");
+		
+		runYeast("/media/gorka/EhuBio/Yeast");
+	}	
 
 	public static void runAll( String path ) throws Exception {
 		//String[] engines = { "XTandem" };
@@ -218,6 +220,16 @@ public class GeneSummary {
 		exps.add(new Experiment(path,"Adult_Liver/XTandem/LPM-FDRr"));
 		
 		run(exps, true, String.format("%s/Summary/Adult_Liver_FDR.tsv",path));
+	}
+	
+	private static void runYeast(String path) throws Exception {
+		List<Experiment> exps = new ArrayList<>();
+		
+		exps.add(new Experiment(path,"Lego/XTandem/LPF-FDRn","LPF-FDRn",true,true,true));
+		exps.add(new Experiment(path,"Lego/XTandem/LPM-FDRp","LPM-FDRp",true,true,true));
+		exps.add(new Experiment(path,"Lego/XTandem/LPGN-FDRr","LPGF-FDRr",true,true,true));
+		
+		run(exps, true, String.format("%s/Analysis/results/summary.tsv",path));		
 	}
 	
 	private static void runValidation(String path) throws Exception {

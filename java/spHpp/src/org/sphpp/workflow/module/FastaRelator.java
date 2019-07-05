@@ -1,0 +1,46 @@
+package org.sphpp.workflow.module;
+
+import java.util.List;
+
+import org.sphpp.workflow.data.Relation;
+import org.sphpp.workflow.data.Relations;
+import org.sphpp.workflow.file.RelationFile;
+
+import es.ehubio.cli.Argument;
+import es.ehubio.db.fasta.Fasta;
+import es.ehubio.db.fasta.Fasta.SequenceType;
+
+public class FastaRelator extends WorkflowModule {
+	public FastaRelator() {
+		super("Generates a protein to gene relations file from a (target) fasta file");
+		
+		Argument arg = new Argument(OPT_INPUT, 'i', "input");
+		arg.setParamName("target.fasta");
+		arg.setDescription("Input fasta file using UniProt headers.");
+		addOption(arg);
+		
+		arg = new Argument(OPT_OUTPUT, 'o', "output");
+		arg.setParamName("Prot2Gen.tsv");
+		arg.setDescription("Output TSV file with protein to gene relations.");
+		addOption(arg);
+	}
+	
+	public static void main( String[] args ) {
+		new FastaRelator().run(args);
+	}
+
+	@Override
+	protected void run(List<Argument> args) throws Exception {
+		List<Fasta> fastas = Fasta.readEntries(getValue(OPT_INPUT), SequenceType.PROTEIN);
+		Relations rels = new Relations();
+		for( Fasta fasta : fastas ) {
+			String gene = fasta.getGeneName() == null ? fasta.getAccession() : fasta.getGeneName();
+			Relation rel = new Relation(gene, fasta.getAccession());
+			rels.addEntry(rel);
+		}
+		RelationFile.save("Gene", "Protein", rels, getValue(OPT_OUTPUT));
+	}
+
+	private static final int OPT_INPUT = 1;
+	private static final int OPT_OUTPUT = 2;
+}

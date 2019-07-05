@@ -24,15 +24,15 @@ public class ExtCorrector extends WorkflowModule {
 	public static final double FDR_THRESHOLD = 0.01;
 	
 	public enum Mode {
-		LP,		// sum LP
+		LPS,	// sum LP
 		LPF,	// sum LP < FDR
 		LPM,	// best LP
 		LPFM,	// best LP < FDR
-		LPG,	// gamma distribution for N peptides
+		LPGS,	// gamma distribution for N peptides (sum of LP)
 		LPGM,	// add peptides until reaching the maximum LPG
 		LPGC,	// -log ( (p1 x p2 x…x pn)) * COMBINACION(N,n) * FACTORIAL(n))
 		LPG1,	// LPQG1=-log(1-(1-p(best))^N)
-		LPGN,	// LPQGn=-log(Gamma(PQF,n)*COMBI(N,n))
+		LPGF,	// LPQGn=-log(Gamma(PQF,n)*COMBI(N,n))
 		LPGB	// -log[1-(1-best(PQG,PQGn)^2]
 	}
 	
@@ -58,7 +58,7 @@ public class ExtCorrector extends WorkflowModule {
 		arg = new Argument(OPT_MODE, null, "mode");
 		arg.setChoices(Strings.fromArray(Mode.values()));
 		arg.setDescription("LP scores correction mode.");
-		arg.setDefaultValue(Mode.LPGN);
+		arg.setDefaultValue(Mode.LPGF);
 		addOption(arg);
 
 		addOption(Arguments.getScoreName());
@@ -92,7 +92,7 @@ public class ExtCorrector extends WorkflowModule {
 		for( ScoreLink item : map.getUpperList() ) {
 			double score = 0.0;
 			switch( mode ) {
-				case LP:
+				case LPS:
 					score = runLp(item, lpScore);
 					break;
 				case LPF:
@@ -104,7 +104,7 @@ public class ExtCorrector extends WorkflowModule {
 				case LPFM:
 					score = runLpfm(item, lpScore, fdrScore, FDR_THRESHOLD);
 					break;
-				case LPG:
+				case LPGS:
 					score = runLpg(item, lpScore);
 					break;
 				case LPGM:
@@ -116,7 +116,7 @@ public class ExtCorrector extends WorkflowModule {
 				case LPG1:
 					score = runLpg1(item, lpScore);
 					break;
-				case LPGN:
+				case LPGF:
 					score = runLpgn(item, lpScore, fdrScore, FDR_THRESHOLD);
 					break;
 				case LPGB:
