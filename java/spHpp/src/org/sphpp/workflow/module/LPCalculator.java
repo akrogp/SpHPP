@@ -80,6 +80,16 @@ public class LPCalculator extends WorkflowModule {
 		for( Decoyable psm : list ) {			
 			Score score = psm.getScoreByType(lpScore);
 			score.setValue(-Math.log10(score.getValue()));
+			
+			// Test using a parametric Gamma distribution
+			/*Score xcorr = psm.getScoreByType(ScoreType.SEQUEST_XCORR);
+			score.setValue(
+				-Math.log10(
+					GAMMA_TEST.cumulativeProbability(
+						-Math.log10(xcorr.getValue()) + 4
+					)
+				)
+			);*/
 		}
 	}
 
@@ -91,6 +101,7 @@ public class LPCalculator extends WorkflowModule {
 	}
 	
 	private final static Logger logger = Logger.getLogger(LPCalculator.class.getName());
+	//private final static GammaDistribution GAMMA_TEST = new GammaDistribution(830.679455239117, 0.004929571847063);
 	private static final int OPT_IN_TARGET = 1;
 	private static final int OPT_IN_DECOY = 2;
 	private static final int OPT_OUT_TARGET = 3;

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LEGO=/home/gorka/Bio/Proyectos/Proteómica/spHPP/Work/Flow/lego
+LEGO=/media/gorka/EhuBio/PrEST/Lego
 JAR="$LEGO/EhuBio.jar"
 LOGGING="$LEGO/logging.properties"
 OPTS="-Xmx10g -Djava.util.logging.config.file=$LOGGING -Djava.awt.headless=true"
