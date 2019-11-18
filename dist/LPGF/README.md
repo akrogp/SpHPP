@@ -12,9 +12,13 @@
 The executable code is available at:
 * https://github.com/akrogp/SpHPP/raw/master/dist/LPGF/lpgf-v1.0.1.tar.gz
 
-The source code is available at:
-* EhuBio: https://github.com/akrogp/EhuBio
-* SpHPP: https://github.com/akrogp/SpHPP
+Full source code is available at:
+* EhuBio: https://github.com/akrogp/EhuBio/tree/master/Projects/java/EhuBio
+* SpHPP: https://github.com/akrogp/SpHPP/tree/master/java/spHpp
+
+Source code specific to the algorithms presented in the paper is located at:
+* Protein scores: https://github.com/akrogp/SpHPP/blob/master/java/spHpp/src/org/sphpp/workflow/module/ExtCorrector.java
+* Protein FDRs: https://github.com/akrogp/EhuBio/blob/master/Projects/java/EhuBio/src/es/ehubio/proteomics/pipeline/FdrCalculator.java
 
 ## System requirements
 
