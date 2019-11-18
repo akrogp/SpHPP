@@ -29,9 +29,9 @@ public class ExtCorrector extends WorkflowModule {
 		LPM,	// best LP
 		LPFM,	// best LP < FDR
 		LPGS,	// gamma distribution for N peptides (sum of LP)
-		LPGM,	// add peptides until reaching the maximum LPG
-		LPGC,	// -log ( (p1 x p2 x…x pn)) * COMBINACION(N,n) * FACTORIAL(n))
-		LPG1,	// LPQG1=-log(1-(1-p(best))^N)
+		LPGI,	// add peptides until reaching the maximum LPG
+		LPGC,	// -log ( (p1 x p2 x…x pn)) * COMBI(N,n) * FACTORIAL(n))
+		LPGM,	// LPQG1=-log(1-(1-p(best))^N)
 		LPGF,	// LPQGn=-log(Gamma(PQF,n)*COMBI(N,n))
 		LPGB	// -log[1-(1-best(PQG,PQGn)^2]
 	}
@@ -93,7 +93,7 @@ public class ExtCorrector extends WorkflowModule {
 			double score = 0.0;
 			switch( mode ) {
 				case LPS:
-					score = runLp(item, lpScore);
+					score = runLps(item, lpScore);
 					break;
 				case LPF:
 					score = runLpf(item, lpScore, fdrScore, FDR_THRESHOLD);
@@ -105,19 +105,19 @@ public class ExtCorrector extends WorkflowModule {
 					score = runLpfm(item, lpScore, fdrScore, FDR_THRESHOLD);
 					break;
 				case LPGS:
-					score = runLpg(item, lpScore);
+					score = runLpgs(item, lpScore);
 					break;
-				case LPGM:
-					score = runLpgm(item, lpScore);
+				case LPGI:
+					score = runLpgi(item, lpScore);
 					break;
 				case LPGC:
 					score = runLpgc(item, lpScore, fdrScore);
 					break;												
-				case LPG1:
-					score = runLpg1(item, lpScore);
+				case LPGM:
+					score = runLpgm(item, lpScore);
 					break;
 				case LPGF:
-					score = runLpgn(item, lpScore, fdrScore, FDR_THRESHOLD);
+					score = runLpgf(item, lpScore, fdrScore, FDR_THRESHOLD);
 					break;
 				case LPGB:
 					score = runLpgb(item, lpScore, fdrScore, FDR_THRESHOLD);
@@ -127,7 +127,7 @@ public class ExtCorrector extends WorkflowModule {
 		}
 	}					
 
-	private double runLp(ScoreLink item, ScoreType lpScore) {
+	private double runLps(ScoreLink item, ScoreType lpScore) {
 		double score = 0.0;
 		for( ScoreLink subItem : item.getLinks() ) {
 			double coef = 1.0 / subItem.getLinks().size();
@@ -167,7 +167,7 @@ public class ExtCorrector extends WorkflowModule {
 		return score;
 	}
 	
-	private double runLpg(ScoreLink item, ScoreType lpScore) {
+	private double runLpgs(ScoreLink item, ScoreType lpScore) {
 		double m = 0.0;
 		double lp = 0.0;
 		for( ScoreLink subItem : item.getLinks() ) {
@@ -202,7 +202,7 @@ public class ExtCorrector extends WorkflowModule {
 		return lpf;
 	}
 
-	private double runLpgm(ScoreLink item, final ScoreType lpScore) {
+	private double runLpgi(ScoreLink item, final ScoreType lpScore) {
 		List<ScoreLink> subItems = new ArrayList<>(item.getLinks());
 		Collections.sort(subItems, new Comparator<ScoreLink>() {
 			@Override
@@ -228,7 +228,7 @@ public class ExtCorrector extends WorkflowModule {
 		return score;
 	}
 	
-	private double runLpg1(ScoreLink item, ScoreType lpScore) {
+	private double runLpgm(ScoreLink item, ScoreType lpScore) {
 		//LPQG1=-log(1-(1-p(best))^N)			
 		double m = 0.0;
 		double lpm = 0.0;
@@ -242,7 +242,7 @@ public class ExtCorrector extends WorkflowModule {
 		return getLp(score);
 	}
 	
-	private double runLpgn(ScoreLink item, ScoreType lpScore, ScoreType fdrScore, double fdr) {
+	private double runLpgf(ScoreLink item, ScoreType lpScore, ScoreType fdrScore, double fdr) {
 		// LPQGn=-log(Gamma(PQF,n)*COMBI(N,n))
 		double m = 0.0;
 		double lpf = 0.0;
@@ -256,7 +256,7 @@ public class ExtCorrector extends WorkflowModule {
 			lpf += subItem.getScoreByType(lpScore).getValue()*coef;
 		}
 		if( n == 0 )
-			return runLpg1(item, lpScore);
+			return runLpgm(item, lpScore);
 		double loge = Math.log(10.0);
 		GammaDistribution gamma = new GammaDistribution(n, 1);
 		double sum = 1-gamma.cumulativeProbability(lpf*loge);
@@ -270,8 +270,8 @@ public class ExtCorrector extends WorkflowModule {
 	}
 	
 	private double runLpgb(ScoreLink item, ScoreType lpScore, ScoreType fdrScore, double fdr) {
-		double lpg = runLpg(item, lpScore);
-		double lpgn = runLpgn(item, lpScore, fdrScore, fdr);
+		double lpg = runLpgs(item, lpScore);
+		double lpgn = runLpgf(item, lpScore, fdrScore, fdr);
 		double best = Math.max(lpg, lpgn);
 		return getLp(1.0-Math.pow(1.0-Math.pow(10.0,-best),2.0));
 	}
