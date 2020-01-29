@@ -14,7 +14,7 @@ import es.ehubio.cli.Argument;
 import es.ehubio.proteomics.ScoreType;
 
 public class FdrCalculator extends WorkflowModule {
-	public enum FdrType { NORMAL, MAYU, PICKED, REFINED };
+	public enum FdrType { NORMAL, MAYU, PICKED, REFINED, ADJUSTED };
 
 	protected FdrCalculator() {
 		super("Adds columns with different FDR metrics to scores TSV files.");
@@ -96,7 +96,10 @@ public class FdrCalculator extends WorkflowModule {
 				fdr = es.ehubio.proteomics.pipeline.FdrCalculator.newPickedFdr(decoyPrefix);
 				break;
 			case NORMAL:
-				fdr = es.ehubio.proteomics.pipeline.FdrCalculator.newSeparatedFdr();
+				fdr = es.ehubio.proteomics.pipeline.FdrCalculator.newSeparatedFdr(false);
+				break;
+			case ADJUSTED:
+				fdr = es.ehubio.proteomics.pipeline.FdrCalculator.newSeparatedFdr(true);
 				break;
 			case MAYU:
 				fdr = es.ehubio.proteomics.pipeline.FdrCalculator.newMayuFdr(mayuSize, mayuSize);

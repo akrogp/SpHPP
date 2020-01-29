@@ -11,7 +11,7 @@
 
 The executable code is available at:
 
-* https://github.com/akrogp/SpHPP/raw/master/dist/LPGF/lpgf-v1.1.tar.gz
+* https://github.com/akrogp/SpHPP/raw/master/dist/LPGF/lpgf-v1.2.tar.gz
 
 Full source code is distributed between these two repositories:
 
