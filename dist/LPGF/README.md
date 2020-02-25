@@ -4,7 +4,7 @@
 
 * Title: Protein Probability Model for High-Throughput Protein Identification by Mass Spectrometry-Based Proteomics
 * Authors: Gorka Prieto and Jesús Vázquez
-* Contact: Gorka Prieto <gorka.prieto@ehu.eus>
+* Contact: Gorka Prieto <<gorka.prieto@ehu.eus>>
 * Journal: [Journal of Proteome Research, 2020](https://pubs.acs.org/doi/abs/10.1021/acs.jproteome.9b00819)
 
 ## Source code and binaries
