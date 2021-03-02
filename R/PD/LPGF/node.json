@@ -1,0 +1,37 @@
+{
+    "Guid": "d72af40d-faab-42a1-ac15-6082c5619940",
+    "Category": "Bottom-Up Analysis",
+    "Name": "LPGF Protein Scorer",
+    "Description": "Calculates the protein scores using the filtered list of identified peptides using the LPGF algorithm.",
+    "Version": 1,
+    "Publisher": null,
+    "DevelopedBy": "Gorka Prieto",
+    "Homepage": "https://github.com/akrogp/SpHPP/tree/master/dist/LPGF",
+    "LegalInformation": null,
+    "WorkflowType": "Consensus",
+    "ImageLarge": null,
+    "ImageSmall": null,
+    "License": null,
+    "ScriptProcessorArguments": {
+        "ExecutableCommandLineArguments": "Z:\\PruebaLPGF\\NodeLPGF\\node.R %NODEARGS%",
+        "ExecutablePath": "C:\\Program Files\\R\\R-4.0.3\\bin\\Rscript.exe",
+        "RequestedTablesAndColumns": "Peptide Groups; Decoy Peptide Groups; Proteins; Decoy Proteins",
+        "UseRFriendlyNames": "true"
+    },
+    "Parameters": [
+        {
+            "DataType": "Float",
+            "Name": "ID Peptide FDR",
+            "Default": "0.01",
+            "Minimum": "0",
+            "Maximum": "1"
+        }
+    ],
+    "Connections": [
+        {
+            "Incoming": true,
+            "DataType": "http://thermo.magellan.com/owl/DataTypes/PeptideGroups",
+            "Attributes": ["http://thermo.magellan.com/owl/DataTypes/WithDecoys", "http://thermo.magellan.com/owl/DataTypes/Validated"]
+        }
+    ]
+}
