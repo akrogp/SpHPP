@@ -13,7 +13,7 @@
     "ImageSmall": null,
     "License": null,
     "ScriptProcessorArguments": {
-        "ExecutableCommandLineArguments": "Z:\\PruebaLPGF\\NodeLPGF\\node.R %NODEARGS%",
+        "ExecutableCommandLineArguments": "C:\\Program Files\\Thermo\\Proteome Discoverer 2.5\\Tools\\Scripts\\LPGF\\node.R %NODEARGS%",
         "ExecutablePath": "C:\\Program Files\\R\\R-4.0.4\\bin\\Rscript.exe",
         "RequestedTablesAndColumns": "Peptide Groups; Decoy Peptide Groups; Proteins; Decoy Proteins",
         "UseRFriendlyNames": "true"
