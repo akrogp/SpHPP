@@ -103,16 +103,17 @@ picked <- function(comp, df, score.in) {
 #
 
 args <- commandArgs(trailingOnly = TRUE)
-#input.file <- arg[1]
-input.file <- "node_args.json"
+input.file <- args[1]
+#input.file <- "node_args.json"
+#input.file <- "node_args_v2.json"
 input.json <- fromJSON(file=input.file)
 input.pep.target <- list.first(input.json$Tables, TableName == "Peptide Groups")$DataFile
 input.pep.decoy <- list.first(input.json$Tables, TableName == "Decoy Peptide Groups")$DataFile
 input.prot.target <- list.first(input.json$Tables, TableName == "Proteins")$DataFile
 input.prot.decoy <- list.first(input.json$Tables, TableName == "Decoy Proteins")$DataFile
 
-pep.target <- fread(input.pep.target, integer64 = "character", header = TRUE, data.table = FALSE)
-pep.decoy <- fread(input.pep.decoy, integer64 = "character", header = TRUE, data.table = FALSE)
+pep.target <- fread(input.pep.target, integer64 = "character", header = TRUE, data.table = FALSE, drop = c("Modifications", "Modifications all possible sites"))
+pep.decoy <- fread(input.pep.decoy, integer64 = "character", header = TRUE, data.table = FALSE, drop = c("Modifications", "Modifications all possible sites"))
 rel.target <- fread(input.prot.target, integer64 = "character", header = TRUE, data.table = FALSE, select = c("Proteins Unique Sequence ID", "Accession"))
 rownames(rel.target) <- rel.target[,2]
 rel.decoy <- fread(input.prot.decoy, integer64 = "character", header = TRUE, data.table = FALSE, select = c("Decoy Proteins Unique Sequence ID", "Accession"))
@@ -127,7 +128,8 @@ score.pvalue = paste(score.in, " p-value")
 score.lp = paste(score.in, " LP")
 
 filter.col = "Qvality q-value"
-filter.th = 0.01
+#filter.th = 0.01
+filter.th = as.numeric(input.json$NodeParameters["ID Peptide FDR"])
 
 #
 # Write output json

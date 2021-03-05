@@ -14,13 +14,14 @@
     "License": null,
     "ScriptProcessorArguments": {
         "ExecutableCommandLineArguments": "Z:\\PruebaLPGF\\NodeLPGF\\node.R %NODEARGS%",
-        "ExecutablePath": "C:\\Program Files\\R\\R-4.0.3\\bin\\Rscript.exe",
+        "ExecutablePath": "C:\\Program Files\\R\\R-4.0.4\\bin\\Rscript.exe",
         "RequestedTablesAndColumns": "Peptide Groups; Decoy Peptide Groups; Proteins; Decoy Proteins",
         "UseRFriendlyNames": "true"
     },
     "Parameters": [
         {
             "DataType": "Float",
+            "Category": "1. Confidence Thresholds",
             "Name": "ID Peptide FDR",
             "Default": "0.01",
             "Minimum": "0",
