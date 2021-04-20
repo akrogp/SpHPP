@@ -8,6 +8,13 @@ library(data.table)
 library(rlist)
 
 #
+# Constants
+#
+
+LIMIT.PROB <- 1e-300
+LIMIT.COLOG <- -log10(LIMIT.PROB)
+
+#
 # Workflow functions
 #
 
@@ -26,8 +33,12 @@ calibrate <- function(target, decoy, score.in, score.out) {
   return(list(target=target, decoy=decoy))
 }
 
+colog <- function(prob) {
+  if (prob < LIMIT.PROB) LIMIT.COLOG else -log10(prob)
+}
+
 lp <- function(df, score.in, score.out) {
-  df[,score.out] = -log10(df[,score.in])
+  df[,score.out] = colog(df[,score.in])
   return(df)
 }
 
@@ -45,15 +56,15 @@ lpg <- function(df) {
     m = nrow(pepf)
     
     LPM = max(pep[,score.lp])
-    LPS = sum(pep[,score.lp])
-    LPF = sum(pepf[,score.lp])
+    LPS = min(sum(pep[,score.lp]), LIMIT.COLOG)
+    LPF = min(sum(pepf[,score.lp]), LIMIT.COLOG)
     
-    LPGM = -log10( 1 - (1 - 10^(-LPM))^n )
-    LPGS = -log10( 1 - pgamma(LPS*log(10),n) )
+    LPGM = colog( 1 - (1 - 10^(-LPM))^n )
+    LPGS = colog( 1 - pgamma(LPS*log(10),n) )
     if( m == 0 ) {
       LPGF = LPGM
     } else {
-      LPGF = -log10( (1 - pgamma(LPF*log(10),m)) * choose(n, m) )
+      LPGF = colog( (1 - pgamma(LPF*log(10),m)) * choose(n, m) )
     }
     
     prot[acc, c("LPM", "LPS", "LPF", "LPGM", "LPGS", "LPGF")] = c(LPM, LPS, LPF, LPGM, LPGS, LPGF)
